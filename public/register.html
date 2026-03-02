@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register // Scholar Nexus</title>
+    <meta name="description"
+        content="Create your Scholar Nexus profile and connect with the global research community.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        .rg-wizard {
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 0 20px 60px
+        }
+
+        .rg-step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15)
+        }
+
+        .rg-step-header {
+            text-align: center;
+            margin-bottom: 32px
+        }
+
+        .rg-step-icon {
+            font-size: 2.2rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: block
+        }
+
+        .rg-step-title {
+            font-family: var(--font-header);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px
+        }
+
+        .rg-step-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem
+        }
+
+        .rg-field-group {
+            margin-bottom: 20px
+        }
+
+        .rg-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px
+        }
+
+        .rg-label .rg-required {
+            color: var(--accent);
+            margin-left: 2px
+        }
+
+        .rg-label .rg-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px
+        }
+
+        .rg-input {
+            width: 100%;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box
+        }
+
+        .rg-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12)
+        }
+
+        .rg-input.error {
+            border-color: #ef4444
+        }
+
+        .rg-error-text {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none
+        }
+
+        .rg-type-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px
+        }
+
+        .rg-type-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            background: var(--bg-body)
+        }
+
+        .rg-type-card:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05)
+        }
+
+        .rg-type-card.selected {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2)
+        }
+
+        .rg-type-card .rg-type-icon {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: block
+        }
+
+        .rg-type-card .rg-type-label {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 4px
+        }
+
+        .rg-type-card .rg-type-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted)
+        }
+
+        .rg-toggle {
+            display: flex;
+            gap: 12px
+        }
+
+        .rg-toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            font-family: var(--font-main);
+            font-size: 0.9rem
+        }
+
+        .rg-toggle-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent)
+        }
+
+        .rg-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border)
+        }
+
+        .rg-btn-back {
+            padding: 12px 24px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 600;
+            transition: 0.2s;
+            font-size: 0.95rem
+        }
+
+        .rg-btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .rg-btn-next {
+            padding: 12px 28px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: var(--font-header);
+            font-size: 1rem;
+            font-weight: 700;
+            transition: 0.2s
+        }
+
+        .rg-btn-next:hover {
+            background: var(--accent-hover, #2563eb);
+            transform: translateY(-2px)
+        }
+
+        .rg-btn-skip {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            font-family: var(--font-main)
+        }
+
+        .rg-add-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border: 1.5px dashed var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 600;
+            transition: 0.2s;
+            width: 100%;
+            justify-content: center;
+            margin-top: 16px;
+            font-size: 0.9rem
+        }
+
+        .rg-add-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .rg-entry-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative
+        }
+
+        .rg-entry-remove {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: 0.2s
+        }
+
+        .rg-entry-remove:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444
+        }
+
+        .rg-tags-input-container {
+            background: var(--bg-body);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 48px;
+            cursor: text;
+            transition: 0.2s
+        }
+
+        .rg-tags-input-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12)
+        }
+
+        .rg-tag {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50px;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px
+        }
+
+        .rg-tag-remove {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s
+        }
+
+        .rg-tag-remove:hover {
+            opacity: 1
+        }
+
+        .rg-tags-raw-input {
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            outline: none;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            min-width: 120px;
+            flex: 1
+        }
+
+        .rg-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .rg-suggestion-chip {
+            padding: 4px 12px;
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            background: transparent;
+            font-family: var(--font-main)
+        }
+
+        .rg-suggestion-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .rg-pdf-upload {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            background: var(--bg-body)
+        }
+
+        .rg-pdf-upload:hover,
+        .rg-pdf-upload.drag-over {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05)
+        }
+
+        .rg-pdf-upload input {
+            display: none
+        }
+
+        .rg-pdf-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--accent)
+        }
+
+        .rg-pdf-text {
+            color: var(--text-muted);
+            font-size: 0.9rem
+        }
+
+        .rg-pdf-text span {
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .rg-pdf-selected {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .rg-progress-wrap {
+            margin-bottom: 24px
+        }
+
+        .rg-progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden
+        }
+
+        .rg-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.4s ease
+        }
+
+        .rg-step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px
+        }
+
+        .rg-step-count {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600
+        }
+
+        .rg-step {
+            display: none;
+            animation: rg-slideIn 0.3s ease
+        }
+
+        .rg-step.active {
+            display: block
+        }
+
+        @keyframes rg-slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        .rg-review-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px
+        }
+
+        .rg-review-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px
+        }
+
+        .rg-review-card-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px
+        }
+
+        .rg-review-card-value {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 600
+        }
+
+        .rg-submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: var(--font-header);
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 16px
+        }
+
+        .rg-submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35)
+        }
+
+        .rg-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .rg-checkbox-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 16px
+        }
+
+        .rg-checkbox-wrap input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--accent);
+            flex-shrink: 0
+        }
+
+        .rg-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+
+        .rg-radio-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap
+        }
+
+        .rg-radio-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            cursor: pointer
+        }
+
+        .rg-radio-label input[type="radio"] {
+            accent-color: var(--accent)
+        }
+
+        .rg-password-wrap {
+            position: relative
+        }
+
+        .rg-password-wrap .rg-input {
+            padding-right: 44px
+        }
+
+        .rg-pw-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px
+        }
+
+        .rg-section-title {
+            font-family: var(--font-header);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 28px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .rg-conditional {
+            display: none
+        }
+
+        .rg-conditional.visible {
+            display: block
+        }
+
+        .rg-global-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center
+        }
+
+        .rg-login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem
+        }
+
+        .rg-login-link a {
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .rg-sup-entry {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 12px
+        }
+
+        .rg-sup-entry .rg-field-group {
+            margin-bottom: 0
+        }
+
+        .rg-sup-remove {
+            width: 36px;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s
+        }
+
+        .rg-sup-remove:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444
+        }
+
+        @media(max-width:600px) {
+            .rg-type-cards {
+                grid-template-columns: 1fr
+            }
+
+            .rg-two-col {
+                grid-template-columns: 1fr
+            }
+
+            .rg-review-grid {
+                grid-template-columns: 1fr
+            }
+
+            .rg-step-card {
+                padding: 24px 16px
+            }
+
+            .rg-wizard {
+                padding: 0 12px 40px
+            }
+
+            .rg-sup-entry {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-header"></div>
+    <div class="rg-wizard">
+        <div class="rg-progress-wrap">
+            <div class="rg-step-indicator">
+                <span class="rg-step-count" id="rg-step-count">Step 1</span>
+                <button class="rg-btn-skip" id="rg-skip-btn" style="display:none" onclick="skipStep()">Skip this section
+                    &rarr;</button>
+            </div>
+            <div class="rg-progress-bar">
+                <div class="rg-progress-fill" id="rg-progress-fill" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="rg-global-error" id="rg-global-error"></div>
+
+        <!-- STEP: Account Type -->
+        <div class="rg-step active" id="step-type">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-user-tag rg-step-icon"></i>
+                    <h2 class="rg-step-title">Let's get started</h2>
+                    <p class="rg-step-subtitle">Tell us where you are in your journey</p>
+                </div>
+                <div class="rg-type-cards">
+                    <div class="rg-type-card" onclick="selectType('student',this)">
+                        <i class="fas fa-graduation-cap rg-type-icon"></i>
+                        <div class="rg-type-label">Student</div>
+                        <div class="rg-type-desc">Currently enrolled in university</div>
+                    </div>
+                    <div class="rg-type-card" onclick="selectType('graduate',this)">
+                        <i class="fas fa-university rg-type-icon"></i>
+                        <div class="rg-type-label">Graduate</div>
+                        <div class="rg-type-desc">Completed my degree</div>
+                    </div>
+                    <div class="rg-type-card" onclick="selectType('industry',this)">
+                        <i class="fas fa-industry rg-type-icon"></i>
+                        <div class="rg-type-label">Industry Professional</div>
+                        <div class="rg-type-desc">Currently working in the field</div>
+                    </div>
+                </div>
+                <div class="rg-error-text" id="err-role">Please select an account type</div>
+                <div class="rg-nav-buttons" style="justify-content:flex-end">
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+            <div class="rg-login-link">Already have an account? <a href="/login.html">Sign in here</a></div>
+        </div>
+
+        <!-- STEP: Basic Info -->
+        <div class="rg-step" id="step-basic">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-user rg-step-icon"></i>
+                    <h2 class="rg-step-title">Tell us about yourself</h2>
+                    <p class="rg-step-subtitle">Basic information for your profile</p>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-full_name">Full Name <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-full_name" name="full_name" placeholder="John Doe"
+                        required>
+                    <div class="rg-error-text" id="err-full_name">Full name is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-email">Email Address <span class="rg-required">*</span></label>
+                    <input type="email" class="rg-input" id="f-email" name="email" placeholder="name@example.com"
+                        required>
+                    <div class="rg-error-text" id="err-email">Please enter a valid email address</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-password">Password <span class="rg-required">*</span></label>
+                    <div class="rg-password-wrap">
+                        <input type="password" class="rg-input" id="f-password" name="password"
+                            placeholder="Min 8 characters" required>
+                        <button type="button" class="rg-pw-toggle" onclick="togglePw('f-password',this)"><i
+                                class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="rg-error-text" id="err-password">Password must be at least 8 characters</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-confirm_password">Confirm Password <span
+                            class="rg-required">*</span></label>
+                    <div class="rg-password-wrap">
+                        <input type="password" class="rg-input" id="f-confirm_password" name="confirm_password"
+                            placeholder="Re-enter your password" required>
+                        <button type="button" class="rg-pw-toggle" onclick="togglePw('f-confirm_password',this)"><i
+                                class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="rg-error-text" id="err-confirm_password">Passwords must match</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Gender</label>
+                    <div class="rg-radio-group">
+                        <label class="rg-radio-label"><input type="radio" name="gender" value="male"> Male</label>
+                        <label class="rg-radio-label"><input type="radio" name="gender" value="female"> Female</label>
+                    </div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-country">Country</label>
+                    <input type="text" class="rg-input" id="f-country" name="country" placeholder="Egypt">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-governorate">Governorate / State</label>
+                    <input type="text" class="rg-input" id="f-governorate" name="governorate" placeholder="Optional">
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Academic Background -->
+        <div class="rg-step" id="step-academic">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-graduation-cap rg-step-icon"></i>
+                    <h2 class="rg-step-title">Your academic background</h2>
+                    <p class="rg-step-subtitle">Help us understand your educational journey</p>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-university">University <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-university" name="university"
+                        placeholder="Cairo University" required>
+                    <div class="rg-error-text" id="err-university">University is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-faculty">Faculty <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-faculty" name="faculty"
+                        placeholder="Faculty of Engineering" required>
+                    <div class="rg-error-text" id="err-faculty">Faculty is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-department">Department <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-department" name="department"
+                        placeholder="Electronics & Communications" required>
+                    <div class="rg-error-text" id="err-department">Department is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-graduation_year">Graduation Year <span class="rg-required">*</span>
+                        <span class="rg-hint">Expected year if still enrolled</span></label>
+                    <input type="number" class="rg-input" id="f-graduation_year" name="graduation_year"
+                        placeholder="2025" min="1970" max="2040" required>
+                    <div class="rg-error-text" id="err-graduation_year">Graduation year is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-university_email">University Email
+                        <span class="rg-hint">Your official .edu email if you have one</span></label>
+                    <input type="email" class="rg-input" id="f-university_email" name="university_email"
+                        placeholder="name@university.edu">
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Online Presence -->
+        <div class="rg-step" id="step-online">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-link rg-step-icon"></i>
+                    <h2 class="rg-step-title">Connect your profiles</h2>
+                    <p class="rg-step-subtitle">Help others find your work and research</p>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-linkedin_url">LinkedIn URL <span class="rg-hint">Recommended &mdash;
+                            helps connect you with researchers</span></label>
+                    <input type="url" class="rg-input" id="f-linkedin_url" name="linkedin_url"
+                        placeholder="https://linkedin.com/in/yourname">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-github_url">GitHub URL <span class="rg-hint">Share your code and
+                            contributions</span></label>
+                    <input type="url" class="rg-input" id="f-github_url" name="github_url"
+                        placeholder="https://github.com/yourname">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-scholar_url">Google Scholar URL <span class="rg-hint">Showcase your
+                            publications</span></label>
+                    <input type="url" class="rg-input" id="f-scholar_url" name="scholar_url"
+                        placeholder="https://scholar.google.com/...">
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Graduation Project (Graduate only) -->
+        <div class="rg-step" id="step-gradproject">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-folder-open rg-step-icon"></i>
+                    <h2 class="rg-step-title">Your graduation project</h2>
+                    <p class="rg-step-subtitle">Tell us about your final year project</p>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_title">Project Title <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-gp_title" name="gp_title" required>
+                    <div class="rg-error-text" id="err-gp_title">Project title is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_university">University</label>
+                    <input type="text" class="rg-input" id="f-gp_university" name="gp_university">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_graduation_year">Graduation Year</label>
+                    <input type="number" class="rg-input" id="f-gp_graduation_year" name="gp_graduation_year" min="1970"
+                        max="2040">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_domain">Project Domain <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-gp_domain" name="gp_domain"
+                        placeholder="e.g. VLSI, AI, Embedded Systems" required>
+                    <div class="rg-error-text" id="err-gp_domain">Project domain is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_link">GitHub Repo or Google Drive Link</label>
+                    <input type="url" class="rg-input" id="f-gp_link" name="gp_link" placeholder="https://...">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_supervisor1">Supervisor 1 Name <span
+                            class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-gp_supervisor1" name="gp_supervisor1" required>
+                    <div class="rg-error-text" id="err-gp_supervisor1">Supervisor name is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_supervisor2">Supervisor 2 Name</label>
+                    <input type="text" class="rg-input" id="f-gp_supervisor2" name="gp_supervisor2">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_peers">Number of Peers</label>
+                    <input type="number" class="rg-input" id="f-gp_peers" name="gp_peers" min="1" value="1"
+                        style="max-width:140px">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Sponsored by Company?</label>
+                    <div class="rg-toggle">
+                        <button type="button" class="rg-toggle-btn"
+                            onclick="toggleConditional('sponsor-fields',true,this)">Yes</button>
+                        <button type="button" class="rg-toggle-btn active"
+                            onclick="toggleConditional('sponsor-fields',false,this)">No</button>
+                    </div>
+                </div>
+                <div class="rg-conditional" id="sponsor-fields">
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-gp_company_name">Company Name</label>
+                        <input type="text" class="rg-input" id="f-gp_company_name" name="gp_company_name">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-gp_company_mentor">Company Mentor Name</label>
+                        <input type="text" class="rg-input" id="f-gp_company_mentor" name="gp_company_mentor">
+                    </div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-gp_details">Project Details <span class="rg-hint">Max 500
+                            characters</span></label>
+                    <textarea class="rg-input" id="f-gp_details" name="gp_details" rows="4" maxlength="500"
+                        placeholder="Describe your project..."></textarea>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Upload Project Document (PDF)</label>
+                    <div class="rg-pdf-upload" id="pdf-zone" onclick="document.getElementById('project-pdf').click()">
+                        <input type="file" accept="application/pdf" id="project-pdf" name="gp_document"
+                            onchange="pdfSelected(this)">
+                        <div class="rg-pdf-icon"><i class="fas fa-file-pdf"></i></div>
+                        <div class="rg-pdf-text">Drop your PDF here or <span>click to browse</span></div>
+                        <div class="rg-pdf-selected" id="pdf-name"></div>
+                    </div>
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Postgraduate Research (Graduate + Industry) -->
+        <div class="rg-step" id="step-postgrad">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-microscope rg-step-icon"></i>
+                    <h2 class="rg-step-title">Postgraduate research</h2>
+                    <p class="rg-step-subtitle">Masters &amp; PhD &mdash; connect with the research community</p>
+                </div>
+                <!-- Masters -->
+                <div class="rg-section-title"><i class="fas fa-scroll" style="margin-right:8px"></i>Master's Degree
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Did you pursue / are pursuing a Master's degree?</label>
+                    <div class="rg-toggle">
+                        <button type="button" class="rg-toggle-btn"
+                            onclick="toggleConditional('masters-fields',true,this)">Yes</button>
+                        <button type="button" class="rg-toggle-btn active"
+                            onclick="toggleConditional('masters-fields',false,this)">No</button>
+                    </div>
+                </div>
+                <div class="rg-conditional" id="masters-fields">
+                    <div class="rg-field-group">
+                        <label class="rg-label">Status</label>
+                        <div class="rg-radio-group">
+                            <label class="rg-radio-label"><input type="radio" name="masters_status" value="in_progress">
+                                In Progress</label>
+                            <label class="rg-radio-label"><input type="radio" name="masters_status" value="completed">
+                                Completed</label>
+                        </div>
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-ms_thesis_title">Thesis Topic Title</label>
+                        <input type="text" class="rg-input" id="f-ms_thesis_title" name="ms_thesis_title">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label">Research Domain / Keywords</label>
+                        <div class="rg-tags-input-container" onclick="this.querySelector('input').focus()">
+                            <input class="rg-tags-raw-input" id="f-ms-tags-input" placeholder="Type and press Enter"
+                                onkeydown="handleTagKey(event,'ms-tags-store')">
+                        </div>
+                        <div id="ms-tags-store" data-tags="[]"></div>
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-ms_research_area">Work / Research Area</label>
+                        <input type="text" class="rg-input" id="f-ms_research_area" name="ms_research_area">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-ms_university">University Name <span
+                                class="rg-required">*</span></label>
+                        <input type="text" class="rg-input" id="f-ms_university" name="ms_university">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-ms_department">Department Name <span
+                                class="rg-required">*</span></label>
+                        <input type="text" class="rg-input" id="f-ms_department" name="ms_department">
+                    </div>
+                    <div class="rg-section-title" style="font-size:1rem;margin-top:20px">Supervisors</div>
+                    <div id="ms-supervisors-container"></div>
+                    <button type="button" class="rg-add-btn" id="ms-add-sup-btn" onclick="addSupervisor('ms')">+ Add
+                        Supervisor</button>
+                </div>
+                <!-- PhD -->
+                <div class="rg-section-title"><i class="fas fa-atom" style="margin-right:8px"></i>PhD</div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Did you pursue / are pursuing a PhD?</label>
+                    <div class="rg-toggle">
+                        <button type="button" class="rg-toggle-btn"
+                            onclick="toggleConditional('phd-fields',true,this)">Yes</button>
+                        <button type="button" class="rg-toggle-btn active"
+                            onclick="toggleConditional('phd-fields',false,this)">No</button>
+                    </div>
+                </div>
+                <div class="rg-conditional" id="phd-fields">
+                    <div class="rg-field-group">
+                        <label class="rg-label">Status</label>
+                        <div class="rg-radio-group">
+                            <label class="rg-radio-label"><input type="radio" name="phd_status" value="in_progress"> In
+                                Progress</label>
+                            <label class="rg-radio-label"><input type="radio" name="phd_status" value="completed">
+                                Completed</label>
+                        </div>
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-phd_thesis_title">Thesis Topic Title</label>
+                        <input type="text" class="rg-input" id="f-phd_thesis_title" name="phd_thesis_title">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label">Research Domain / Keywords</label>
+                        <div class="rg-tags-input-container" onclick="this.querySelector('input').focus()">
+                            <input class="rg-tags-raw-input" id="f-phd-tags-input" placeholder="Type and press Enter"
+                                onkeydown="handleTagKey(event,'phd-tags-store')">
+                        </div>
+                        <div id="phd-tags-store" data-tags="[]"></div>
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-phd_research_area">Work / Research Area</label>
+                        <input type="text" class="rg-input" id="f-phd_research_area" name="phd_research_area">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-phd_university">University Name <span
+                                class="rg-required">*</span></label>
+                        <input type="text" class="rg-input" id="f-phd_university" name="phd_university">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-phd_department">Department Name <span
+                                class="rg-required">*</span></label>
+                        <input type="text" class="rg-input" id="f-phd_department" name="phd_department">
+                    </div>
+                    <div class="rg-section-title" style="font-size:1rem;margin-top:20px">Supervisors</div>
+                    <div id="phd-supervisors-container"></div>
+                    <button type="button" class="rg-add-btn" id="phd-add-sup-btn" onclick="addSupervisor('phd')">+ Add
+                        Supervisor</button>
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- STEP: Work Experience -->
+        <div class="rg-step" id="step-work">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-briefcase rg-step-icon"></i>
+                    <h2 class="rg-step-title" id="work-title">Work experience</h2>
+                    <p class="rg-step-subtitle" id="work-subtitle"></p>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-work_company">Company Name <span class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-work_company" name="work_company">
+                    <div class="rg-error-text" id="err-work_company">Company name is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-work_title">Job Title / Position <span
+                            class="rg-required">*</span></label>
+                    <input type="text" class="rg-input" id="f-work_title" name="work_title">
+                    <div class="rg-error-text" id="err-work_title">Job title is required</div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-work_email">Work Email</label>
+                    <input type="email" class="rg-input" id="f-work_email" name="work_email"
+                        placeholder="you@company.com">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label" for="f-work_start_date">Start Date</label>
+                    <input type="month" class="rg-input" id="f-work_start_date" name="work_start_date">
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Still working here?</label>
+                    <div class="rg-toggle">
+                        <button type="button" class="rg-toggle-btn active"
+                            onclick="toggleConditional('work-end-wrap',false,this)">Yes</button>
+                        <button type="button" class="rg-toggle-btn"
+                            onclick="toggleConditional('work-end-wrap',true,this)">No</button>
+                    </div>
+                </div>
+                <div class="rg-conditional" id="work-end-wrap">
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-work_end_date">End Date</label>
+                        <input type="month" class="rg-input" id="f-work_end_date" name="work_end_date">
+                    </div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Domain / Area</label>
+                    <div class="rg-tags-input-container" onclick="this.querySelector('input').focus()">
+                        <input class="rg-tags-raw-input" id="f-work-domain-input" placeholder="Type and press Enter"
+                            onkeydown="handleTagKey(event,'work-domain-store')">
+                    </div>
+                    <div id="work-domain-store" data-tags="[]"></div>
+                    <div class="rg-suggestions">
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">VLSI</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">Digital Verification</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">Analog Design</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">Software</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">AI/ML</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">Embedded</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">PCIe</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">FPGA</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">ASIC</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">EDA</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('work-domain-store',this)">Cloud</button>
+                    </div>
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Internships (Student + Graduate opt) -->
+        <div class="rg-step" id="step-internships">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-building rg-step-icon"></i>
+                    <h2 class="rg-step-title">Internship experience</h2>
+                    <p class="rg-step-subtitle">Internships shape careers</p>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Took ITI Training?</label>
+                    <div class="rg-toggle">
+                        <button type="button" class="rg-toggle-btn"
+                            onclick="toggleConditional('iti-fields',true,this)">Yes</button>
+                        <button type="button" class="rg-toggle-btn active"
+                            onclick="toggleConditional('iti-fields',false,this)">No</button>
+                    </div>
+                </div>
+                <div class="rg-conditional" id="iti-fields">
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-iti_track">Track Name</label>
+                        <input type="text" class="rg-input" id="f-iti_track" name="iti_track">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-iti_start_date">Start Date</label>
+                        <input type="month" class="rg-input" id="f-iti_start_date" name="iti_start_date">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-iti_end_date">End Date</label>
+                        <input type="month" class="rg-input" id="f-iti_end_date" name="iti_end_date">
+                    </div>
+                </div>
+                <div class="rg-field-group">
+                    <label class="rg-label">Took NTI Training?</label>
+                    <div class="rg-toggle">
+                        <button type="button" class="rg-toggle-btn"
+                            onclick="toggleConditional('nti-fields',true,this)">Yes</button>
+                        <button type="button" class="rg-toggle-btn active"
+                            onclick="toggleConditional('nti-fields',false,this)">No</button>
+                    </div>
+                </div>
+                <div class="rg-conditional" id="nti-fields">
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-nti_track">Track Name</label>
+                        <input type="text" class="rg-input" id="f-nti_track" name="nti_track">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-nti_start_date">Start Date</label>
+                        <input type="month" class="rg-input" id="f-nti_start_date" name="nti_start_date">
+                    </div>
+                    <div class="rg-field-group">
+                        <label class="rg-label" for="f-nti_end_date">End Date</label>
+                        <input type="month" class="rg-input" id="f-nti_end_date" name="nti_end_date">
+                    </div>
+                </div>
+                <div class="rg-section-title">Internships</div>
+                <div id="internship-entries">
+                    <div class="rg-entry-card">
+                        <div class="rg-field-group"><label class="rg-label">Company Name</label><input type="text"
+                                class="rg-input" data-field="company_name"></div>
+                        <div class="rg-field-group"><label class="rg-label">Start Date</label><input type="month"
+                                class="rg-input" data-field="start_date"></div>
+                        <div class="rg-field-group"><label class="rg-label">End Date</label><input type="month"
+                                class="rg-input" data-field="end_date"></div>
+                        <div class="rg-field-group"><label class="rg-label">Domain</label><input type="text"
+                                class="rg-input" data-field="domain"></div>
+                        <div class="rg-field-group"><label class="rg-label">Supervisor Name</label><input type="text"
+                                class="rg-input" data-field="supervisor_name"></div>
+                    </div>
+                </div>
+                <button type="button" class="rg-add-btn" onclick="addInternship()">+ Add Another Internship</button>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Courses (Student only) -->
+        <div class="rg-step" id="step-courses">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-book-open rg-step-icon"></i>
+                    <h2 class="rg-step-title">Courses &amp; learning</h2>
+                    <p class="rg-step-subtitle">Showcase your continuous learning</p>
+                </div>
+                <div id="course-entries">
+                    <div class="rg-entry-card">
+                        <div class="rg-field-group"><label class="rg-label">Course Name</label><input type="text"
+                                class="rg-input" data-field="course_name"></div>
+                        <div class="rg-field-group"><label class="rg-label">Platform / Provider</label><input
+                                type="text" class="rg-input" data-field="platform" placeholder="Coursera, Udemy...">
+                        </div>
+                        <div class="rg-field-group"><label class="rg-label">Start Date</label><input type="month"
+                                class="rg-input" data-field="start_date"></div>
+                        <div class="rg-field-group"><label class="rg-label">End Date</label><input type="month"
+                                class="rg-input" data-field="end_date"></div>
+                        <div class="rg-field-group"><label class="rg-label">Domain</label><input type="text"
+                                class="rg-input" data-field="domain"></div>
+                        <div class="rg-field-group"><label class="rg-label">Project Title</label><input type="text"
+                                class="rg-input" data-field="project_title"></div>
+                        <div class="rg-field-group"><label class="rg-label">GitHub Repo</label><input type="url"
+                                class="rg-input" data-field="github_url" placeholder="https://github.com/..."></div>
+                        <div class="rg-field-group"><label class="rg-label">Details</label><textarea class="rg-input"
+                                data-field="details" rows="2"></textarea></div>
+                    </div>
+                </div>
+                <button type="button" class="rg-add-btn" onclick="addCourse()">+ Add Course</button>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Personal Projects (Student only) -->
+        <div class="rg-step" id="step-projects">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-code rg-step-icon"></i>
+                    <h2 class="rg-step-title">Personal Projects</h2>
+                    <p class="rg-step-subtitle">Showcase your self-driven work</p>
+                </div>
+                <div id="project-entries">
+                    <div class="rg-entry-card">
+                        <div class="rg-field-group"><label class="rg-label">Project Title</label><input type="text"
+                                class="rg-input" data-field="project_title"></div>
+                        <div class="rg-field-group"><label class="rg-label">GitHub Repo</label><input type="url"
+                                class="rg-input" data-field="github_url" placeholder="https://github.com/..."></div>
+                        <div class="rg-field-group"><label class="rg-label">Domain</label><input type="text"
+                                class="rg-input" data-field="domain"></div>
+                        <div class="rg-field-group"><label class="rg-label">Details</label><textarea class="rg-input"
+                                data-field="details" rows="2"></textarea></div>
+                    </div>
+                </div>
+                <button type="button" class="rg-add-btn" onclick="addProject()">+ Add Project</button>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Skills -->
+        <div class="rg-step" id="step-skills">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-bolt rg-step-icon"></i>
+                    <h2 class="rg-step-title">Your skills</h2>
+                    <p class="rg-step-subtitle">Add skills relevant to your field</p>
+                </div>
+                <div class="rg-field-group">
+                    <div class="rg-tags-input-container" id="skills-container"
+                        onclick="document.getElementById('f-skills-input').focus()">
+                        <input class="rg-tags-raw-input" id="f-skills-input" placeholder="Type a skill and press Enter"
+                            onkeydown="handleTagKey(event,'skills-store')">
+                    </div>
+                    <div id="skills-store" data-tags="[]"></div>
+                    <div class="rg-suggestions" id="skill-suggestions">
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">VLSI</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">UVM</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">SystemVerilog</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Python</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">C++</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Machine Learning</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Digital Design</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">FPGA</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">ASIC</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Analog IC</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">PCIe</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Linux</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Git</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">MATLAB</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">Verilog</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">JavaScript</button>
+                        <button type="button" class="rg-suggestion-chip"
+                            onclick="addTagFromChip('skills-store',this)">SQL</button>
+                    </div>
+                    <div style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">Max 30 skills</div>
+                </div>
+                <div class="rg-nav-buttons">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                    <button class="rg-btn-next" onclick="nextStep()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP: Review & Submit -->
+        <div class="rg-step" id="step-review">
+            <div class="rg-step-card">
+                <div class="rg-step-header">
+                    <i class="fas fa-check-circle rg-step-icon"></i>
+                    <h2 class="rg-step-title">Almost there!</h2>
+                    <p class="rg-step-subtitle">Review your information before submitting</p>
+                </div>
+                <div class="rg-review-grid" id="review-grid"></div>
+                <div class="rg-checkbox-wrap">
+                    <input type="checkbox" id="f-agree">
+                    <label for="f-agree" style="color:var(--text-muted);font-size:0.9rem;cursor:pointer">I agree to the
+                        Scholar Nexus Terms of Service and Privacy Policy</label>
+                </div>
+                <button class="rg-submit-btn" id="submit-btn" onclick="submitForm()" disabled><i class="fas fa-rocket"
+                        style="margin-right:8px"></i>Create My Profile</button>
+                <div class="rg-nav-buttons" style="border-top:none;margin-top:16px">
+                    <button class="rg-btn-back" onclick="prevStep()">&larr; Back</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="app-footer"></div>
+    <script src="/js/layout.js"></script>
+    <script>
+        /* ===== STATE ===== */
+        let userType = '';
+        let currentStepIdx = 0;
+        let stepFlow = [];
+        const allStepIds = ['step-type', 'step-basic', 'step-academic', 'step-online', 'step-gradproject', 'step-postgrad', 'step-work', 'step-internships', 'step-courses', 'step-projects', 'step-skills', 'step-review'];
+        const optionalSteps = { student: [], graduate: ['step-work', 'step-internships'], industry: [] };
+        const flows = {
+            student: ['step-type', 'step-basic', 'step-academic', 'step-online', 'step-internships', 'step-courses', 'step-projects', 'step-skills', 'step-review'],
+            graduate: ['step-type', 'step-basic', 'step-academic', 'step-online', 'step-gradproject', 'step-postgrad', 'step-work', 'step-internships', 'step-skills', 'step-review'],
+            industry: ['step-type', 'step-basic', 'step-academic', 'step-online', 'step-postgrad', 'step-work', 'step-skills', 'step-review']
+        };
+        const supervisors = { ms: [], phd: [] };
+        const MAX_SUPS = 5;
+
+        /* ===== TYPE SELECTION ===== */
+        function selectType(type, el) {
+            userType = type;
+            document.querySelectorAll('.rg-type-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            stepFlow = [...flows[type]];
+            hideErr('err-role');
+        }
+
+        /* ===== STEP NAV ===== */
+        function showStep(idx) {
+            allStepIds.forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove('active'); });
+            const stepId = stepFlow[idx];
+            document.getElementById(stepId).classList.add('active');
+            currentStepIdx = idx;
+            updateProgress();
+            updateSkipBtn();
+            if (stepId === 'step-gradproject') {
+                const u = document.getElementById('f-gp_university');
+                const y = document.getElementById('f-gp_graduation_year');
+                if (u && !u.value) u.value = v('f-university');
+                if (y && !y.value) y.value = v('f-graduation_year');
+            }
+            if (stepId === 'step-work') {
+                const isOpt = userType === 'graduate';
+                document.getElementById('work-title').textContent = isOpt ? 'Work Experience (Optional)' : 'Work experience';
+                document.getElementById('work-subtitle').textContent = isOpt ? 'This section is optional for graduates' : '';
+            }
+            if (stepId === 'step-review') populateReview();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function updateProgress() {
+            const pct = ((currentStepIdx + 1) / stepFlow.length * 100).toFixed(1);
+            document.getElementById('rg-progress-fill').style.width = pct + '%';
+            document.getElementById('rg-step-count').textContent = 'Step ' + (currentStepIdx + 1) + ' of ' + stepFlow.length;
+        }
+        function updateSkipBtn() {
+            const stepId = stepFlow[currentStepIdx];
+            const isOpt = userType && optionalSteps[userType] && optionalSteps[userType].includes(stepId);
+            document.getElementById('rg-skip-btn').style.display = isOpt ? 'inline' : 'none';
+        }
+        function nextStep() { if (!validateStep()) return; if (currentStepIdx < stepFlow.length - 1) showStep(currentStepIdx + 1); }
+        function prevStep() { if (currentStepIdx > 0) showStep(currentStepIdx - 1); }
+        function skipStep() { if (currentStepIdx < stepFlow.length - 1) showStep(currentStepIdx + 1); }
+
+        /* ===== VALIDATION ===== */
+        function showErr(id, msg) { const el = document.getElementById(id); if (!el) return; if (msg) el.textContent = msg; el.style.display = 'block'; }
+        function hideErr(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearAllErrors() { document.querySelectorAll('.rg-error-text').forEach(e => e.style.display = 'none'); document.querySelectorAll('.rg-input.error').forEach(e => e.classList.remove('error')); }
+        function v(id) { const e = document.getElementById(id); return e ? e.value.trim() : ''; }
+        function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
+        function fieldErr(fieldId, errId, msg) { const f = document.getElementById(fieldId); if (f) f.classList.add('error'); showErr(errId, msg); return false; }
+
+        function validateStep() {
+            clearAllErrors();
+            const sid = stepFlow[currentStepIdx];
+            const isOpt = userType && optionalSteps[userType] && optionalSteps[userType].includes(sid);
+            let ok = true;
+            if (sid === 'step-type') { if (!userType) { showErr('err-role'); return false; } }
+            if (sid === 'step-basic') {
+                if (!v('f-full_name')) { fieldErr('f-full_name', 'err-full_name'); ok = false; }
+                if (!v('f-email') || !isEmail(v('f-email'))) { fieldErr('f-email', 'err-email'); ok = false; }
+                if (!v('f-password') || v('f-password').length < 8) { fieldErr('f-password', 'err-password'); ok = false; }
+                if (v('f-password') !== v('f-confirm_password')) { fieldErr('f-confirm_password', 'err-confirm_password'); ok = false; }
+            }
+            if (sid === 'step-academic') {
+                if (!v('f-university')) { fieldErr('f-university', 'err-university'); ok = false; }
+                if (!v('f-faculty')) { fieldErr('f-faculty', 'err-faculty'); ok = false; }
+                if (!v('f-department')) { fieldErr('f-department', 'err-department'); ok = false; }
+                if (!v('f-graduation_year')) { fieldErr('f-graduation_year', 'err-graduation_year'); ok = false; }
+            }
+            if (sid === 'step-gradproject') {
+                if (!v('f-gp_title')) { fieldErr('f-gp_title', 'err-gp_title'); ok = false; }
+                if (!v('f-gp_domain')) { fieldErr('f-gp_domain', 'err-gp_domain'); ok = false; }
+                if (!v('f-gp_supervisor1')) { fieldErr('f-gp_supervisor1', 'err-gp_supervisor1'); ok = false; }
+            }
+            if (sid === 'step-work' && !isOpt) {
+                if (!v('f-work_company')) { fieldErr('f-work_company', 'err-work_company'); ok = false; }
+                if (!v('f-work_title')) { fieldErr('f-work_title', 'err-work_title'); ok = false; }
+            }
+            return ok;
+        }
+
+        /* ===== TOGGLE / PW ===== */
+        function toggleConditional(targetId, show, btn) {
+            btn.parentElement.querySelectorAll('.rg-toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(targetId).classList.toggle('visible', show);
+        }
+        function togglePw(id, btn) {
+            const inp = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+            else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
+        }
+
+        /* ===== TAG SYSTEM ===== */
+        function getTagStore(sid) { try { return JSON.parse(document.getElementById(sid).getAttribute('data-tags') || '[]'); } catch (e) { return []; } }
+        function setTagStore(sid, arr) { document.getElementById(sid).setAttribute('data-tags', JSON.stringify(arr)); }
+        function renderTags(sid) {
+            const tags = getTagStore(sid);
+            const storeEl = document.getElementById(sid);
+            const container = storeEl.previousElementSibling;
+            if (!container) return;
+            container.querySelectorAll('.rg-tag').forEach(t => t.remove());
+            const input = container.querySelector('input');
+            tags.forEach(tag => {
+                const s = document.createElement('span');
+                s.className = 'rg-tag';
+                s.innerHTML = tag + ' <span class="rg-tag-remove" onclick="removeTag(\'' + sid + '\',\'' + tag.replace(/'/g, "\\'") + '\')">&times;</span>';
+                container.insertBefore(s, input);
+            });
+        }
+        function addTag(sid, value) {
+            const val = value.trim(); if (!val) return;
+            const tags = getTagStore(sid);
+            const max = sid === 'skills-store' ? 30 : 20;
+            if (tags.length >= max || tags.includes(val)) return;
+            tags.push(val); setTagStore(sid, tags); renderTags(sid);
+        }
+        function removeTag(sid, value) { let tags = getTagStore(sid); tags = tags.filter(t => t !== value); setTagStore(sid, tags); renderTags(sid); }
+        function handleTagKey(e, sid) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const val = e.target.value.replace(',', '').trim(); if (val) { addTag(sid, val); e.target.value = ''; } } }
+        function addTagFromChip(sid, chip) { addTag(sid, chip.textContent.trim()); chip.style.display = 'none'; }
+
+        /* ===== SUPERVISOR SYSTEM (max 5, reindexing) ===== */
+        function addSupervisor(prefix) {
+            if (supervisors[prefix].length >= MAX_SUPS) return;
+            const id = Date.now();
+            supervisors[prefix].push({ id, name: '', email: '' });
+            renderSupervisors(prefix);
+        }
+        function removeSupervisor(prefix, id) {
+            supervisors[prefix] = supervisors[prefix].filter(s => s.id !== id);
+            renderSupervisors(prefix);
+        }
+        function renderSupervisors(prefix) {
+            const container = document.getElementById(prefix + '-supervisors-container');
+            const addBtn = document.getElementById(prefix + '-add-sup-btn');
+            // Save current values before re-render
+            supervisors[prefix].forEach(s => {
+                const nEl = document.getElementById('sup-' + prefix + '-name-' + s.id);
+                const eEl = document.getElementById('sup-' + prefix + '-email-' + s.id);
+                if (nEl) s.name = nEl.value;
+                if (eEl) s.email = eEl.value;
+            });
+            let html = '';
+            supervisors[prefix].forEach((s, i) => {
+                html += '<div class="rg-sup-entry">';
+                html += '<div class="rg-field-group"><label class="rg-label">Supervisor ' + (i + 1) + ' Name</label>';
+                html += '<input type="text" class="rg-input" id="sup-' + prefix + '-name-' + s.id + '" value="' + escAttr(s.name) + '"></div>';
+                html += '<div class="rg-field-group"><label class="rg-label">Supervisor ' + (i + 1) + ' Email</label>';
+                html += '<input type="email" class="rg-input" id="sup-' + prefix + '-email-' + s.id + '" value="' + escAttr(s.email) + '"></div>';
+                html += '<button type="button" class="rg-sup-remove" onclick="removeSupervisor(\'' + prefix + '\',' + s.id + ')" title="Remove"><i class="fas fa-trash-alt"></i></button>';
+                html += '</div>';
+            });
+            container.innerHTML = html;
+            addBtn.style.display = supervisors[prefix].length >= MAX_SUPS ? 'none' : 'flex';
+        }
+        function escAttr(s) { return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+        function collectSupervisors(prefix) {
+            return supervisors[prefix].map(s => {
+                const nEl = document.getElementById('sup-' + prefix + '-name-' + s.id);
+                const eEl = document.getElementById('sup-' + prefix + '-email-' + s.id);
+                return { name: nEl ? nEl.value.trim() : '', email: eEl ? eEl.value.trim() : '' };
+            }).filter(s => s.name || s.email);
+        }
+
+        /* ===== DYNAMIC ENTRIES ===== */
+        let internCount = 1, courseCount = 1, projectCount = 1;
+        function addInternship() {
+            if (internCount >= 10) return; internCount++;
+            document.getElementById('internship-entries').insertAdjacentHTML('beforeend',
+                '<div class="rg-entry-card"><button type="button" class="rg-entry-remove" onclick="this.parentElement.remove();internCount--">&times;</button>' +
+                '<div class="rg-field-group"><label class="rg-label">Company Name</label><input type="text" class="rg-input" data-field="company_name"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Start Date</label><input type="month" class="rg-input" data-field="start_date"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">End Date</label><input type="month" class="rg-input" data-field="end_date"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Domain</label><input type="text" class="rg-input" data-field="domain"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Supervisor Name</label><input type="text" class="rg-input" data-field="supervisor_name"></div></div>');
+        }
+        function addCourse() {
+            if (courseCount >= 10) return; courseCount++;
+            document.getElementById('course-entries').insertAdjacentHTML('beforeend',
+                '<div class="rg-entry-card"><button type="button" class="rg-entry-remove" onclick="this.parentElement.remove();courseCount--">&times;</button>' +
+                '<div class="rg-field-group"><label class="rg-label">Course Name</label><input type="text" class="rg-input" data-field="course_name"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Platform / Provider</label><input type="text" class="rg-input" data-field="platform"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Start Date</label><input type="month" class="rg-input" data-field="start_date"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">End Date</label><input type="month" class="rg-input" data-field="end_date"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Domain</label><input type="text" class="rg-input" data-field="domain"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Project Title</label><input type="text" class="rg-input" data-field="project_title"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">GitHub Repo</label><input type="url" class="rg-input" data-field="github_url"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Details</label><textarea class="rg-input" data-field="details" rows="2"></textarea></div></div>');
+        }
+        function addProject() {
+            if (projectCount >= 10) return; projectCount++;
+            document.getElementById('project-entries').insertAdjacentHTML('beforeend',
+                '<div class="rg-entry-card"><button type="button" class="rg-entry-remove" onclick="this.parentElement.remove();projectCount--">&times;</button>' +
+                '<div class="rg-field-group"><label class="rg-label">Project Title</label><input type="text" class="rg-input" data-field="project_title"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">GitHub Repo</label><input type="url" class="rg-input" data-field="github_url"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Domain</label><input type="text" class="rg-input" data-field="domain"></div>' +
+                '<div class="rg-field-group"><label class="rg-label">Details</label><textarea class="rg-input" data-field="details" rows="2"></textarea></div></div>');
+        }
+
+        /* ===== PDF UPLOAD ===== */
+        const pdfZone = document.getElementById('pdf-zone');
+        if (pdfZone) {
+            ['dragenter', 'dragover'].forEach(ev => pdfZone.addEventListener(ev, e => { e.preventDefault(); pdfZone.classList.add('drag-over'); }));
+            ['dragleave', 'drop'].forEach(ev => pdfZone.addEventListener(ev, e => { e.preventDefault(); pdfZone.classList.remove('drag-over'); }));
+            pdfZone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f && f.type === 'application/pdf') { document.getElementById('project-pdf').files = e.dataTransfer.files; document.getElementById('pdf-name').textContent = f.name; } });
+        }
+        function pdfSelected(input) { if (input.files.length) document.getElementById('pdf-name').textContent = input.files[0].name; }
+
+        /* ===== REVIEW ===== */
+        function populateReview() {
+            const g = document.getElementById('review-grid');
+            let h = '';
+            h += rc('Role', userType.charAt(0).toUpperCase() + userType.slice(1));
+            h += rc('Full Name', v('f-full_name'));
+            h += rc('Email', v('f-email'));
+            h += rc('University', v('f-university'));
+            h += rc('Faculty', v('f-faculty'));
+            h += rc('Department', v('f-department'));
+            const links = [v('f-linkedin_url') ? 'LinkedIn' : '', v('f-github_url') ? 'GitHub' : '', v('f-scholar_url') ? 'Scholar' : ''].filter(Boolean).join(', ');
+            h += rc('Online Presence', links || 'None');
+            h += rc('Skills', getTagStore('skills-store').length + ' added');
+            g.innerHTML = h;
+        }
+        function rc(t, val) { return '<div class="rg-review-card"><div class="rg-review-card-title">' + t + '</div><div class="rg-review-card-value">' + (val || '\u2014') + '</div></div>'; }
+
+        /* ===== TERMS ===== */
+        document.getElementById('f-agree').addEventListener('change', function () { document.getElementById('submit-btn').disabled = !this.checked; });
+
+        /* ===== COLLECT & SUBMIT ===== */
+        function collectEntries(containerId, fields) {
+            const entries = [];
+            document.querySelectorAll('#' + containerId + ' .rg-entry-card').forEach(card => {
+                const entry = {};
+                fields.forEach(f => { const inp = card.querySelector('[data-field="' + f + '"]'); entry[f] = inp ? inp.value.trim() : ''; });
+                if (Object.values(entry).some(x => x)) entries.push(entry);
+            });
+            return entries;
+        }
+        async function submitForm() {
+            if (!document.getElementById('f-agree').checked) return;
+            const gender = document.querySelector('input[name="gender"]:checked');
+            const payload = {
+                role: userType,
+                personal_info: {
+                    full_name: v('f-full_name'), email: v('f-email'), password: v('f-password'),
+                    gender: gender ? gender.value : '', country: v('f-country'), governorate: v('f-governorate')
+                },
+                education: {
+                    university: v('f-university'), faculty: v('f-faculty'), department: v('f-department'),
+                    graduation_year: v('f-graduation_year'), university_email: v('f-university_email')
+                },
+                online_presence: {
+                    linkedin_url: v('f-linkedin_url'), github_url: v('f-github_url'), scholar_url: v('f-scholar_url')
+                },
+                skills: getTagStore('skills-store')
+            };
+            if (userType === 'graduate') {
+                payload.graduation_project = {
+                    title: v('f-gp_title'), university: v('f-gp_university'), graduation_year: v('f-gp_graduation_year'),
+                    domain: v('f-gp_domain'), link: v('f-gp_link'), supervisor1: v('f-gp_supervisor1'), supervisor2: v('f-gp_supervisor2'),
+                    peers: v('f-gp_peers'), sponsored: document.querySelector('#sponsor-fields.visible') ? true : false,
+                    company_name: v('f-gp_company_name'), company_mentor: v('f-gp_company_mentor'), details: v('f-gp_details')
+                };
+            }
+            if (userType === 'graduate' || userType === 'industry') {
+                const msActive = document.querySelector('#masters-fields.visible') ? true : false;
+                const phdActive = document.querySelector('#phd-fields.visible') ? true : false;
+                payload.postgraduate_research = { masters: { active: msActive }, phd: { active: phdActive } };
+                if (msActive) {
+                    const msS = document.querySelector('input[name="masters_status"]:checked');
+                    Object.assign(payload.postgraduate_research.masters, {
+                        status: msS ? msS.value : '', thesis_title: v('f-ms_thesis_title'),
+                        keywords: getTagStore('ms-tags-store'), research_area: v('f-ms_research_area'),
+                        university: v('f-ms_university'), department: v('f-ms_department'),
+                        supervisors: collectSupervisors('ms')
+                    });
+                }
+                if (phdActive) {
+                    const pS = document.querySelector('input[name="phd_status"]:checked');
+                    Object.assign(payload.postgraduate_research.phd, {
+                        status: pS ? pS.value : '', thesis_title: v('f-phd_thesis_title'),
+                        keywords: getTagStore('phd-tags-store'), research_area: v('f-phd_research_area'),
+                        university: v('f-phd_university'), department: v('f-phd_department'),
+                        supervisors: collectSupervisors('phd')
+                    });
+                }
+            }
+            if (v('f-work_company')) {
+                payload.experience = [{
+                    company: v('f-work_company'), title: v('f-work_title'), email: v('f-work_email'),
+                    start_date: v('f-work_start_date'), end_date: v('f-work_end_date'),
+                    still_working: !document.querySelector('#work-end-wrap.visible'),
+                    domains: getTagStore('work-domain-store')
+                }];
+            }
+            if (document.querySelector('#iti-fields.visible')) payload.iti = { track: v('f-iti_track'), start_date: v('f-iti_start_date'), end_date: v('f-iti_end_date') };
+            if (document.querySelector('#nti-fields.visible')) payload.nti = { track: v('f-nti_track'), start_date: v('f-nti_start_date'), end_date: v('f-nti_end_date') };
+            payload.internships = collectEntries('internship-entries', ['company_name', 'start_date', 'end_date', 'domain', 'supervisor_name']);
+            payload.courses = collectEntries('course-entries', ['course_name', 'platform', 'start_date', 'end_date', 'domain', 'project_title', 'github_url', 'details']);
+            payload.personal_projects = collectEntries('project-entries', ['project_title', 'github_url', 'domain', 'details']);
+
+            const errEl = document.getElementById('rg-global-error');
+            errEl.style.display = 'none';
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>Creating profile...';
+            try {
+                const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (res.ok) {
+                    if (data.token) { localStorage.setItem('nexus_token', data.token); localStorage.setItem('nexus_user', JSON.stringify(data.user)); }
+                    window.location.href = '/';
+                } else {
+                    errEl.textContent = data.error || 'Registration failed. Please try again.';
+                    errEl.style.display = 'block'; btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket" style="margin-right:8px"></i>Create My Profile';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch (e) {
+                console.error(e);
+                errEl.textContent = 'Connection error. Please check your internet and try again.';
+                errEl.style.display = 'block'; btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket" style="margin-right:8px"></i>Create My Profile';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        /* ===== INIT ===== */
+        stepFlow = flows.student;
+        showStep(0);
+    </script>
+</body>
+
+</html>
