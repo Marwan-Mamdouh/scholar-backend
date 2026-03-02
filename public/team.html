@@ -1,209 +1,700 @@
-<!-- public/team.html -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Team - Scholar Nexus</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <title>NEXUS | Our Team</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/global.css">
-    <style>
-        .hero-section {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .prof-container {
-            position: relative;
-            display: inline-block;
-            margin-top: 40px;
-        }
-
-        /* The Trigger Name */
-        .prof-name-trigger {
-            font-family: var(--font-header);
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--text-main);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.4s ease;
-            position: relative;
-            z-index: 2;
-        }
-
-        .prof-name-trigger:hover {
-            color: var(--accent);
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-        }
-
-        /* Slightly smaller trigger for team members */
-        .member-name-trigger {
-            font-family: var(--font-header);
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--text-main);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            transition: 0.4s ease;
-            position: relative;
-            z-index: 2;
-            margin: 0;
-        }
-
-        .member-name-trigger:hover {
-            color: var(--accent);
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-        }
-
-        /* The Hidden Card */
-        .prof-card {
-            position: absolute;
-            top: 110%; 
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            width: 350px;
-            background: var(--bg-card);
-            border: 1px solid var(--accent);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10;
-            text-align: center;
-        }
-
-        /* Show card on hover of name OR hover of card itself */
-        .prof-container:hover .prof-card {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .prof-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--bg-body);
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: var(--accent);
-            border: 2px solid var(--border);
-        }
-
-        .prof-title {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 1.4;
-        }
-
-        .linkedin-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: #0077b5; /* LinkedIn Blue */
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-top: 15px;
-            transition: 0.2s;
-            text-decoration: none;
-        }
-
-        .linkedin-btn:hover {
-            background: #005e93;
-            transform: scale(1.02);
-            color: white;
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 50px auto;
-            max-width: 800px;
-        }
-
-        .team-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 30px;
-            padding-bottom: 60px;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/team-page.css">
 </head>
+
 <body>
+    <!-- Header injected via layout.js -->
     <div id="app-header"></div>
 
-    <div class="container">
-        <div class="hero-section">
-            <p style="color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: bold;">Leadership</p>
-            
-            <div class="prof-container">
-                <h1 class="prof-name-trigger">Prof. Sherif Hosny</h1>
-                
-                <div class="prof-card">
-                    <div class="prof-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <h3 style="margin-bottom: 5px;">Dr. Sherif Hosny</h3>
-                    <div class="prof-title">Senior Staff Verification and Integration Engineer at STMicroelectronics<br><br>Project Supervisor & Mentor</div>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
-He provided the initial vision and continuously guided the strategic, technical, and research directions throughout its development. His mentorship and structured feedback played a central role in shaping the system architecture, refining the platform’s objectives, and ensuring academic and technical integrity.                    </p>
-                    <a href="https://www.linkedin.com/in/sherif-hosny-0731b32b/" target="_blank" class="linkedin-btn">
-                        <i class="fab fa-linkedin"></i> Connect on LinkedIn
-                    </a>
-                </div>
-            </div>
-            
-            <p style="margin-top: 30px; color: var(--text-muted);">Hover over the name to view profile</p>
-        </div>
-
-        <div class="divider"></div>
-
-        <div style="text-align: center;">
-            <h2 style="font-family: var(--font-header);">Computer Operators Team</h2>
-            <p style="margin-top: 10px; color: var(--text-muted);">The dedicated team behind Scholar Nexus.</p>
-            
-            <div class="team-grid">
-                <!-- Team Member 1 -->
-                <div class="prof-container">
-                    <h2 class="member-name-trigger">Mohamed Gad Mohamed Ahmed</h2>
-                    
-                    <div class="prof-card">
-                        <div class="prof-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h3 style="margin-bottom: 5px;">Mohamed Gad</h3>
-                        <div class="prof-title">B.Sc. in Electronics and Electrical Communications Engineering</div>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
-                            Passionate electronics and communications engineer contributing to the operational success and development of Scholar Nexus.
+    <main>
+        <!-- ============ HERO SECTION ============ -->
+        <section class="tp-hero">
+            <div class="tp-container">
+                <div class="tp-hero__inner">
+                    <div class="tp-hero__text">
+                        <p class="tp-hero__label">The Collective</p>
+                        <h1 class="tp-hero__title" id="tp-hero-title">
+                            Meet the minds bridging<br>
+                            <span>academia and industry.</span>
+                        </h1>
+                        <p class="tp-hero__subtitle">
+                            Our team combines deep research expertise with scalable engineering practices to build the
+                            next generation of academic tools.
                         </p>
-                        <a href="https://www.linkedin.com/in/mohamed-gad-075179253" target="_blank" class="linkedin-btn">
-                            <i class="fab fa-linkedin"></i> Connect on LinkedIn
-                        </a>
+                    </div>
+                    <div class="tp-hero__stats">
+                        <div class="tp-stat-box">
+                            <div class="tp-stat-box__value" data-count="17">0</div>
+                            <div class="tp-stat-box__label">Members</div>
+                        </div>
+                        <div class="tp-stat-box">
+                            <div class="tp-stat-box__value" data-count="3">0</div>
+                            <div class="tp-stat-box__label">Teams</div>
+                        </div>
                     </div>
                 </div>
-                <!-- Add other team members here if needed later -->
             </div>
-        </div>
-    </div>
+        </section>
 
+        <!-- ============ FILTER TABS ============ -->
+        <section class="tp-container">
+            <div class="tp-filters" id="tp-filters">
+                <button class="tp-filter-tab active" data-filter="web" data-target="tp-section-web">
+                    &lt;&gt; Web App Team
+                </button>
+                <button class="tp-filter-tab" data-filter="academia" data-target="tp-section-academia">
+                    🔬 Academia Team
+                </button>
+                <button class="tp-filter-tab" data-filter="industry" data-target="tp-section-industry">
+                    🏭 Industry Team
+                </button>
+            </div>
+        </section>
+
+        <!-- ============ WEB APP TEAM ============ -->
+        <section class="tp-container tp-section" id="tp-section-web" data-team="web">
+            <p class="tp-section__label">Web App Team</p>
+            <h2 class="tp-section__title">Computer Operators</h2>
+            <p class="tp-section__subtitle">The dedicated team behind Scholar Nexus</p>
+            <div class="tp-cards-grid">
+
+                <!-- 1. Mohamed Gad -->
+                <div class="tp-card" data-team="web" data-color="purple">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #7c3aed;">MG</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/mohamed-gad-075179253" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Mohamed Gad Mohamed Ahmed</h3>
+                    <p class="tp-card__role tp-card__role--purple">VLSI Engineer</p>
+                    <p class="tp-card__desc">Interested in VLSI, Digital IC Design, Verification, ASIC, FPGA, and DSP.
+                    </p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">VLSI</span>
+                        <span class="tp-card__skill">Digital IC Design</span>
+                        <span class="tp-card__skill">Verification</span>
+                        <span class="tp-card__skill">ASIC</span>
+                        <span class="tp-card__skill">FPGA</span>
+                        <span class="tp-card__skill">DSP</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+                <!-- 2. Amr Wahidi -->
+                <div class="tp-card" data-team="web" data-color="purple">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #8b5cf6;">AW</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/amr-wahidi-747aba308/" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Amr Ahmed Wahidi</h3>
+                    <p class="tp-card__role tp-card__role--purple">Software Developer &amp; Computer Vision Engineer</p>
+                    <p class="tp-card__desc">Passionate about AI, computer vision, GPU programming, and building
+                        software that bridges research and reality.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Computer Vision</span>
+                        <span class="tp-card__skill">Software Dev</span>
+                        <span class="tp-card__skill">GPU Programming</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Computer &amp;
+                            Systems Engineering</span>
+                    </div>
+                </div>
+
+                <!-- 3. Youssef Abdul Sattar -->
+                <div class="tp-card" data-team="web" data-color="purple">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #7c3aed;">YA</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/youssef-abdul-sattar-a793571b5" target="_blank"
+                                rel="noopener" class="tp-card__action-btn tp-card__action-btn--li"
+                                aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Youssef Abdul Sattar</h3>
+                    <p class="tp-card__role tp-card__role--purple">Software Engineer</p>
+                    <p class="tp-card__desc">Passionate software engineer contributing to the web layer of Scholar
+                        Nexus, bringing clean code and thoughtful implementation to every feature he touches.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Software Engineering</span>
+                        <span class="tp-card__skill">Web Development</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Computer &amp;
+                            Control Systems Engineering</span>
+                    </div>
+                </div>
+
+                <!-- 4. Basem Ahmed Shehata -->
+                <div class="tp-card" data-team="web" data-color="purple">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #7c3aed;">BA</div>
+                        <div class="tp-card__actions">
+                            <a href="https://linkedin.com/in/basem-ahmed-shehata" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Basem Ahmed Shehata</h3>
+                    <p class="tp-card__role tp-card__role--purple">Backend Developer</p>
+                    <p class="tp-card__desc">Motivated software engineer with a specific interest in backend
+                        development, contributing to the server-side logic and API design.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Backend Development</span>
+                        <span class="tp-card__skill">Software Engineering</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Computer &amp;
+                            Systems Engineering</span>
+                    </div>
+                </div>
+
+                <!-- 5. Abdallah Safan -->
+                <div class="tp-card" data-team="web" data-color="purple">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #5b21b6;">AS</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/abdallah-safan-021483278" target="_blank"
+                                rel="noopener" class="tp-card__action-btn tp-card__action-btn--li"
+                                aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Abdallah Safan</h3>
+                    <p class="tp-card__role tp-card__role--purple">Web Application Developer</p>
+                    <p class="tp-card__desc">Experienced in software development and generative AI, bringing modern
+                        engineering practices and AI-powered thinking to the platform.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Software Development</span>
+                        <span class="tp-card__skill">GenAI</span>
+                        <span class="tp-card__skill">Web Apps</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Computer
+                            Engineering</span>
+                    </div>
+                </div>
+
+                <!-- 6. Hamza Eldafrawy -->
+                <div class="tp-card" data-team="web" data-color="purple">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #7c3aed;">HE</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/hamza-eldafrawy-a780591b9" target="_blank"
+                                rel="noopener" class="tp-card__action-btn tp-card__action-btn--li"
+                                aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Hamza Eldafrawy</h3>
+                    <p class="tp-card__role tp-card__role--purple">ML &amp; Web Developer</p>
+                    <p class="tp-card__desc">Interested in machine learning, data science, and software development —
+                        combining analytical thinking with practical engineering.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Machine Learning</span>
+                        <span class="tp-card__skill">Data Science</span>
+                        <span class="tp-card__skill">Software Dev</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Computer &amp;
+                            Systems Engineering</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============ INDUSTRY TEAM ============ -->
+        <section class="tp-container tp-section" id="tp-section-industry" data-team="industry">
+            <p class="tp-section__label">Industry Team</p>
+            <h2 class="tp-section__title">Industry Connections</h2>
+            <p class="tp-section__subtitle">Building bridges between academia and industry</p>
+            <div class="tp-cards-grid">
+
+                <!-- 1. Nayra Azam -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">NA</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/nayra-a-406677175" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Nayra Azam Yousef</h3>
+                    <p class="tp-card__role tp-card__role--blue">Digital Verification Engineer</p>
+                    <p class="tp-card__desc">Digital Verification Engineer Intern at Si-Vision specializing in UVM and
+                        RISC-V verification, while serving as a Teaching Assistant at Mansoura University.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">UVM</span>
+                        <span class="tp-card__skill">RISC-V</span>
+                        <span class="tp-card__skill">Digital Design</span>
+                        <span class="tp-card__skill">Verification</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. ECE + M.Sc.
+                            Candidate</span>
+                    </div>
+                </div>
+
+                <!-- 2. Karim Abdelhafez -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">KA</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/karim-abdelhafez-1b89831b0" target="_blank"
+                                rel="noopener" class="tp-card__action-btn tp-card__action-btn--li"
+                                aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Karim Abdelhafez</h3>
+                    <p class="tp-card__role tp-card__role--blue">Verification Engineer</p>
+                    <p class="tp-card__desc">Standard Digital Verification Engineer at Si-Vision, working within the
+                        PCIe controller team applying rigorous verification methodologies.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">PCIe</span>
+                        <span class="tp-card__skill">Digital Verification</span>
+                        <span class="tp-card__skill">UVM</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+                <!-- 3. Islam Mohamed -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">IA</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/islam-mohamed-1144a5217" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Islam Mohamed Abdelaziz</h3>
+                    <p class="tp-card__role tp-card__role--blue">Verification Engineer Intern</p>
+                    <p class="tp-card__desc">Digital Verification Engineer Intern at Si-Vision specializing in UVM and
+                        RISC-V verification, passionate about robust digital hardware systems.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">UVM</span>
+                        <span class="tp-card__skill">RISC-V</span>
+                        <span class="tp-card__skill">Verification</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+                <!-- 4. Peter Gad -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">PG</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/peter-gad-03bb34192" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Peter Gad</h3>
+                    <p class="tp-card__role tp-card__role--blue">Digital Verification Engineer</p>
+                    <p class="tp-card__desc">Digital Verification Engineer at Si-Vision in the PCIe controller team,
+                        combining nanotechnology background with digital verification expertise.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">PCIe</span>
+                        <span class="tp-card__skill">Digital Verification</span>
+                        <span class="tp-card__skill">Nano-electronics</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Nanotechnology
+                            &amp; Nano-Electronics</span>
+                    </div>
+                </div>
+
+                <!-- 5. Menna Hesham -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">ME</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/menna-elsabaa" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Menna Hesham El-Sabaa</h3>
+                    <p class="tp-card__role tp-card__role--blue">Analog Design Enthusiast</p>
+                    <p class="tp-card__desc">Junior engineering student with strong foundation in electronics and device
+                        physics, passionate about Analog IC Design.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Analog Design</span>
+                        <span class="tp-card__skill">Electronics</span>
+                        <span class="tp-card__skill">IC Design</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> Junior - Electronics
+                            &amp; Communication Eng.</span>
+                    </div>
+                </div>
+
+                <!-- 6. Manar Kamel -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">MK</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/manarkamelhuss" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Manar Kamel Hussein</h3>
+                    <p class="tp-card__role tp-card__role--blue">Analog IC Designer</p>
+                    <p class="tp-card__desc">M.Sc. engineer with hands-on experience in transistor-level analog design,
+                        custom layout, PEX, and DRC/LVS in advanced CMOS nodes.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Analog IC Design</span>
+                        <span class="tp-card__skill">Custom Layout</span>
+                        <span class="tp-card__skill">PEX</span>
+                        <span class="tp-card__skill">DRC/LVS</span>
+                        <span class="tp-card__skill">ASIC</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> M.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+                <!-- 7. Yahia Ahmed -->
+                <div class="tp-card" data-team="industry" data-color="blue">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #2563eb;">YH</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/yahia-mahmoud-404752190" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Yahia Ahmed Hatem</h3>
+                    <p class="tp-card__role tp-card__role--blue">Teaching &amp; Research Assistant</p>
+                    <p class="tp-card__desc">Dedicated educator and researcher with experience in digital IC design and
+                        verification, contributing to Scholar Nexus industry connections.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Digital IC Design</span>
+                        <span class="tp-card__skill">Verification</span>
+                        <span class="tp-card__skill">Research</span>
+                        <span class="tp-card__skill">Teaching</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============ ACADEMIA TEAM ============ -->
+        <section class="tp-container tp-section" id="tp-section-academia" data-team="academia">
+            <p class="tp-section__label">Academia Team</p>
+            <h2 class="tp-section__title">Research &amp; Academia</h2>
+            <p class="tp-section__subtitle">Advancing knowledge and research</p>
+            <div class="tp-cards-grid">
+
+                <!-- 1. Reem Fawzy -->
+                <div class="tp-card" data-team="academia" data-color="green">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #10b981;">RF</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/reem-mahmoud-193987306" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Reem Fawzy Mahmoud</h3>
+                    <p class="tp-card__role tp-card__role--green">ASIC Design &amp; Teaching Assistant</p>
+                    <p class="tp-card__desc">ASIC design intern currently working as Teaching Assistant, combining
+                        passion for digital IC design with commitment to education.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">ASIC Design</span>
+                        <span class="tp-card__skill">Digital IC</span>
+                        <span class="tp-card__skill">Teaching</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+                <!-- 2. Mohamed Mostafa -->
+                <div class="tp-card" data-team="academia" data-color="green">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #10b981;">MM</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/mohamed-mostafa-bb509b231" target="_blank"
+                                rel="noopener" class="tp-card__action-btn tp-card__action-btn--li"
+                                aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Mohamed Mostafa Mohamed</h3>
+                    <p class="tp-card__role tp-card__role--green">Digital Verification &amp; ASIC</p>
+                    <p class="tp-card__desc">Digital verification intern at Si-Vision specializing in UVM and CXL
+                        verification, with broad interests in digital IC and ASIC.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">UVM</span>
+                        <span class="tp-card__skill">CXL</span>
+                        <span class="tp-card__skill">ASIC</span>
+                        <span class="tp-card__skill">Digital IC</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+                <!-- 3. Mohamed Ahmed Mamdouh -->
+                <div class="tp-card" data-team="academia" data-color="green">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #10b981;">MA</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/mohamed-ahmed-714853245" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Mohamed Ahmed Mamdouh</h3>
+                    <p class="tp-card__role tp-card__role--green">VLSI Engineer</p>
+                    <p class="tp-card__desc">Final-term electronics engineering student with focus on VLSI design,
+                        bringing fresh perspective to the academia team.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">VLSI</span>
+                        <span class="tp-card__skill">Electronics</span>
+                        <span class="tp-card__skill">Digital Design</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE - Helwan University</span>
+                    </div>
+                </div>
+
+                <!-- 4. Mahmoud Abdo -->
+                <div class="tp-card" data-team="academia" data-color="green">
+                    <div class="tp-card__top">
+                        <div class="tp-card__avatar" style="background: #059669;">MH</div>
+                        <div class="tp-card__actions">
+                            <a href="https://www.linkedin.com/in/mahmoud-3bdo" target="_blank" rel="noopener"
+                                class="tp-card__action-btn tp-card__action-btn--li" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="tp-card__name">Mahmoud Abdo Hussein</h3>
+                    <p class="tp-card__role tp-card__role--green">Digital Verification Engineer</p>
+                    <p class="tp-card__desc">Passionate about Digital Verification, AI Hardware Acceleration, and System
+                        Co-Design. Experienced in UVM/DPI and hardware acceleration of encryption algorithms.</p>
+                    <div class="tp-card__skills">
+                        <span class="tp-card__skill">Digital Verification</span>
+                        <span class="tp-card__skill">HW Acceleration</span>
+                        <span class="tp-card__skill">UVM/DPI</span>
+                        <span class="tp-card__skill">HLS</span>
+                    </div>
+                    <div class="tp-card__meta">
+                        <span class="tp-card__meta-item"><i class="fas fa-graduation-cap"></i> B.Sc. Electronics &amp;
+                            ECE</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============ WHAT WE'RE BUILDING ============ -->
+        <section class="tp-building">
+            <div class="tp-container">
+                <div class="tp-building__header">
+                    <h2 class="tp-building__title">What We're Building</h2>
+                    <div class="tp-building__line"></div>
+                </div>
+                <div class="tp-building__grid">
+                    <div class="tp-building__card">
+                        <div class="tp-building__icon tp-building__icon--blue">
+                            <i class="fas fa-building" style="color: #3b82f6;"></i>
+                        </div>
+                        <h3 class="tp-building__card-title">Industry Connections</h3>
+                        <p class="tp-building__card-text">Bridging the gap between graduates and leading companies
+                            through curated job listings, company profiles, and direct hiring pipelines.</p>
+                    </div>
+                    <div class="tp-building__card">
+                        <div class="tp-building__icon tp-building__icon--green">
+                            <i class="fas fa-flask" style="color: #10b981;"></i>
+                        </div>
+                        <h3 class="tp-building__card-title">Academic Research</h3>
+                        <p class="tp-building__card-text">Empowering researchers with AI-driven tools to discover
+                            papers, find supervisors, and visualize academic networks across disciplines.</p>
+                    </div>
+                    <div class="tp-building__card">
+                        <div class="tp-building__icon tp-building__icon--purple">
+                            <i class="fas fa-globe" style="color: #8b5cf6;"></i>
+                        </div>
+                        <h3 class="tp-building__card-title">Open Platform</h3>
+                        <p class="tp-building__card-text">Creating an open ecosystem where academic data, industry
+                            opportunities, and collaborative tools converge for the next generation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer injected via layout.js -->
     <div id="app-footer"></div>
+
     <script src="/js/layout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            /* 1. Hero word animation */
+            var heroTitle = document.getElementById('tp-hero-title');
+            if (heroTitle) {
+                var delay = 0;
+                function processNode(parent) {
+                    Array.from(parent.childNodes).forEach(function (child) {
+                        if (child.nodeType === 3) {
+                            var words = child.textContent.split(/(\s+)/);
+                            var frag = document.createDocumentFragment();
+                            words.forEach(function (word) {
+                                if (word.trim() === '') {
+                                    frag.appendChild(document.createTextNode(word));
+                                } else {
+                                    var span = document.createElement('span');
+                                    span.className = 'tp-hero-word';
+                                    span.textContent = word;
+                                    span.style.animationDelay = (delay * 0.1) + 's';
+                                    frag.appendChild(span);
+                                    delay++;
+                                }
+                            });
+                            parent.replaceChild(frag, child);
+                        } else if (child.nodeType === 1) {
+                            processNode(child);
+                        }
+                    });
+                }
+                processNode(heroTitle);
+            }
+
+            /* 2. Stats count-up */
+            document.querySelectorAll('[data-count]')
+                .forEach(function (el) {
+                    var target = parseInt(el.getAttribute('data-count'), 10);
+                    var duration = 1500;
+                    var startTime = null;
+                    function animate(ts) {
+                        if (!startTime) startTime = ts;
+                        var progress = Math.min((ts - startTime) / duration, 1);
+                        var eased = 1 - (1 - progress) * (1 - progress);
+                        el.textContent = Math.floor(eased * target);
+                        if (progress < 1) requestAnimationFrame(animate);
+                        else el.textContent = target;
+                    }
+                    requestAnimationFrame(animate);
+                });
+
+            /* 3. Filter tabs */
+            var tabs = document.querySelectorAll('.tp-filter-tab');
+            var sections = document.querySelectorAll('.tp-section');
+
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) { t.classList.remove('active'); });
+                    tab.classList.add('active');
+
+                    var filter = tab.getAttribute('data-filter');
+                    var targetId = tab.getAttribute('data-target');
+
+                    sections.forEach(function (section) {
+                        if (section.getAttribute('data-team') === filter) {
+                            section.style.display = '';
+                            var cards = section.querySelectorAll('.tp-card');
+                            cards.forEach(function (card, i) {
+                                card.style.opacity = '0';
+                                card.style.transform = 'translateY(20px)';
+                                setTimeout(function () {
+                                    card.style.transition = 'all 0.35s ease';
+                                    card.style.opacity = '1';
+                                    card.style.transform = 'translateY(0)';
+                                }, i * 80);
+                            });
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+
+                    if (targetId) {
+                        var target = document.getElementById(targetId);
+                        if (target) {
+                            setTimeout(function () {
+                                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 100);
+                        }
+                    }
+                });
+            });
+
+            /* 4. On load: show web section, hide others */
+            sections.forEach(function (section) {
+                if (section.getAttribute('data-team') !== 'web') {
+                    section.style.display = 'none';
+                }
+            });
+
+            /* 5. Animate visible cards on load */
+            document.querySelectorAll('#tp-section-web .tp-card')
+                .forEach(function (card, i) {
+                    setTimeout(function () {
+                        card.classList.add('visible');
+                    }, i * 80 + 300);
+                });
+
+        });
+    </script>
 </body>
+
 </html>
