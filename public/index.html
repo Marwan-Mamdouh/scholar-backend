@@ -265,6 +265,18 @@
                 justify-content: flex-start;
             }
         }
+
+        .industry .feature-card {
+            flex: 0 0 calc(50% - 10px);
+            max-width: calc(50% - 10px);
+        }
+
+        @media (max-width: 600px) {
+            .industry .feature-card {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -275,7 +287,7 @@
     <main>
         <!-- Hero Section -->
         <section class="hero-section">
-            <h1 class="hero-title">NEXUS</h1>
+            <h1 class="hero-title">Scholar Nexus</h1>
             <p class="hero-subtitle">
                 The ultimate unified platform bridging the gap between rigorous academic research and dynamic industrial
                 opportunities. Discover networks, projects, and careers all in one place.
@@ -345,7 +357,7 @@
                 <div class="feature-grid">
                     <a href="/scanner" class="feature-card">
                         <i class="fas fa-bullseye feature-icon"></i>
-                        <h3>Target Scanner</h3>
+                        <h3>Author Explorer</h3>
                         <p>AI-powered researcher profiling. Describe your research area and instantly match with the
                             most relevant academics and supervisors.</p>
                     </a>
@@ -359,14 +371,14 @@
 
                     <a href="/local-search" class="feature-card">
                         <i class="fas fa-users feature-icon"></i>
-                        <h3>Local Researchers</h3>
+                        <h3>Researcher Database</h3>
                         <p>Browse our curated database of local academics. Explore their publications, co-author
                             networks, and research domains in depth.</p>
                     </a>
 
                     <a href="/grad-dashboard" class="feature-card">
                         <i class="fas fa-database feature-icon"></i>
-                        <h3>Dataset & Stats</h3>
+                        <h3>Projects Database</h3>
                         <p>Explore aggregated research statistics, graduation project indexes, and academic data
                             insights across universities.</p>
                     </a>
@@ -383,7 +395,7 @@
                     understand their fields, and find your next big career move.
                 </p>
 
-                <div class="feature-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 600px;">
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
                     <a href="/companies.html" class="feature-card">
                         <i class="fas fa-sitemap feature-icon"></i>
                         <h3>Company Directory</h3>
@@ -495,18 +507,7 @@
                     .textContent = '—';
             }
 
-            /*
-             * BACKEND NEEDED: GET /api/stats/companies
-             * Existing endpoint: GET /api/companies (returns array)
-             * Backend team should add a dedicated count endpoint:
-             *   SELECT COUNT(*) as count FROM companies
-             *   Returns: { "count": N }
-             * Access: Public
-             * 
-             * Temporary fallback below uses GET /api/companies
-             * and counts the returned array length.
-             * Replace with /api/stats/companies once created.
-             */
+
             try {
                 var res2 = await fetch('/api/companies');
                 if (res2.ok) {
@@ -520,19 +521,9 @@
                     .textContent = '—';
             }
 
-            /*
-             * BACKEND NEEDED: GET /api/stats/projects
-             * No existing endpoint for this yet.
-             * Backend team needs to CREATE this endpoint.
-             * Suggested implementation:
-             *   SELECT COUNT(*) as count FROM grad_projects
-             *   (check actual table name — likely grad_form or 
-             *    graduation_projects based on /grad-form.html)
-             *   Returns: { "count": N }
-             * Access: Public (no auth required)
-             */
+
             try {
-                var res3 = await fetch('/api/stats/projects');
+                var res3 = await fetch('/api/grad-projects');
                 if (res3.ok) {
                     var data3 = await res3.json();
                     var count3 = data3.count || 0;
