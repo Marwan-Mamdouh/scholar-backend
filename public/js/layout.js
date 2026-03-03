@@ -59,9 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         header.innerHTML = `
             <div class="main-header">
-                <div class="brand" onclick="window.location.href='/'">
-                    <i class="fas fa-atom"></i> NEXUS
-                </div>
+                <a href="/" class="brand">
+                    <div style="width: 36px; height: 36px; background: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0;">
+                        <i class="fas fa-graduation-cap" style="color: white; font-size: 1.1rem;"></i>
+                    </div>
+                    Scholar Nexus
+                </a>
                 
                 <nav class="nav-links">
     <a href="/" class="nav-link ${path === '/' ? 'active' : ''}">Home</a>
@@ -119,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <a href="/privacy">Privacy Policy</a>
                     <a href="/contact">Contact</a>
                 </div>
-                <div style="font-size:0.8rem; opacity:0.6;">&copy; 2026 Nexus. Our Team.</div>
+                <div style="font-size:0.8rem; opacity:0.6;">&copy; 2026 Scholar Nexus. Our Team.</div>
             </div>
         `;
     }

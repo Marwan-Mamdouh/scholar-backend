@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS // HOT TOPICS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <title>Scholar Nexus // HOT TOPICS</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/global.css">
-    
+
     <style>
-         [data-theme="light"] {
-    --bg-body: #f8fafc; --bg-card: #ffffff; --border: #cbd5e1; 
-    --text-main: #0f172a; --text-muted: #64748b; --accent: #2563eb;
-            --font-main: 'Inter', sans-serif; --font-header: 'Rajdhani', sans-serif;
-}
-        
-        
-        
-        .content-area { 
-            flex: 1; 
-            margin-left: 26px; 
-            padding: 4px; 
-            
+        [data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --font-main: 'Inter', sans-serif;
+            --font-header: 'Rajdhani', sans-serif;
+        }
+
+
+
+        .content-area {
+            flex: 1;
+            margin-left: 26px;
+            padding: 4px;
+
         }
 
         .admin-panel {
@@ -34,10 +42,21 @@
             backdrop-filter: blur(10px);
         }
 
-        .admin-panel h3 { font-family: 'Rajdhani'; color: var(--accent); margin-top: 0; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .admin-panel h3 {
+            font-family: 'Rajdhani';
+            color: var(--accent);
+            margin-top: 0;
+        }
 
-        input, select, textarea {
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        input,
+        select,
+        textarea {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
@@ -78,17 +97,30 @@
         }
 
         .priority-badge {
-            position: absolute; top: 15px; right: 15px;
-            background: var(--accent); color: black;
-            font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent);
+            color: black;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
         }
 
-        @media (max-width: 992px) { 
-            .content-area { margin-left: 0; padding: 20px; }
-            .main-wrapper { flex-direction: column; }
+        @media (max-width: 992px) {
+            .content-area {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .main-wrapper {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div id="app-header"></div>
@@ -104,7 +136,8 @@
 
             <div class="filter-section" style="margin-bottom: 30px; display: flex; gap: 15px; align-items: center;">
                 <span style="color: var(--accent); font-family: 'Rajdhani'; font-size: 12px;">FILTER_BY_FIELD:</span>
-                <select id="field-filter" onchange="applyFilter()" style="min-width: 200px; border: 1px solid var(--accent);">
+                <select id="field-filter" onchange="applyFilter()"
+                    style="min-width: 200px; border: 1px solid var(--accent);">
                     <option value="ALL">ALL_FIELDS</option>
                     <option value="AI">Artificial Intelligence</option>
                     <option value="Quantum">Quantum Computing</option>
@@ -126,61 +159,62 @@
                     <input type="text" id="t-status" placeholder="Status (e.g. HOT)">
                     <button class="btn-deploy" onclick="saveTopic()">DEPLOY</button>
                 </div>
-                <textarea id="t-desc" style="width: 100%; margin-top: 15px; height: 80px;" placeholder="Brief description..."></textarea>
+                <textarea id="t-desc" style="width: 100%; margin-top: 15px; height: 80px;"
+                    placeholder="Brief description..."></textarea>
             </div>
 
             <div id="grid" class="topics-grid">
-                </div>
+            </div>
         </div>
     </div>
 
     <div id="app-footer"></div>
 
     <script src="/js/layout.js"></script>
-    
+
     <script>
 
-document.addEventListener('DOMContentLoaded', () => {
-    const storedUser = localStorage.getItem('nexus_user');
-    const adminPanel = document.getElementById('admin-panel');
-    
-    if (storedUser) {
-        try {
-            const user = JSON.parse(storedUser);
-            if (user.role === 'admin') {
-                adminPanel.style.display = 'block';
-                console.log("Welcome Admin");
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedUser = localStorage.getItem('nexus_user');
+            const adminPanel = document.getElementById('admin-panel');
+
+            if (storedUser) {
+                try {
+                    const user = JSON.parse(storedUser);
+                    if (user.role === 'admin') {
+                        adminPanel.style.display = 'block';
+                        console.log("Welcome Admin");
+                    } else {
+                        adminPanel.style.display = 'none';
+                    }
+                } catch (e) {
+                    console.error("User data corrupted");
+                    adminPanel.style.display = 'none';
+                }
             } else {
                 adminPanel.style.display = 'none';
             }
-        } catch (e) {
-            console.error("User data corrupted");
-            adminPanel.style.display = 'none';
-        }
-    } else {
-        adminPanel.style.display = 'none';
-    }
-    
-    fetchTopics(); 
-});
 
-async function fetchTopics() {
-    const grid = document.getElementById('grid');
-    try {
-        const res = await fetch('/api/hottopics');
-        if (!res.ok) throw new Error("Server Error");
-        
-        const data = await res.json();
-        
-        if (!data || data.length === 0) {
-            grid.innerHTML = `<p style="color:#444; text-align:center; grid-column:1/-1; padding: 50px;">[ No data streams detected. Waiting for Admin deployment... ]</p>`;
-            return;
-        }
+            fetchTopics();
+        });
 
-        const userData = localStorage.getItem('nexus_user');
-        const user = userData ? JSON.parse(userData) : null;
+        async function fetchTopics() {
+            const grid = document.getElementById('grid');
+            try {
+                const res = await fetch('/api/hottopics');
+                if (!res.ok) throw new Error("Server Error");
 
-        grid.innerHTML = data.map(item => `
+                const data = await res.json();
+
+                if (!data || data.length === 0) {
+                    grid.innerHTML = `<p style="color:#444; text-align:center; grid-column:1/-1; padding: 50px;">[ No data streams detected. Waiting for Admin deployment... ]</p>`;
+                    return;
+                }
+
+                const userData = localStorage.getItem('nexus_user');
+                const user = userData ? JSON.parse(userData) : null;
+
+                grid.innerHTML = data.map(item => `
             <div class="topic-card">
                 <div class="priority-badge">RANK ${item.priority}</div>
                 <div style="font-size: 10px; color: var(--accent); margin-bottom: 5px;">${item.field} // ${item.status}</div>
@@ -188,102 +222,102 @@ async function fetchTopics() {
                 <p class="topic-desc">${item.description}</p>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <a href="${item.link}" target="_blank" style="color: var(--accent); text-decoration:none; font-weight:bold; font-size:12px;">READ MORE <i class="fas fa-external-link-alt"></i></a>
-                    ${(user && user.role === 'admin') ? 
-                      `<button onclick="deleteTopic(${item.id})" class="btn-delete"><i class="fas fa-trash"></i></button>` : ''}
+                    ${(user && user.role === 'admin') ?
+                        `<button onclick="deleteTopic(${item.id})" class="btn-delete"><i class="fas fa-trash"></i></button>` : ''}
                 </div>
             </div>
         `).join('');
-    } catch (err) {
-        console.error(err);
-        grid.innerHTML = `<p style="color:#ff4444; text-align:center; grid-column:1/-1;">Error connecting to system. Please check server status.</p>`;
-    }
-}
-
-async function saveTopic() {
-    const topic = {
-        title: document.getElementById('t-title').value,
-        priority: parseInt(document.getElementById('t-priority').value) || 0,
-        link: document.getElementById('t-link').value,
-        description: document.getElementById('t-desc').value,
-        field: document.getElementById('t-field').value,
-        status: document.getElementById('t-status').value || 'NEW',
-        type: 'research'
-    };
-
-    if(!topic.title) { alert("Please enter a title"); return; }
-
-    try {
-        const res = await fetch('/api/hottopics/add', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(topic)
-        });
-
-        if(res.ok) {
-            alert("Topic Deployed!");
-            location.reload();
-        } else {
-            const err = await res.json();
-            alert("Failed: " + (err.error || "Unknown Error"));
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `<p style="color:#ff4444; text-align:center; grid-column:1/-1;">Error connecting to system. Please check server status.</p>`;
+            }
         }
-    } catch (e) {
-        alert("Server connection failed");
-    }
-}
 
-async function deleteTopic(id) {
-    if(confirm('Delete this entry?')) {
-        try {
-            const res = await fetch(`/api/hottopics/${id}`, { method: 'DELETE' });
-            if (res.ok) fetchTopics();
-            else alert("Action denied by server");
-        } catch (e) {
-            alert("Delete failed");
+        async function saveTopic() {
+            const topic = {
+                title: document.getElementById('t-title').value,
+                priority: parseInt(document.getElementById('t-priority').value) || 0,
+                link: document.getElementById('t-link').value,
+                description: document.getElementById('t-desc').value,
+                field: document.getElementById('t-field').value,
+                status: document.getElementById('t-status').value || 'NEW',
+                type: 'research'
+            };
+
+            if (!topic.title) { alert("Please enter a title"); return; }
+
+            try {
+                const res = await fetch('/api/hottopics/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(topic)
+                });
+
+                if (res.ok) {
+                    alert("Topic Deployed!");
+                    location.reload();
+                } else {
+                    const err = await res.json();
+                    alert("Failed: " + (err.error || "Unknown Error"));
+                }
+            } catch (e) {
+                alert("Server connection failed");
+            }
         }
-    }
-}
+
+        async function deleteTopic(id) {
+            if (confirm('Delete this entry?')) {
+                try {
+                    const res = await fetch(`/api/hottopics/${id}`, { method: 'DELETE' });
+                    if (res.ok) fetchTopics();
+                    else alert("Action denied by server");
+                } catch (e) {
+                    alert("Delete failed");
+                }
+            }
+        }
 
 
 
-let allTopics = []; 
+        let allTopics = [];
 
-async function fetchTopics() {
-    const grid = document.getElementById('grid');
-    try {
-        const res = await fetch('/api/hottopics');
-        if (!res.ok) throw new Error("Server Error");
-        
-        allTopics = await res.json(); 
-        
-        applyFilter(); 
-        
-    } catch (err) {
-        console.error(err);
-        grid.innerHTML = `<p style="color:#ff4444; text-align:center; grid-column:1/-1;">Error connecting to system.</p>`;
-    }
-}
+        async function fetchTopics() {
+            const grid = document.getElementById('grid');
+            try {
+                const res = await fetch('/api/hottopics');
+                if (!res.ok) throw new Error("Server Error");
 
-function applyFilter() {
-    const selectedField = document.getElementById('field-filter').value;
-    const grid = document.getElementById('grid');
-    
-    
-    const filtered = selectedField === 'ALL' 
-        ? allTopics 
-        : allTopics.filter(item => item.field === selectedField);
+                allTopics = await res.json();
+
+                applyFilter();
+
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `<p style="color:#ff4444; text-align:center; grid-column:1/-1;">Error connecting to system.</p>`;
+            }
+        }
+
+        function applyFilter() {
+            const selectedField = document.getElementById('field-filter').value;
+            const grid = document.getElementById('grid');
 
 
-    if (filtered.length === 0) {
-        grid.innerHTML = `<p style="color:#444; text-align:center; grid-column:1/-1; padding: 50px;">[ No data streams for this field ]</p>`;
-        return;
-    }
+            const filtered = selectedField === 'ALL'
+                ? allTopics
+                : allTopics.filter(item => item.field === selectedField);
 
 
-    const userData = localStorage.getItem('nexus_user');
-    const user = userData ? JSON.parse(userData) : null;
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p style="color:#444; text-align:center; grid-column:1/-1; padding: 50px;">[ No data streams for this field ]</p>`;
+                return;
+            }
 
 
-    grid.innerHTML = filtered.map(item => `
+            const userData = localStorage.getItem('nexus_user');
+            const user = userData ? JSON.parse(userData) : null;
+
+
+            grid.innerHTML = filtered.map(item => `
         <div class="topic-card">
             <div class="priority-badge">RANK ${item.priority}</div>
             <div style="font-size: 10px; color: var(--accent); margin-bottom: 5px;">${item.field} // ${item.status}</div>
@@ -291,13 +325,14 @@ function applyFilter() {
             <p class="topic-desc">${item.description}</p>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <a href="${item.link}" target="_blank" style="color: var(--accent); text-decoration:none; font-weight:bold; font-size:12px;">READ MORE <i class="fas fa-external-link-alt"></i></a>
-                ${(user && user.role === 'admin') ? 
-                  `<button onclick="deleteTopic(${item.id})" class="btn-delete"><i class="fas fa-trash"></i></button>` : ''}
+                ${(user && user.role === 'admin') ?
+                    `<button onclick="deleteTopic(${item.id})" class="btn-delete"><i class="fas fa-trash"></i></button>` : ''}
             </div>
         </div>
     `).join('');
-}
+        }
 
-</script>
+    </script>
 </body>
+
 </html>
