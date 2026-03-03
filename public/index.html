@@ -526,7 +526,7 @@
                 var res3 = await fetch('/api/grad-projects');
                 if (res3.ok) {
                     var data3 = await res3.json();
-                    var count3 = data3.count || 0;
+                    var count3 = Array.isArray(data3) ? data3.length : 0;
                     countUp('stat-projects-val', count3, '+');
                 }
             } catch (e) {
