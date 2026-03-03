@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Inject Header
     const header = document.getElementById('app-header');
     const path = window.location.pathname;
-    
+
     // Inject CSS for Dropdowns dynamically so it works immediately
     const style = document.createElement('style');
     style.textContent = `
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
             top: 100%;
             left: 0;
             background-color: var(--bg-card);
-            min-width: 200px;
+            min-width: 220px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             border-radius: 8px;
             border: 1px solid var(--border);
@@ -34,17 +34,18 @@ document.addEventListener("DOMContentLoaded", () => {
             text-decoration: none;
             transition: background 0.2s;
             display: block;
+            white-space: nowrap;
         }
         .dropdown-item:hover { background-color: var(--bg-main); color: var(--accent); }
         .dropdown-item.active { color: var(--accent); font-weight: bold; }
     `;
     document.head.appendChild(style);
-    
-    if(header) {
+
+    if (header) {
         const user = JSON.parse(localStorage.getItem('nexus_user'));
-        
+
         // Auth Section
-        const authLink = user 
+        const authLink = user
             ? `<div style="display:flex; align-items:center; gap:15px;">
                  <span style="color:var(--accent); font-weight:bold;"><i class="fas fa-user-circle"></i> ${user.name}</span>
                  <button onclick="logout()" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); padding:5px 10px; border-radius:6px; cursor:pointer;">Logout</button>
@@ -53,35 +54,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Define Navigation Groups
         // Check if any sub-link is active to highlight the parent dropdown
-        const isAcademicActive = ['/scanner', '/explorer','/local-search', '/grad-form.html', '/grad-dashboard'].includes(path);
+        const isAcademicActive = ['/scanner', '/explorer', '/local-search', '/grad-form.html', '/grad-dashboard'].includes(path);
         const isAdminActive = ['/jobs', '/companies.html'].includes(path);
 
         header.innerHTML = `
             <div class="main-header">
-                <div class="brand" onclick="window.location.href='/'">
-                    <i class="fas fa-atom"></i> NEXUS
-                </div>
+                <a href="/" class="brand">
+                    <div style="width: 36px; height: 36px; background: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0;">
+                        <i class="fas fa-graduation-cap" style="color: white; font-size: 1.1rem;"></i>
+                    </div>
+                    Scholar Nexus
+                </a>
                 
                 <nav class="nav-links">
     <a href="/" class="nav-link ${path === '/' ? 'active' : ''}">Home</a>
 
     <!-- ACADEMIC / RESEARCH DROPDOWN -->
     <div class="nav-item">
-        <span class="nav-link dropdown-trigger ${['/scanner','/explorer','/local-search'].some(x=>path.includes(x)) ? 'active' : ''}">
+        <span class="nav-link dropdown-trigger ${['/scanner', '/explorer', '/local-search'].some(x => path.includes(x)) ? 'active' : ''}">
             Research <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
         </span>
         <div class="dropdown-menu">
-            <a href="/scanner" class="dropdown-item"><i class="fas fa-user-astronaut"></i> Target Scanner</a>
+            <a href="/scanner" class="dropdown-item"><i class="fas fa-user-astronaut"></i> Author Explorer</a>
             <a href="/explorer" class="dropdown-item"><i class="fas fa-search"></i> Paper Explorer</a>
-            <a href="/local-search" class="dropdown-item"><i class="fas fa-map-marker-alt"></i> Local Researchers</a> 
-            <a href="/grad-dashboard" class="dropdown-item"><i class="fas fa-database"></i> Database Stats</a> 
-            <a href="/grad-form.html" class="dropdown-item"><i class="fas fa-file-signature"></i> Register Project</a>
+            <a href="/local-search" class="dropdown-item"><i class="fas fa-map-marker-alt"></i> Researcher Database</a> 
+            <a href="/grad-dashboard" class="dropdown-item"><i class="fas fa-database"></i> Projects Database</a>
         </div>
     </div>
 
     <!-- NEW JOBS DROPDOWN -->
     <div class="nav-item">
-        <span class="nav-link dropdown-trigger ${['/jobs','/companies.html'].some(x=>path.includes(x)) ? 'active' : ''}">
+        <span class="nav-link dropdown-trigger ${['/jobs', '/companies.html'].some(x => path.includes(x)) ? 'active' : ''}">
             Jobs & Market <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
         </span>
         <div class="dropdown-menu">
@@ -102,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        window.logout = function() {
+        window.logout = function () {
             localStorage.removeItem('nexus_token');
             localStorage.removeItem('nexus_user');
             window.location.reload();
@@ -111,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 3. Inject Footer
     const footer = document.getElementById('app-footer');
-    if(footer) {
+    if (footer) {
         footer.innerHTML = `
             <div class="main-footer">
                 <div class="footer-links">
@@ -119,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <a href="/privacy">Privacy Policy</a>
                     <a href="/contact">Contact</a>
                 </div>
-                <div style="font-size:0.8rem; opacity:0.6;">&copy; 2026 Nexus. Our Team.</div>
+                <div style="font-size:0.8rem; opacity:0.6;">&copy; 2026 Scholar Nexus. Our Team.</div>
             </div>
         `;
     }
@@ -133,7 +136,7 @@ function toggleTheme() {
     localStorage.setItem('theme', next);
 
     document.querySelectorAll('iframe').forEach(iframe => {
-        if(iframe.contentWindow) {
+        if (iframe.contentWindow) {
             iframe.contentWindow.postMessage({ type: 'THEME_CHANGE', theme: next }, '*');
         }
     });

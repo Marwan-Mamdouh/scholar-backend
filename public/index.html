@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS | Academic & Industry Bridge</title>
+    <title>Scholar Nexus | Academic & Industry Bridge</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Rajdhani:wght@500;700&display=swap"
         rel="stylesheet">
@@ -63,6 +63,8 @@
             position: relative;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .pillar.academic {
@@ -113,6 +115,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+            flex: 1;
+            align-content: center;
         }
 
         .feature-card {
@@ -189,7 +193,7 @@
     <main>
         <!-- Hero Section -->
         <section class="hero-section">
-            <h1 class="hero-title">NEXUS</h1>
+            <h1 class="hero-title">Scholar Nexus</h1>
             <p class="hero-subtitle">
                 The ultimate unified platform bridging the gap between rigorous academic research and dynamic industrial
                 opportunities. Discover networks, projects, and careers all in one place.
@@ -212,7 +216,7 @@
                 <div class="feature-grid">
                     <a href="/scanner" class="feature-card">
                         <i class="fas fa-bullseye feature-icon"></i>
-                        <h3>Target Scanner</h3>
+                        <h3>Author Explorer</h3>
                         <p>AI-powered researcher profiling. Describe your research area and instantly match with the
                             most relevant academics and supervisors.</p>
                     </a>
@@ -226,14 +230,14 @@
 
                     <a href="/local-search" class="feature-card">
                         <i class="fas fa-users feature-icon"></i>
-                        <h3>Local Researchers</h3>
+                        <h3>Researcher Database</h3>
                         <p>Browse our curated database of local academics. Explore their publications, co-author
                             networks, and research domains in depth.</p>
                     </a>
 
                     <a href="/grad-dashboard" class="feature-card">
                         <i class="fas fa-database feature-icon"></i>
-                        <h3>Dataset & Stats</h3>
+                        <h3>Projects Database</h3>
                         <p>Explore aggregated research statistics, graduation project indexes, and academic data
                             insights across universities.</p>
                     </a>
@@ -250,7 +254,7 @@
                     understand their fields, and find your next big career move.
                 </p>
 
-                <div class="feature-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 600px;">
+                <div class="feature-grid">
                     <a href="/companies.html" class="feature-card">
                         <i class="fas fa-sitemap feature-icon"></i>
                         <h3>Company Directory</h3>
