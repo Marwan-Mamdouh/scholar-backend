@@ -9,509 +9,136 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Rajdhani:wght@500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/global.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        /* [Previous styles remain, adding new ones below] */
-        [data-theme="light"] {
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --border: #cbd5e1;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --accent: #2563eb;
-            --font-main: 'Inter', sans-serif;
-            --font-header: 'Rajdhani', sans-serif;
-        }
-
-        body {
-            margin: 0;
-            font-family: var(--font-main);
-            background: var(--bg-body);
-            color: var(--text-main);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Layout Grid */
-        .scanner-layout {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-            margin-top: 20px;
-            align-items: start;
-        }
-
-        @media (max-width: 1100px) {
-            .scanner-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Left Panel */
-        .panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 90px;
-            z-index: 10;
-        }
-
-        .panel-title {
-            font-family: var(--font-header);
-            font-size: 1.4rem;
-            margin: 0 0 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Inputs & Multi-select */
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        input,
-        select {
-            width: 100%;
-            background: var(--bg-body);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-family: var(--font-main);
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        /* Multi-select Tag Container */
-        .tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 5px;
-        }
-
-        .filter-tag {
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--accent);
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .filter-tag i {
-            cursor: pointer;
-        }
-
-        .filter-tag i:hover {
-            color: var(--danger);
-        }
-
-        /* Results List */
-        .results-scroll {
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 5px;
-            margin-top: 20px;
-        }
-
-        .results-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .results-scroll::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .author-card-mini {
-            background: var(--bg-body);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 4px solid transparent;
-            position: relative;
-        }
-
-        .author-card-mini:hover {
-            border-color: var(--accent);
-            border-left-color: var(--accent);
-            transform: translateX(5px);
-        }
-
-        .ac-name {
-            font-weight: 700;
-            color: var(--text-main);
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-
-        .ac-meta {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .field-badge {
-            background: rgba(168, 85, 247, 0.1);
-            color: #a855f7;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .dash-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .dash-card.full-width {
-            grid-column: span 3;
-        }
-
-        .dash-card.two-thirds {
-            grid-column: span 2;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            font-family: var(--font-header);
-            color: var(--accent);
-            line-height: 1;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 250px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Paper Styles */
-        .paper-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .paper-row {
-            display: flex;
-            gap: 15px;
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-body);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            align-items: flex-start;
-            transition: 0.2s;
-        }
-
-        .paper-row:hover {
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        .paper-year {
-            font-family: var(--font-header);
-            font-size: 1.2rem;
-            color: var(--accent);
-            font-weight: bold;
-            min-width: 50px;
-        }
-
-        .paper-content {
-            flex: 1;
-        }
-
-        .paper-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--text-main);
-            text-decoration: none;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .paper-meta {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-top: 5px;
-        }
-
-        .meta-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2px 8px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-        }
-
-        .pdf-btn {
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            background: rgba(239, 68, 68, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .pdf-btn:hover {
-            background: #ef4444;
-            color: white;
-        }
-
-        /* Personal Dash */
-        .personal-dash-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 900px) {
-            .personal-dash-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .co-author-pill {
-            background: var(--bg-body);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 20px;
-            text-decoration: none;
-            color: var(--text-main);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-
-        .co-author-pill:hover {
-            border-color: var(--accent);
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        .co-author-pill.internal {
-            border-color: var(--success);
-            background: rgba(16, 185, 129, 0.05);
-        }
-
-        /* NEW STYLES FOR TABS */
-        .network-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .net-tab {
-            background: none;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-family: var(--font-header);
-            font-size: 1rem;
-            border-bottom: 3px solid transparent;
-            transition: 0.3s;
-        }
-
-        .net-tab:hover {
-            color: var(--text-main);
-        }
-
-        .net-tab.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        .network-list {
-            display: none;
-        }
-
-        .network-list.active {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/pages/local-search.css">
 </head>
 
 <body>
 
     <div id="app-header"></div>
 
-    <div class="container">
-        <!-- Dashboard Toggle -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1 style="font-family: var(--font-header); margin: 0; font-size: 2rem;">RESEARCH DATABASE</h1>
-            <div class="view-toggle" style="display: flex; gap: 10px;">
-                <button class="vt-btn active" onclick="switchMode('list')" id="btn-list-mode"><i
-                        class="fas fa-list"></i> SEARCH</button>
-                <button class="vt-btn" onclick="switchMode('dashboard')" id="btn-dash-mode"><i
-                        class="fas fa-chart-pie"></i> GLOBAL DASHBOARD</button>
+    <!-- HERO -->
+    <section class="ls-hero">
+        <div class="ls-hero-badge">LOCAL RESEARCH DATABASE</div>
+        <h1>Research Database</h1>
+        <p>Browse our curated network of local researchers</p>
+        <div class="ls-hero-stats">
+            <div class="ls-hero-stat">
+                <div class="ls-stat-value" id="stat-researchers">0</div>
+                <div class="ls-stat-label">Researchers</div>
+            </div>
+            <div class="ls-hero-stat">
+                <div class="ls-stat-value" id="stat-universities">0</div>
+                <div class="ls-stat-label">Universities</div>
+            </div>
+            <div class="ls-hero-stat">
+                <div class="ls-stat-value" id="stat-topics">0</div>
+                <div class="ls-stat-label">Topics</div>
             </div>
         </div>
+    </section>
 
-        <div class="scanner-layout">
+    <!-- MAIN -->
+    <div class="ls-container">
+        <div class="ls-layout">
 
-            <!-- SIDEBAR: FILTERS -->
-            <div class="panel">
-                <div class="panel-title">
-                    <span><i class="fas fa-filter" style="color:var(--success)"></i> FILTERS</span>
-                    <button onclick="resetFilters()"
-                        style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem;">RESET</button>
+            <!-- LEFT SIDEBAR -->
+            <aside class="ls-sidebar">
+                <!-- Admin Upload Box -->
+                <div class="ls-admin-upload" id="admin-upload-box">
+                    <h4><i class="fas fa-upload"></i> Update DB</h4>
+                    <input type="text" id="csv-topic" placeholder="Main Topic Name">
+                    <input type="file" id="csv-file" accept=".xlsx, .xls, .csv">
+                    <button class="ls-upload-btn" onclick="uploadDatabase()">UPLOAD CSV</button>
                 </div>
 
-                <!-- Admin Upload -->
-                <div id="admin-upload-box"
-                    style="display:none; background: rgba(16, 185, 129, 0.05); border: 1px dashed var(--success); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                    <h4 style="margin:0 0 10px 0; color:var(--success); font-size:0.9rem;"><i class="fas fa-upload"></i>
-                        Update DB</h4>
-                    <input type="text" id="csv-topic" placeholder="Main Topic Name"
-                        style="padding:8px; font-size:0.8rem; margin-bottom:5px;">
-                    <input type="file" id="csv-file" accept=".xlsx, .xls, .csv"
-                        style="padding: 5px; font-size: 0.8rem;">
-                    <button onclick="uploadDatabase()"
-                        style="background:var(--success); color:#fff; width:100%; border:none; padding:8px; border-radius:6px; margin-top:5px; cursor:pointer;">UPLOAD
-                        CSV</button>
-                </div>
-
-                <!-- Multi-Select Filters -->
-                <div class="form-group">
-                    <label>MAIN TOPICS (Multi)</label>
-                    <div id="tags-maintopic" class="tag-container"></div>
-                    <select id="select-maintopic" onchange="addTag('maintopic', this.value)">
-                        <option value="">+ Add Topic</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>WORK DOMAINS (Multi)</label>
-                    <div id="tags-subtopic" class="tag-container"></div>
-                    <input type="text" id="input-subtopic" list="suggestions-subtopic" placeholder="+ Add Domain..."
-                        onchange="addTag('subtopic', this.value)">
-                    <datalist id="suggestions-subtopic"></datalist>
-                </div>
-
-                <div class="form-group">
-                    <label>UNIVERSITIES (Multi)</label>
-                    <div id="tags-university" class="tag-container"></div>
-                    <input type="text" id="input-university" list="suggestions-university"
-                        placeholder="+ Add University..." onchange="addTag('university', this.value)">
-                    <datalist id="suggestions-university"></datalist>
-                </div>
-
-                <div class="form-group">
-                    <label>RESEARCHER NAME</label>
-                    <input type="text" id="filter-researcher" placeholder="Name search..." oninput="debounceFilter()">
-                </div>
-
-                <div
-                    style="font-size: 0.8rem; color: var(--text-muted); text-align: right; margin-top: -10px; margin-bottom: 20px;">
-                    <span id="result-count">0</span> matches found
-                </div>
-
-                <div class="results-scroll" id="results-list"></div>
-            </div>
-
-            <!-- MAIN CONTENT -->
-            <div class="main-view">
-
-                <!-- VIEW 1: Researcher Details -->
-                <div id="view-details" style="display:block;">
-                    <div id="detail-placeholder"
-                        style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 50px 20px; border: 2px dashed var(--border); border-radius: 16px;">
-                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
-                        <h2 style="font-family: var(--font-header); color: var(--text-main);">SELECT A RESEARCHER</h2>
-                        <p>Click on a name from the list to view full profile, analytics, and papers.</p>
+                <div class="ls-panel">
+                    <div class="ls-panel-title">
+                        <span><i class="fas fa-filter"></i> FILTERS</span>
+                        <button class="ls-reset-btn" onclick="resetFilters()">RESET</button>
                     </div>
 
-                    <div id="detail-content" style="display:none;">
-                        <!-- Content Injected via JS -->
+                    <!-- Multi-Select: Main Topics -->
+                    <div class="ls-form-group">
+                        <label>MAIN TOPICS (Multi)</label>
+                        <div id="tags-maintopic" class="tag-container"></div>
+                        <select id="select-maintopic" onchange="addTag('maintopic', this.value)">
+                            <option value="">+ Add Topic</option>
+                        </select>
+                    </div>
+
+                    <!-- Multi-Select: Work Domains -->
+                    <div class="ls-form-group">
+                        <label>WORK DOMAINS (Multi)</label>
+                        <div id="tags-subtopic" class="tag-container"></div>
+                        <input type="text" id="input-subtopic" list="suggestions-subtopic" placeholder="+ Add Domain..."
+                            oninput="handleDatalistSelect('subtopic', this)">
+                        <datalist id="suggestions-subtopic"></datalist>
+                    </div>
+
+                    <!-- Multi-Select: Universities -->
+                    <div class="ls-form-group">
+                        <label>UNIVERSITIES (Multi)</label>
+                        <div id="tags-university" class="tag-container"></div>
+                        <input type="text" id="input-university" list="suggestions-university"
+                            placeholder="+ Add University..." oninput="handleDatalistSelect('university', this)">
+                        <datalist id="suggestions-university"></datalist>
+                    </div>
+
+                    <!-- Researcher Name -->
+                    <div class="ls-form-group">
+                        <label>RESEARCHER NAME</label>
+                        <input type="text" id="filter-researcher" placeholder="Name search..."
+                            oninput="debounceFilter()">
+                    </div>
+
+                    <div class="ls-result-count">
+                        Showing <span id="result-count">0</span> researchers
                     </div>
                 </div>
+            </aside>
 
-                <!-- VIEW 2: Global Dashboard -->
+            <!-- RIGHT MAIN -->
+            <div class="ls-main" id="ls-main">
+                <!-- Mode Toggle (Search / Dashboard) -->
+                <div class="ls-mode-toggle">
+                    <button class="vt-btn active" onclick="switchMode('search')" id="btn-search-mode">
+                        <i class="fas fa-th"></i> SEARCH
+                    </button>
+                    <button class="vt-btn" onclick="switchMode('dashboard')" id="btn-dash-mode">
+                        <i class="fas fa-chart-pie"></i> GLOBAL DASHBOARD
+                    </button>
+                </div>
+
+                <!-- VIEW: Researchers (grid/list) -->
+                <div id="view-researchers">
+                    <div class="ls-topbar">
+                        <div class="ls-topbar__left">
+                            <h2 class="ls-topbar__title">All Researchers</h2>
+                            <span class="ls-topbar__count" id="grid-count">0</span>
+                        </div>
+                        <div class="ls-topbar__right">
+                            <div class="ls-view-toggle">
+                                <button class="ls-view-btn vt-active" id="btn-view-grid" onclick="setView('grid')"
+                                    title="Grid view">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="ls-view-btn" id="btn-view-list" onclick="setView('list')"
+                                    title="List view">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ls-researcher-grid" id="researcher-grid"></div>
+                </div>
+
+                <!-- VIEW 2: Profile (injected by JS) -->
+                <div id="view-profile" style="display:none;"></div>
+
+                <!-- VIEW 3: Global Dashboard -->
                 <div id="view-dashboard" style="display:none;">
                     <div class="dashboard-grid">
                         <div class="dash-card">
@@ -528,22 +155,22 @@
                         </div>
 
                         <div class="dash-card two-thirds">
-                            <h3 style="font-family: var(--font-header);">University Distribution</h3>
+                            <h3>University Distribution</h3>
                             <div class="chart-container"><canvas id="chart-uni"></canvas></div>
                         </div>
                         <div class="dash-card">
-                            <h3 style="font-family: var(--font-header);">Topics</h3>
+                            <h3>Topics</h3>
                             <div class="chart-container"><canvas id="chart-topic"></canvas></div>
                         </div>
                         <div class="dash-card full-width">
-                            <h3 style="font-family: var(--font-header);">Work Domain Frequency</h3>
+                            <h3>Work Domain Frequency</h3>
                             <div class="chart-container" style="height: 300px;"><canvas id="chart-subtopic"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
     </div>
 
@@ -551,17 +178,20 @@
     <script src="/js/layout.js"></script>
 
     <script>
-        // --- STATE MANAGEMENT ---
+        // ===========================
+        // STATE MANAGEMENT
+        // ===========================
         let allData = [];
         let filteredData = [];
         let selectedFilters = { maintopic: [], subtopic: [], university: [] };
         let chartInstances = {};
         let currentAuthorPapers = [];
-
-        // Create a map for fast lookup of internal researchers
         let localResearcherMap = new Map();
+        let currentView = 'grid'; // 'grid' | 'list'
 
         const IGNORED_LOCATIONS = ["Egypt", "Saudi Arabia", "USA", "UK", "Canada", "China", "France", "Cairo", "Giza"];
+
+
 
         window.onload = () => {
             const user = JSON.parse(localStorage.getItem('nexus_user'));
@@ -571,22 +201,35 @@
             initialLoad();
         };
 
-        // --- DATA LOADING & CLEANING ---
+        // ===========================
+        // DATA LOADING & CLEANING
+        // ===========================
         async function initialLoad() {
             try {
                 const res = await fetch(`/api/local-researchers/filter`);
                 allData = await res.json();
 
-                // Build Map for Internal Linking
+
+
                 localResearcherMap.clear();
                 allData.forEach(r => {
                     if (r.scholar_id) localResearcherMap.set(r.scholar_id, r.id);
-                    // Also map by name as fallback? Maybe risky. Sticking to ID for now.
                 });
 
                 populateSuggestions(allData);
                 runFilter();
-            } catch (e) { console.error("Init Error", e); }
+                updateHeroStats();
+            } catch (e) {
+                console.error("Init Error", e);
+            }
+        }
+
+        function updateHeroStats() {
+            document.getElementById('stat-researchers').textContent = allData.length;
+            const unis = new Set(allData.map(r => r.affiliation).filter(Boolean));
+            document.getElementById('stat-universities').textContent = unis.size;
+            const topics = new Set(allData.map(r => r.main_topic).filter(Boolean));
+            document.getElementById('stat-topics').textContent = topics.size;
         }
 
         async function fetchMainTopics() {
@@ -600,10 +243,15 @@
                     opt.value = t; opt.textContent = t;
                     select.appendChild(opt);
                 });
-            } catch (e) { console.error('Failed to load topics', e); }
+
+            } catch (e) {
+                console.error('Failed to load topics', e);
+            }
         }
 
-        // --- MULTI-SELECT LOGIC ---
+        // ===========================
+        // MULTI-SELECT LOGIC
+        // ===========================
         function addTag(type, value) {
             if (!value) return;
             if (selectedFilters[type].includes(value)) return;
@@ -611,7 +259,6 @@
             selectedFilters[type].push(value);
             renderTags(type);
 
-            // Reset inputs
             if (type !== 'maintopic') document.getElementById(`input-${type}`).value = '';
             else document.getElementById(`select-maintopic`).value = '';
 
@@ -627,10 +274,21 @@
         function renderTags(type) {
             const container = document.getElementById(`tags-${type}`);
             container.innerHTML = selectedFilters[type].map(val => `
-            <div class="filter-tag">
-                ${val} <i class="fas fa-times" onclick="removeTag('${type}', '${val}')"></i>
-            </div>
-        `).join('');
+                <div class="filter-tag">
+                    ${val} <i class="fas fa-times" onclick="removeTag('${type}', '${val.replace(/'/g, "\\'")}')"></i>
+                </div>
+            `).join('');
+        }
+
+        // Handle datalist-based inputs (subtopic, university)
+        function handleDatalistSelect(type, inputEl) {
+            const val = inputEl.value;
+            // Check if value matches a datalist option
+            const datalist = document.getElementById(`suggestions-${type}`);
+            const options = datalist ? Array.from(datalist.options).map(o => o.value) : [];
+            if (options.includes(val)) {
+                addTag(type, val);
+            }
         }
 
         function populateSuggestions(data) {
@@ -654,7 +312,9 @@
             document.getElementById('suggestions-subtopic').innerHTML = Array.from(subs).sort().map(s => `<option value="${s}">`).join('');
         }
 
-        // --- FILTERING ---
+        // ===========================
+        // FILTERING
+        // ===========================
         let debounceTimer;
         function debounceFilter() {
             clearTimeout(debounceTimer);
@@ -663,8 +323,8 @@
 
         async function runFilter() {
             const researcher = document.getElementById('filter-researcher').value;
-            const list = document.getElementById('results-list');
-            list.innerHTML = '<div style="padding:10px; text-align:center;"><i class="fas fa-spinner fa-spin"></i></div>';
+            const container = document.getElementById('researcher-grid');
+            container.innerHTML = '<div class="ls-loading"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
 
             const params = new URLSearchParams();
             if (selectedFilters.maintopic.length) params.append('main_topic', selectedFilters.maintopic.join(','));
@@ -676,76 +336,231 @@
                 const res = await fetch(`/api/local-researchers/filter?${params.toString()}`);
                 filteredData = await res.json();
 
+
+
                 document.getElementById('result-count').innerText = filteredData.length;
-                renderList(filteredData);
+                renderResearchers(filteredData);
 
                 if (document.getElementById('view-dashboard').style.display === 'block') {
                     updateGlobalDashboard();
                 }
-            } catch (e) { list.innerHTML = 'Error.'; }
+            } catch (e) {
+                console.error('Filter error', e);
+            }
         }
 
-        function renderList(data) {
-            const list = document.getElementById('results-list');
-            if (data.length === 0) { list.innerHTML = '<div style="padding:20px; text-align:center;">No matches.</div>'; return; }
 
-            list.innerHTML = data.map(r => {
-                const cleanUni = cleanAffiliation(r.affiliation);
-                return `
-            <div class="author-card-mini" onclick="analyzeLocal(${r.id})">
-                <div class="ac-name">${r.name}</div>
-                <div class="ac-meta"><i class="fas fa-university" style="font-size:0.7rem;"></i> ${cleanUni}</div>
-                ${r.main_topic ? `<span class="field-badge">${r.main_topic}</span>` : ''}
+
+        function resetFilters() {
+            selectedFilters = { maintopic: [], subtopic: [], university: [] };
+
+            // Clear inputs
+            document.getElementById('filter-researcher').value = '';
+            const selMt = document.getElementById('select-maintopic');
+            if (selMt) selMt.value = '';
+            const inpSub = document.getElementById('input-subtopic');
+            if (inpSub) inpSub.value = '';
+            const inpUni = document.getElementById('input-university');
+            if (inpUni) inpUni.value = '';
+
+            // Re-render tags
+            renderTags('maintopic');
+            renderTags('subtopic');
+            renderTags('university');
+
+            runFilter();
+        }
+
+        // ===========================
+        // RENDER RESEARCHERS (Grid + List)
+        // ===========================
+        function setView(v) {
+            currentView = v;
+            document.getElementById('btn-view-grid').classList.toggle('vt-active', v === 'grid');
+            document.getElementById('btn-view-list').classList.toggle('vt-active', v === 'list');
+            renderResearchers(filteredData);
+        }
+
+        function renderResearchers(data) {
+            const container = document.getElementById('researcher-grid');
+            const countBadge = document.getElementById('grid-count');
+            const sideCount = document.getElementById('result-count');
+
+            if (countBadge) countBadge.textContent = data.length;
+            if (sideCount) sideCount.textContent = data.length;
+
+            if (!data || data.length === 0) {
+                container.className = 'ls-researcher-grid';
+                container.innerHTML = `
+                    <div class="ls-empty">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>No researchers match your filters</h3>
+                        <p>Try adjusting your search criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentView === 'grid') {
+                container.className = 'ls-researcher-grid';
+                container.innerHTML = data.map(r => renderCard(r)).join('');
+            } else {
+                container.className = 'ls-researcher-list';
+                container.innerHTML = data.map(r => renderRow(r)).join('');
+            }
+        }
+
+        function renderCard(r) {
+            const color = getAvatarColor(r.name);
+            const initials = getInitials(r.name);
+            const topicClass = getTopicClass(r.main_topic);
+            const subtopicHtml = renderSubtopics(r.subtopics);
+            const cleanUni = cleanAffiliation(r.affiliation);
+
+            return `
+            <div class="ls-card">
+                <div class="ls-card__topic-badge ${topicClass}">
+                    ${r.main_topic || 'General'}
+                </div>
+                <div class="ls-card__avatar" style="background:${color}">
+                    ${initials}
+                </div>
+                <h3 class="ls-card__name">${r.name}</h3>
+                <p class="ls-card__affil">${cleanUni}</p>
+                <div class="ls-card__subtopics">${subtopicHtml}</div>
+                <button class="ls-card__btn" onclick="analyzeLocal(${r.id})">
+                    View Profile →
+                </button>
             </div>
-        `}).join('');
+            `;
         }
 
+        function renderRow(r) {
+            const color = getAvatarColor(r.name);
+            const initials = getInitials(r.name);
+            const topicClass = getTopicClass(r.main_topic);
+            const cleanUni = cleanAffiliation(r.affiliation);
+
+            return `
+            <div class="ls-row">
+                <div class="ls-row__avatar" style="background:${color}">
+                    ${initials}
+                </div>
+                <div class="ls-row__info">
+                    <span class="ls-row__name">${r.name}</span>
+                    <span class="ls-row__affil">${cleanUni}</span>
+                </div>
+                <span class="ls-card__topic-badge ${topicClass}">
+                    ${r.main_topic || 'General'}
+                </span>
+                <button class="ls-row__btn" onclick="analyzeLocal(${r.id})">
+                    View Profile →
+                </button>
+            </div>
+            `;
+        }
+
+        function getTopicClass(topic) {
+            if (!topic) return 'ls-topic--default';
+            const t = topic.toLowerCase();
+            if (t.includes('ai') || t.includes('machine') || t.includes('learning') || t.includes('deep') || t.includes('intelligent')) return 'ls-topic--green';
+            if (t.includes('vlsi') || t.includes('hardware') || t.includes('embedded') || t.includes('circuit') || t.includes('electronic')) return 'ls-topic--blue';
+            if (t.includes('software') || t.includes('programming') || t.includes('web') || t.includes('computing')) return 'ls-topic--purple';
+            if (t.includes('bio') || t.includes('medical') || t.includes('health')) return 'ls-topic--pink';
+            if (t.includes('network') || t.includes('security') || t.includes('cyber')) return 'ls-topic--orange';
+            return 'ls-topic--default';
+        }
+
+        function renderSubtopics(subtopics) {
+            if (!subtopics) return '';
+            const arr = subtopics.split(/[,\/]/).map(s => s.trim()).filter(s => s.length > 2 && !IGNORED_LOCATIONS.includes(s));
+            if (arr.length === 0) return '';
+            const visible = arr.slice(0, 2);
+            const more = arr.length - 2;
+            let html = visible.map(s => `<span class="ls-subtopic-pill">${s}</span>`).join('');
+            if (more > 0) html += `<span class="ls-subtopic-pill ls-subtopic-pill--more">+${more} more</span>`;
+            return html;
+        }
+
+        // ===========================
+        // UTILITY FUNCTIONS
+        // ===========================
         function cleanAffiliation(raw) {
             if (!raw) return "Unknown";
             let str = raw.replace(/Professor|Dr\.|Assoc\.|Dept\.|Faculty of/gi, '');
             if (str.includes(' at ')) str = str.split(' at ')[1];
             if (str.includes(',')) str = str.split(',')[0];
             IGNORED_LOCATIONS.forEach(l => { str = str.replace(l, ''); });
-            return str.trim();
+            return str.trim() || "Unknown";
         }
 
-        // --- VIEW SWITCHING ---
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            return parts[0][0].toUpperCase();
+        }
+
+        function getAvatarColor(name) {
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = Math.abs(hash % 360);
+            return `hsl(${h}, 55%, 50%)`;
+        }
+
+        // ===========================
+        // VIEW SWITCHING
+        // ===========================
         function switchMode(mode) {
             document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${mode === 'list' ? 'list' : 'dash'}-mode`).classList.add('active');
+            document.getElementById(`btn-${mode === 'search' ? 'search' : 'dash'}-mode`).classList.add('active');
 
-            document.getElementById('view-details').style.display = mode === 'list' ? 'block' : 'none';
+            document.getElementById('view-researchers').style.display = mode === 'search' ? 'block' : 'none';
+            document.getElementById('view-profile').style.display = 'none';
             document.getElementById('view-dashboard').style.display = mode === 'dashboard' ? 'block' : 'none';
 
             if (mode === 'dashboard') updateGlobalDashboard();
         }
 
-        // --- ANALYZE PROFILE ---
+        function backToGrid() {
+            document.getElementById('view-researchers').style.display = 'block';
+            document.getElementById('view-profile').style.display = 'none';
+            document.getElementById('view-dashboard').style.display = 'none';
+
+            document.getElementById('btn-search-mode').classList.add('active');
+            document.getElementById('btn-dash-mode').classList.remove('active');
+        }
+
+        // ===========================
+        // ANALYZE PROFILE
+        // ===========================
         async function analyzeLocal(id) {
-            // Switch to detail view if in dashboard mode
-            if (document.getElementById('view-dashboard').style.display === 'block') switchMode('list');
+            // Show profile view, hide grid and dashboard
+            document.getElementById('view-researchers').style.display = 'none';
+            document.getElementById('view-dashboard').style.display = 'none';
+            const profileDiv = document.getElementById('view-profile');
+            profileDiv.style.display = 'block';
 
-            const contentDiv = document.getElementById('detail-content');
-            const placeholder = document.getElementById('detail-placeholder');
-
-            placeholder.style.display = 'none';
-            contentDiv.style.display = 'block';
-            contentDiv.innerHTML = `
-            <div style="text-align:center; margin-top:50px;">
-                <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:var(--success);"></i>
-                <br><br>Analyzing Profile...
-            </div>
-        `;
+            profileDiv.innerHTML = `
+                <div class="ls-loading" style="margin-top:50px;">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size:2.5rem; color:var(--success);"></i>
+                    <span>Analyzing Profile...</span>
+                </div>
+            `;
 
             try {
                 const res = await fetch('/api/local-researchers/analyze', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: id })
                 });
+                if (!res.ok) throw new Error('API returned ' + res.status);
                 const data = await res.json();
                 renderProfile(data);
             } catch (e) {
-                contentDiv.innerHTML = `<div style="color:var(--danger)">Failed to load data.</div>`;
+                console.error('Analyze error', e);
+                profileDiv.innerHTML = `<div class="ls-empty-state"><i class="fas fa-exclamation-triangle"></i><h2>Failed to load data</h2><p>Please try again.</p></div>`;
             }
         }
 
@@ -753,98 +568,134 @@
             const { local, author, collaborators } = data;
             const cleanUni = cleanAffiliation(local.affiliation);
             currentAuthorPapers = author ? author.papers : [];
+            const initials = getInitials(local.name);
+            const avatarColor = getAvatarColor(local.name);
+            const badgeClass = getTopicClass(local.main_topic);
 
             const gsLink = local.scholar_id && !local.scholar_id.match(/^\d+$/)
                 ? `https://scholar.google.com/citations?user=${local.scholar_id}`
                 : null;
 
-            // Render Internal/External Co-authors
+            // Co-authors HTML
             const collabHtml = (collaborators && collaborators.length) ? collaborators.map(c => {
                 const internalId = localResearcherMap.get(c.id);
                 const clickAction = internalId ? `onclick="analyzeLocal(${internalId})"` : `onclick="window.open('https://www.semanticscholar.org/author/${c.id}', '_blank')"`;
                 const classMod = internalId ? 'internal' : '';
                 const icon = internalId ? 'fa-user-check' : 'fa-external-link-alt';
                 return `
-                <div class="co-author-pill ${classMod}" ${clickAction}>
-                    <i class="fas ${icon}" style="font-size:0.7rem; color:var(--accent)"></i>
-                    ${c.name}
-                    <span style="opacity:0.6; font-size:0.7rem;">(${c.count})</span>
+                    <div class="co-author-pill ${classMod}" ${clickAction}>
+                        <i class="fas ${icon}" style="font-size:0.7rem; color:var(--accent)"></i>
+                        ${c.name}
+                        <span style="opacity:0.6; font-size:0.7rem;">(${c.count})</span>
+                    </div>
+                `;
+            }).join('') : '<span style="color:var(--text-muted)">No co-author data available.</span>';
+
+            const profileDiv = document.getElementById('view-profile');
+            profileDiv.innerHTML = `
+                <button class="ls-profile-back" onclick="backToGrid()"><i class="fas fa-arrow-left"></i> Back to list</button>
+
+                <div class="ls-profile-header">
+                    <div class="ls-profile-top">
+                        <div class="ls-profile-identity">
+                            <div class="ls-profile-avatar" style="background:${avatarColor};">${initials}</div>
+                            <div>
+                                <h1 class="ls-profile-name">${local.name}</h1>
+                                <div class="ls-profile-affiliation"><i class="fas fa-university"></i> ${cleanUni}</div>
+                                <div class="ls-profile-tags">
+                                    ${local.main_topic ? `<span class="field-badge ${badgeClass}">${local.main_topic}</span>` : ''}
+                                </div>
+                                <div class="ls-profile-interests">
+                                    <i class="fas fa-tag"></i> <b>Interests:</b> ${local.subtopics ? local.subtopics.replace(/,/g, ', ') : 'General'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ls-profile-actions">
+                            ${gsLink ? `<a href="${gsLink}" target="_blank" class="ls-action-btn ls-scholar"><i class="fas fa-graduation-cap"></i> Google Scholar</a>` : ''}
+                            ${author && author.url ? `<a href="${author.url}" target="_blank" class="ls-action-btn ls-semantic"><i class="fas fa-book-reader"></i> Semantic Scholar</a>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="ls-profile-stats">
+                        <div class="ls-stat-box">
+                            <div class="ls-stat-value ls-hindex">${author ? author.hIndex : '?'}</div>
+                            <div class="ls-stat-label-text">H-Index</div>
+                        </div>
+                        <div class="ls-stat-box">
+                            <div class="ls-stat-value ls-papers">${author ? author.paperCount : '?'}</div>
+                            <div class="ls-stat-label-text">Papers</div>
+                        </div>
+                        <div class="ls-stat-box">
+                            <div class="ls-stat-value ls-citations">${author ? author.citationCount : '?'}</div>
+                            <div class="ls-stat-label-text">Citations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABS -->
+                <div class="network-tabs">
+                    <button class="net-tab active" onclick="switchProfileTab('papers', this)"><i class="fas fa-scroll"></i> Papers</button>
+                    <button class="net-tab" onclick="switchProfileTab('coauthors', this)"><i class="fas fa-users"></i> Co-Authors</button>
+                    <button class="net-tab" onclick="switchProfileTab('analytics', this)"><i class="fas fa-chart-bar"></i> Analytics</button>
+                </div>
+
+                <!-- Tab: Papers -->
+                <div class="ls-tab-content active" id="tab-papers">
+                    <div class="ls-paper-filters">
+                        <input type="text" id="paper-search" placeholder="Search title..." oninput="filterPapers()" style="flex:1;">
+                        <input type="number" id="paper-year" placeholder="Year" style="width:100px;" oninput="filterPapers()">
+                    </div>
+                    <div class="ls-papers-scroll" id="paper-list-container"></div>
+                </div>
+
+                <!-- Tab: Co-Authors -->
+                <div class="ls-tab-content" id="tab-coauthors">
+                    <div class="ls-coauthors-wrap">${collabHtml}</div>
+                </div>
+
+                <!-- Tab: Analytics -->
+                <div class="ls-tab-content" id="tab-analytics">
+                    <div class="personal-dash-grid">
+                        <div class="ls-analytics-card">
+                            <h4><i class="fas fa-chart-pie"></i> Fields of Study</h4>
+                            <div class="chart-container" style="height:220px;"><canvas id="chart-personal-fields"></canvas></div>
+                        </div>
+                        <div class="ls-analytics-card">
+                            <div style="text-align:center; padding:15px;">
+                                <div class="stat-number">${author ? author.hIndex : '?'}</div>
+                                <div class="stat-label">H-Index</div>
+                            </div>
+                            <div style="text-align:center; padding:15px; border-top:1px solid var(--border);">
+                                <div class="stat-number" style="color:#10b981; font-size:2rem;">${author ? author.citationCount : '?'}</div>
+                                <div class="stat-label">Citations</div>
+                            </div>
+                            <div style="text-align:center; padding:15px; border-top:1px solid var(--border);">
+                                <div class="stat-number" style="color:#a855f7; font-size:2rem;">${author ? author.paperCount : '?'}</div>
+                                <div class="stat-label">Papers</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
-            }).join('') : '<span style="color:var(--text-muted)">No data.</span>';
 
-            // Profile HTML
-            const html = `
-            <div style="padding-bottom:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                <div>
-                    <h1 style="margin:0; font-family:var(--font-header); font-size:2rem;">${local.name}</h1>
-                    <div style="color:var(--text-muted); margin-top:5px;">
-                        <i class="fas fa-university"></i> ${cleanUni} 
-                        ${local.main_topic ? ` &bull; <span style="color:var(--accent)">${local.main_topic}</span>` : ''}
-                    </div>
-                    <div style="margin-top:8px; font-size:0.9rem; color:var(--text-muted);">
-                        <i class="fas fa-tag"></i> <b>Interests:</b> ${local.subtopics ? local.subtopics.replace(/,/g, ', ') : 'General'}
-                    </div>
-                </div>
-                <div>
-                    ${gsLink ? `<a href="${gsLink}" target="_blank" class="btn-action" style="background:#ea4335"><i class="fas fa-graduation-cap"></i> Google Scholar</a>` : ''}
-                    ${author && author.url ? `<a href="${author.url}" target="_blank" class="btn-action"><i class="fas fa-book-reader"></i> Semantic Scholar</a>` : ''}
-                </div>
-            </div>
-
-            <!-- PERSONAL DASHBOARD -->
-            <div class="personal-dash-grid" style="margin-top:20px;">
-                <div class="dash-card">
-                    <h4 class="section-title" style="border:none; margin:0;"><i class="fas fa-chart-pie"></i> Fields of Study</h4>
-                    <div class="chart-container" style="height:200px;"><canvas id="chart-personal-fields"></canvas></div>
-                </div>
-                <div class="dash-card">
-                    <div style="text-align:center; padding:10px;">
-                        <div class="stat-number">${author ? author.hIndex : '?'}</div>
-                        <div class="stat-label">H-INDEX</div>
-                    </div>
-                    <div style="text-align:center; padding:10px; border-top:1px solid var(--border);">
-                        <div class="stat-number" style="color:#10b981; font-size:2rem;">${author ? author.citationCount : '?'}</div>
-                        <div class="stat-label">CITATIONS</div>
-                    </div>
-                    <div style="text-align:center; padding:10px; border-top:1px solid var(--border);">
-                        <div class="stat-number" style="color:#a855f7; font-size:2rem;">${author ? author.paperCount : '?'}</div>
-                        <div class="stat-label">PAPERS</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CO-AUTHORS -->
-            <div class="section-title"><i class="fas fa-users"></i> Top Co-Authors</div>
-            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:30px;">
-                ${collabHtml}
-            </div>
-
-            <!-- PAPERS LIST WITH FILTERS -->
-            <div class="section-title"><i class="fas fa-scroll"></i> Publications</div>
-            <div class="paper-filters">
-                <input type="text" id="paper-search" placeholder="Search title..." oninput="filterPapers()">
-                <input type="number" id="paper-year" placeholder="Year" style="width:100px;" oninput="filterPapers()">
-            </div>
-            
-            <div id="paper-list-container" style="max-height:500px; overflow-y:auto;">
-                <!-- Papers Injected Here -->
-            </div>
-        `;
-
-            document.getElementById('detail-content').innerHTML = html;
-
-            // Init Personal Chart
             renderPersonalChart(author);
-            // Init Papers
             filterPapers();
         }
 
+        function switchProfileTab(tabName, btn) {
+            document.querySelectorAll('.net-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
 
+            document.querySelectorAll('.ls-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // ===========================
+        // PERSONAL CHART
+        // ===========================
         function renderPersonalChart(author) {
             if (!author || !author.papers) return;
 
-            // Count fields
             const counts = {};
             author.papers.forEach(p => {
                 if (p.fieldsOfStudy) p.fieldsOfStudy.forEach(f => counts[f] = (counts[f] || 0) + 1);
@@ -852,6 +703,7 @@
 
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
             const ctx = document.getElementById('chart-personal-fields');
+            if (!ctx) return;
 
             new Chart(ctx, {
                 type: 'doughnut',
@@ -867,11 +719,17 @@
             });
         }
 
+        // ===========================
+        // PAPERS FILTER
+        // ===========================
         function filterPapers() {
+            const searchEl = document.getElementById('paper-search');
+            const yearEl = document.getElementById('paper-year');
+            if (!searchEl || !yearEl) return;
             if (!currentAuthorPapers) return;
 
-            const q = document.getElementById('paper-search').value.toLowerCase();
-            const y = document.getElementById('paper-year').value;
+            const q = searchEl.value.toLowerCase();
+            const y = yearEl.value;
             const container = document.getElementById('paper-list-container');
 
             const filtered = currentAuthorPapers.filter(p => {
@@ -881,29 +739,31 @@
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div style="color:var(--text-muted); padding:20px;">No papers match criteria.</div>';
+                container.innerHTML = '<div class="ls-empty-state" style="padding:20px;"><p>No papers match criteria.</p></div>';
                 return;
             }
 
             container.innerHTML = filtered.map(p => {
                 const hasPdf = p.openAccessPdf && p.openAccessPdf.url;
                 return `
-            <div class="paper-row">
-                <div class="paper-year">${p.year || '-'}</div>
-                <div class="paper-content">
-                    <a href="${p.url}" target="_blank" class="paper-title">${p.title}</a>
-                    <div class="paper-meta">
-                        <span class="meta-badge"><i class="fas fa-book"></i> ${p.venue || 'Journal'}</span>
-                        <span class="meta-badge" style="color:var(--success)"><i class="fas fa-quote-right"></i> ${p.citationCount || 0}</span>
-                        ${hasPdf ? `<a href="${p.openAccessPdf.url}" target="_blank" class="pdf-btn"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
+                <div class="paper-row">
+                    <div class="ls-paper-year">${p.year || '-'}</div>
+                    <div class="ls-paper-content">
+                        <a href="${p.url}" target="_blank" class="paper-title">${p.title}</a>
+                        <div class="paper-meta">
+                            <span class="ls-meta-badge"><i class="fas fa-book"></i> ${p.venue || 'Journal'}</span>
+                            <span class="ls-meta-badge" style="color:var(--success)"><i class="fas fa-quote-right"></i> ${p.citationCount || 0}</span>
+                            ${hasPdf ? `<a href="${p.openAccessPdf.url}" target="_blank" class="ls-pdf-btn"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
+                        </div>
                     </div>
                 </div>
-            </div>
-            `;
+                `;
             }).join('');
         }
 
-        // --- GLOBAL DASHBOARD CHARTS ---
+        // ===========================
+        // GLOBAL DASHBOARD CHARTS
+        // ===========================
         function updateGlobalDashboard() {
             const uniCounts = {}, topicCounts = {}, subCounts = {};
 
@@ -954,6 +814,9 @@
             });
         }
 
+        // ===========================
+        // ADMIN UPLOAD
+        // ===========================
         async function uploadDatabase() {
             const fileInput = document.getElementById('csv-file');
             if (fileInput.files.length === 0) return Swal.fire('Error', 'Select file', 'error');
