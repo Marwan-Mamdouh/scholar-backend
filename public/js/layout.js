@@ -8,18 +8,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const header = document.getElementById('app-header');
     const path = window.location.pathname;
 
-    // Inject CSS for Dropdowns dynamically so it works immediately
+// Inject CSS for Dropdowns and Mobile Menu
     const style = document.createElement('style');
     style.textContent = `
+        /* 1. PREVENT SIDE SCROLLING (The Fix) */
+        html, body {
+            overflow-x: hidden; /* This stops the page from scrolling sideways */
+            width: 100%;
+            margin: 0; 
+            padding: 0;
+        }
+
         .nav-item { position: relative; height: 100%; display: flex; align-items: center; }
         .dropdown-trigger { cursor: pointer; display: flex; align-items: center; gap: 5px; height: 100%; }
+        
+        /* Desktop Dropdown */
         .dropdown-menu {
             display: none;
             position: absolute;
             top: 100%;
             left: 0;
             background-color: var(--bg-card);
-            min-width: 220px;
+            min-width: 200px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             border-radius: 8px;
             border: 1px solid var(--border);
@@ -34,10 +44,76 @@ document.addEventListener("DOMContentLoaded", () => {
             text-decoration: none;
             transition: background 0.2s;
             display: block;
-            white-space: nowrap;
         }
         .dropdown-item:hover { background-color: var(--bg-main); color: var(--accent); }
         .dropdown-item.active { color: var(--accent); font-weight: bold; }
+
+        /* Hamburger Menu (Hidden on Desktop) */
+        .hamburger { display: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); z-index: 1200; }
+        
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .hamburger { display: block; margin-left: auto; margin-right: 15px; }
+            
+            /* Sidebar Drawer - Fixed Position is key */
+            .nav-links {
+                position: fixed; /* Fixed prevents it from taking up space in the document flow */
+                top: 0;
+                right: -280px; /* Start hidden off-screen */
+                width: 260px;
+                height: 100vh;
+                background-color: var(--bg-card);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 80px 20px 20px;
+                box-shadow: -4px 0 15px rgba(0,0,0,0.5);
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1100;
+                overflow-y: auto;
+            }
+            
+            /* Class to slide menu in */
+            .nav-links.nav-active { right: 0; }
+
+            /* Overlay effect when menu is open (Optional but recommended) */
+            .nav-links.nav-active::before {
+                content: '';
+                position: fixed;
+                top: 0; left: 0;
+                width: 100vw; height: 100vh;
+            
+                z-index: -1;
+                pointer-events: none;
+            }
+
+            /* Mobile Nav Items */
+            .nav-item { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                height: auto; 
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .nav-link { font-size: 1.1rem; width: 100%; }
+
+            /* Mobile Dropdowns */
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+                padding-left: 15px;
+                min-width: 100%;
+                display: none;
+                border-left: 2px solid var(--border);
+            }
+
+            .nav-item:hover .dropdown-menu, 
+            .nav-item:focus-within .dropdown-menu { 
+                display: flex; 
+            }
+        }
     `;
     document.head.appendChild(style);
 
@@ -54,56 +130,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Define Navigation Groups
         // Check if any sub-link is active to highlight the parent dropdown
-        const isAcademicActive = ['/scanner', '/explorer', '/local-search', '/grad-form.html', '/grad-dashboard'].includes(path);
+        const isAcademicActive = ['/scanner', '/explorer', '/local-search', '/grad-form.html'].includes(path);
         const isAdminActive = ['/jobs', '/companies.html'].includes(path);
 
-        header.innerHTML = `
+header.innerHTML = `
             <div class="main-header">
-                <a href="/" class="brand">
-                    <div style="width: 36px; height: 36px; background: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0;">
-                        <i class="fas fa-graduation-cap" style="color: white; font-size: 1.1rem;"></i>
-                    </div>
-                    Scholar Nexus
-                </a>
+                <div class="brand" onclick="window.location.href='/'">
+                    <i class="fas fa-atom"></i> NEXUS
+                </div>
+
+                <!-- Hamburger Button (Visible only on mobile) -->
+                <div class="hamburger" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </div>
                 
-                <nav class="nav-links">
-    <a href="/" class="nav-link ${path === '/' ? 'active' : ''}">Home</a>
+                <nav class="nav-links" id="nav-links">
+                    <a href="/" class="nav-link ${path === '/' ? 'active' : ''}">Home</a>
 
-    <!-- ACADEMIC / RESEARCH DROPDOWN -->
-    <div class="nav-item">
-        <span class="nav-link dropdown-trigger ${['/scanner', '/explorer', '/local-search'].some(x => path.includes(x)) ? 'active' : ''}">
-            Research <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
-        </span>
-        <div class="dropdown-menu">
-            <a href="/scanner" class="dropdown-item"><i class="fas fa-user-astronaut"></i> Author Explorer</a>
-            <a href="/explorer" class="dropdown-item"><i class="fas fa-search"></i> Paper Explorer</a>
-            <a href="/local-search" class="dropdown-item"><i class="fas fa-map-marker-alt"></i> Researcher Database</a> 
-            <a href="/grad-dashboard" class="dropdown-item"><i class="fas fa-database"></i> Projects Database</a>
-        </div>
-    </div>
+                    <!-- RESEARCH DROPDOWN -->
+                    <div class="nav-item">
+                        <span class="nav-link dropdown-trigger ${['/scanner','/explorer','/local-search'].some(x=>path.includes(x)) ? 'active' : ''}">
+                            Research <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
+                        </span>
+                        <div class="dropdown-menu">
+                            <a href="/scanner" class="dropdown-item"><i class="fas fa-user-astronaut"></i> Target Scanner</a>
+                            <a href="/explorer" class="dropdown-item"><i class="fas fa-search"></i> Paper Explorer</a>
+                            <a href="/local-search" class="dropdown-item"><i class="fas fa-map-marker-alt"></i> Local Researchers</a> 
+                            <a href="/grad-dashboard" class="dropdown-item"><i class="fas fa-database"></i> Database Stats</a> 
+                        </div>
+                    </div>
 
-    <!-- NEW JOBS DROPDOWN -->
-    <div class="nav-item">
-        <span class="nav-link dropdown-trigger ${['/jobs', '/companies.html'].some(x => path.includes(x)) ? 'active' : ''}">
-            Jobs & Market <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
-        </span>
-        <div class="dropdown-menu">
-            <a href="/jobs" class="dropdown-item"><i class="fab fa-linkedin"></i> Job Search & Map</a>
-            <a href="/companies.html" class="dropdown-item"><i class="fas fa-building"></i> Companies List</a>
-        </div>
-    </div>
-        
-    <a href="/team.html" class="nav-link ${path === '/team.html' ? 'active' : ''}">Team</a>
-    <a href="/feedback.html" class="nav-link ${path === '/feedback.html' ? 'active' : ''}">Feedback</a> <!-- NEW -->
-    
-    ${authLink}
-</nav>
+                    <!-- JOBS DROPDOWN -->
+                    <div class="nav-item">
+                        <span class="nav-link dropdown-trigger ${['/jobs','/companies.html'].some(x=>path.includes(x)) ? 'active' : ''}">
+                            Jobs & Market <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
+                        </span>
+                        <div class="dropdown-menu">
+                            <a href="/jobs" class="dropdown-item"><i class="fab fa-linkedin"></i> Job Search & Map</a>
+                            <a href="/companies.html" class="dropdown-item"><i class="fas fa-building"></i> Companies List</a>
+                        </div>
+                    </div>
+                        
+                    <a href="/team.html" class="nav-link ${path === '/team.html' ? 'active' : ''}">Team</a>
+                    <a href="/feedback.html" class="nav-link ${path === '/feedback.html' ? 'active' : ''}">Feedback</a>
+                    
+                    ${authLink}
+                </nav>
 
-                <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text-main); cursor:pointer; font-size:1.2rem;">
+                <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text-main); cursor:pointer; font-size:1.2rem; z-index:1101;">
                     <i class="fas fa-adjust"></i>
                 </button>
             </div>
         `;
+
+
+
+        // Mobile Menu Logic
+        const hamburger = document.getElementById('mobile-menu-btn');
+        const navLinks = document.getElementById('nav-links');
+
+        if(hamburger && navLinks) {
+            hamburger.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent immediate closing
+                navLinks.classList.toggle('nav-active');
+                
+                // Toggle icon between bars and times (X)
+                const icon = hamburger.querySelector('i');
+                if(navLinks.classList.contains('nav-active')){
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if(navLinks.classList.contains('nav-active') && !navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+                    navLinks.classList.remove('nav-active');
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
+            });
+        }
+
 
         window.logout = function () {
             localStorage.removeItem('nexus_token');

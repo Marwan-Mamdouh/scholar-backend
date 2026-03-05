@@ -289,10 +289,10 @@
                 <thead>
                     <tr>
                         <th>Project Title</th>
-                        <th>Student / Lead</th>
                         <th>University</th>
                         <th>Domains</th>
                         <th>Supervisor</th>
+                        <th>Company Mentor</th> <!-- العمود الجديد -->
                         <th>Year</th>
                         <th>Sponsored</th>
                         <th>Doc</th>
@@ -606,34 +606,39 @@
                 empty.style.display = 'none';
             }
 
-            data.forEach(p => {
+             data.forEach(p => {
                 const tr = document.createElement('tr');
                 
-                // Domain Tags
                 let domainTags = '';
                 if(Array.isArray(p.domains)) {
                     domainTags = p.domains.map(d => `<span class="tag domain">${d}</span>`).join('');
+                } else if(typeof p.domains === 'string') {
+                    // Fallback لو البيانات جاية string
+                    domainTags = `<span class="tag domain">${p.domains}</span>`;
                 }
 
-                // Sponsor Tag
                 let sponsorHtml = (p.is_sponsored === 'Yes' || p.is_sponsored === true) 
-                    ? `<span class="tag sponsor">${p.sponsor_company || 'Company'}</span>` 
+                    ? `<span class="tag sponsor">${p.sponsor_company || 'Yes'}</span>` 
                     : '<span style="color:var(--text-muted)">-</span>';
 
                 tr.innerHTML = `
                     <td style="font-weight:600;">${p.project_title}</td>
-                    <td>
-                        <div>${p.student_name}</div>
-                        <small style="color:var(--text-muted)">${p.email || ''}</small>
-                    </td>
+                    
                     <td>
                         ${p.university}
-                        <div style="font-size:0.8rem; color:var(--text-muted)">${p.faculty}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted)">${p.faculty || ''}</div>
                     </td>
+                    
                     <td>${domainTags}</td>
-                    <td>${p.supervisor}</td>
+                    
+                    <td>${p.supervisor || '-'}</td>
+                    
+                    <td>${p.company_mentor || '<span style="color:var(--text-muted)">-</span>'}</td> <!-- العمود الجديد -->
+                    
                     <td>${p.grad_year}</td>
+                    
                     <td>${sponsorHtml}</td>
+                    
                     <td>
                         ${p.doc_link ? `<a href="${p.doc_link}" target="_blank" class="project-link"><i class="fas fa-external-link-alt"></i> View</a>` : '-'}
                     </td>
@@ -641,6 +646,7 @@
                 tbody.appendChild(tr);
             });
         }
+                
     </script>
 </body>
 </html>
