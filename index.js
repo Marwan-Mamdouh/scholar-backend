@@ -670,77 +670,182 @@ app.post('/api/jobs/add', isAuthenticated, async (req, res) => {
 });
 
 // ================================================================
-//  SECTION 5: AUTHENTICATION & USERS
+//  SECTION 5: AUTHENTICATION & USERS (FINALIZED)
 // ================================================================
 
-// Register
+// 1. REGISTER API
 app.post('/api/auth/register', async (req, res) => {
-    const { name, email, password, role } = req.body;
-    
-    // companies need acceptance or permitions
-    // (isApproved = 1 , waiting = 0)
-    const isApproved = (role === 'user' || role === 'admin') ? 1 : 0;
+    const { 
+        role, 
+        personal_info, 
+        education, 
+        online_presence, 
+        skills, 
+        // Optional sections
+        graduation_project,
+        postgraduate_research,
+        experience,
+        iti,
+        nti,
+        internships,
+        courses,
+        personal_projects
+    } = req.body;
+
+    // 1. Validation
+    if (!personal_info?.email || !personal_info?.password || !personal_info?.full_name) {
+        return res.status(400).json({ error: "Missing Name, Email, or Password." });
+    }
+
+    // 2. Set Approval Status (Admins need manual approval, Users/Students auto-approved)
+    const isApproved = (role === 'admin') ? 0 : 1; 
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        const { error } = await supabase
-            .from('users')
-            .insert([{ name, email, password: hashedPassword, role, is_approved: isApproved }]);
+        // 3. Hash Password
+        const hashedPassword = await bcrypt.hash(personal_info.password, 10);
 
-        if (error) {
-            console.error("DB Register Error:", error.message); 
-            // Postgres unique violation code is 23505
-            if (error.code === '23505') {
-                return res.status(400).json({ error: "Email already exists" });
-            }
-            return res.status(500).json({ error: "Database error during registration" });
+        // 4. Insert into 'users' table (Auth Credentials)
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .insert([{ 
+                name: personal_info.full_name,
+                email: personal_info.email, 
+                password: hashedPassword, 
+                role: role, 
+                is_approved: isApproved 
+            }])
+            .select()
+            .single();
+
+        if (userError) {
+            console.error("User Register Error:", userError.message);
+            if (userError.code === '23505') return res.status(400).json({ error: "Email already exists" });
+            return res.status(500).json({ error: "Registration failed." });
         }
 
+        // 5. Insert into 'profiles' table (Detailed Data)
+        // We unpack the complex frontend object into specific columns + JSON columns
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([{
+                user_id: user.id, // Links to the BIGINT id from users table
+                
+                // Specific Columns for Filtering
+                full_name: personal_info.full_name,
+                gender: personal_info.gender,
+                country: personal_info.country,
+                governorate: personal_info.governorate,
+
+                university: education?.university,
+                faculty: education?.faculty,
+                department: education?.department,
+                graduation_year: education?.graduation_year ? parseInt(education.graduation_year) : null,
+                university_email: education?.university_email,
+
+                linkedin_url: online_presence?.linkedin_url,
+                github_url: online_presence?.github_url,
+                scholar_url: online_presence?.scholar_url,
+
+                // JSON Columns for Lists
+                skills: skills || [],
+                experience: experience || [],
+                internships: internships || [],
+                courses: courses || [],
+                personal_projects: personal_projects || [],
+                
+                // JSON Columns for Objects
+                graduation_project: graduation_project || {},
+                postgraduate_research: postgraduate_research || {},
+                iti_training: iti || {},
+                nti_training: nti || {}
+            }]);
+
+        if (profileError) {
+            console.error("Profile Error:", profileError.message);
+            // Cleanup: Delete the user if profile creation fails so they can try again
+            await supabase.from('users').delete().eq('id', user.id);
+            return res.status(500).json({ error: "Failed to save profile details. Please try again." });
+        }
+
+        // 6. Response
         if (isApproved === 0) {
             res.json({ success: true, message: "Account created. Waiting for Admin approval." });
         } else {
-            res.json({ success: true, message: "Registration successful. You can login now." });
+            // Generate Token immediately
+            const token = jwt.sign({ id: user.id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
+            
+            // Set Cookie
+            res.cookie('auth_token', token, { httpOnly: true, secure: false, maxAge: 86400000 });
+            
+            res.json({ 
+                success: true, 
+                token: token,
+                user: { id: user.id, name: user.name, role: user.role } 
+            });
         }
+
     } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: "Server error" });
+        console.error("Server Error:", e);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
 
-// Login
+// 2. LOGIN API
 app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
+    try {
+        // 1. Get User
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
 
-    if (error || !user) return res.status(400).json({ error: "Invalid credentials" });
-    
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(400).json({ error: "Invalid credentials" });
+        if (error || !user) return res.status(400).json({ error: "Invalid credentials" });
+        
+        // 2. Check Password
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) return res.status(400).json({ error: "Invalid credentials" });
 
-    if (user.is_approved === 0) {
-        return res.status(403).json({ error: "Your account is pending Admin approval." });
+        // 3. Check Approval
+        if (user.is_approved === 0) {
+            return res.status(403).json({ error: "Your account is pending Admin approval." });
+        }
+
+        // 4. Fetch Profile Data (for the avatar or extra info)
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('university, gender, linkedin_url')
+            .eq('user_id', user.id)
+            .maybeSingle(); // Use maybeSingle to avoid error if profile is missing for old users
+
+        // 5. Generate Token
+        const token = jwt.sign({ id: user.id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
+
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: false, 
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
+        res.json({ 
+            success: true, 
+            token: token,
+            user: { 
+                id: user.id, 
+                name: user.name, 
+                role: user.role,
+                university: profile?.university || '',
+                linkedin: profile?.linkedin_url || ''
+            } 
+        });
+
+    } catch (e) {
+        console.error("Login Error:", e);
+        res.status(500).json({ error: "Server Error" });
     }
-
-    const token = jwt.sign({ id: user.id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
-
-    // tokens in cookies
-    res.cookie('auth_token', token, {
-        httpOnly: true, //   لحد ما نظبط حوار ال testing  XSS
-        secure: false,  // خليها true في حالة الـ HTTPS (Production)
-        maxAge: 24 * 60 * 60 * 1000 // one day
-    });
-
-    res.json({ 
-        success: true, 
-        user: { id: user.id, name: user.name, role: user.role } 
-    });
 });
 
 
@@ -1370,6 +1475,99 @@ app.post('/api/feedback', async (req, res) => {
 });
 
 
+// --- SECTION 8: PROFILES & DIRECTORY API ---
+
+// 1. Serve the Profiles Page
+app.get('/profiles', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profiles.html')));
+
+// 2. API: Get Public Profiles (with Filters)
+app.get('/api/directory/profiles', async (req, res) => {
+    const { q, role, university, skill } = req.query;
+
+    let query = supabase
+        .from('profiles')
+        .select(`
+            *,
+            users!inner (
+                name,
+                role,
+                is_approved
+            )
+        `)
+        .eq('users.is_approved', 1); // Only show approved users
+
+    // Apply Filters
+    if (role && role !== 'All') {
+        query = query.eq('users.role', role);
+    }
+    if (university && university !== 'All') {
+        query = query.ilike('university', `%${university}%`);
+    }
+    // Note: Supabase JSON filtering for skills array
+    if (skill) {
+        query = query.contains('skills', [skill]);
+    }
+    
+    const { data, error } = await query;
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Client-side text search (Simpler for combined name/bio search)
+    let filteredData = data;
+    if (q) {
+        const lowerQ = q.toLowerCase();
+        filteredData = data.filter(p => 
+            p.full_name?.toLowerCase().includes(lowerQ) || 
+            p.users?.role?.toLowerCase().includes(lowerQ) ||
+            p.university?.toLowerCase().includes(lowerQ)
+        );
+    }
+
+    res.json(filteredData);
+});
+
+// 3. API: Get Directory Stats
+app.get('/api/directory/stats', async (req, res) => {
+    // Fetch basic columns for stats to save bandwidth
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('university, skills, users!inner(role)');
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    const total = data.length;
+    
+    // Count Roles
+    const roles = {};
+    data.forEach(p => {
+        const r = p.users?.role || 'User';
+        roles[r] = (roles[r] || 0) + 1;
+    });
+
+    // Count Universities
+    const unis = {};
+    data.forEach(p => {
+        if(p.university) unis[p.university] = (unis[p.university] || 0) + 1;
+    });
+    const topUni = Object.entries(unis).sort((a,b) => b[1] - a[1])[0];
+
+    // Count Top Skill
+    const skillMap = {};
+    data.forEach(p => {
+        if(Array.isArray(p.skills)) {
+            p.skills.forEach(s => skillMap[s] = (skillMap[s] || 0) + 1);
+        }
+    });
+    const topSkill = Object.entries(skillMap).sort((a,b) => b[1] - a[1])[0];
+
+    res.json({
+        total,
+        breakdown: roles,
+        topUniversity: topUni ? `${topUni[0]} (${topUni[1]})` : 'N/A',
+        topSkill: topSkill ? `${topSkill[0]} (${topSkill[1]})` : 'N/A'
+    });
+});
+
 // ================================================================
 //  HELPERS & STARTUP
 // ================================================================
@@ -1425,13 +1623,86 @@ function getFuzzyValue(row, keywords) {
     return match ? row[match] : '';
 }
 
+
+// ================================================================
+//  ADMIN: BULK UPLOAD GRADUATION PROJECTS (CORRECTED)
+// ================================================================
+
+app.post('/api/admin/upload-grad-projects', uploadTemp.single('file'), async (req, res) => {
+    if (!req.file || !req.file.buffer) {
+        return res.status(400).json({ error: "No file uploaded or invalid format" });
+    }
+
+    try {
+        const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const rawRows = xlsx.utils.sheet_to_json(sheet);
+
+        const projectsToInsert = rawRows.map(row => {
+            const clean = (val) => (val && val !== 'NA' && val !== 'Na') ? String(val).trim() : null;
+            
+            // Logic: Convert "Yes"/"No" to Boolean
+            const isSponsored = (row['Sponsored by Company'] && row['Sponsored by Company'].toLowerCase() === 'yes');
+
+            // Logic: Convert single domain to JSON array
+            const domainRaw = clean(row['Project Domain']);
+            const domains = domainRaw ? JSON.stringify([domainRaw]) : JSON.stringify([]);
+
+            return {
+                university: clean(row['University']),
+                grad_year: clean(row['Graduation Year']),
+                supervisor: clean(row['Supervisor 1 Name']),
+                co_supervisor: clean(row['Supervisor 2 Name']),
+                domains: domains,
+                project_title: clean(row['Project Title']),
+                
+                // REMOVED project_summary to fix the error
+                // project_summary: clean(row['Project Summary']), 
+
+                peers_count: parseInt(row['Number of Peers']) || 1,
+                is_sponsored: isSponsored,
+                sponsor_company: clean(row['Company Name']),
+                company_mentor: clean(row['Company Mentor Name']),
+                doc_link: clean(row['Thesis Document']),
+                
+                // Default values for required fields not in CSV
+                student_name: 'Imported Project', 
+                email: 'imported@system.local', // Dummy email if required
+                phone: null,
+                faculty: 'Engineering',
+                major: 'Electronics',
+                submitted_at: new Date()
+            };
+        });
+
+        if (projectsToInsert.length > 0) {
+            const { error } = await supabase
+                .from('graduation_projects')
+                .insert(projectsToInsert);
+            
+            if (error) throw error;
+        }
+
+        res.json({ 
+            success: true, 
+            message: `Successfully uploaded ${projectsToInsert.length} projects.` 
+        });
+
+    } catch (err) {
+        console.error("Upload Error:", err);
+        res.status(500).json({ error: "Failed to upload projects: " + err.message });
+    }
+});
+
+
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 });
 
 
 module.exports = app;
-
 
 
 

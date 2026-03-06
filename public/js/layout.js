@@ -146,7 +146,7 @@ header.innerHTML = `
                 
                 <nav class="nav-links" id="nav-links">
                     <a href="/" class="nav-link ${path === '/' ? 'active' : ''}">Home</a>
-
+                    
                     <!-- RESEARCH DROPDOWN -->
                     <div class="nav-item">
                         <span class="nav-link dropdown-trigger ${['/scanner','/explorer','/local-search'].some(x=>path.includes(x)) ? 'active' : ''}">
@@ -157,7 +157,8 @@ header.innerHTML = `
                             <a href="/explorer" class="dropdown-item"><i class="fas fa-search"></i> Paper Explorer</a>
                             <a href="/local-search" class="dropdown-item"><i class="fas fa-map-marker-alt"></i> Local Researchers</a> 
                             <a href="/grad-dashboard" class="dropdown-item"><i class="fas fa-database"></i> Database Stats</a> 
-                        </div>
+                            <a href="/profiles" class="nav-link ${path === '/profiles' || path === '/profiles.html' ? 'active' : ''}">Community</a>
+                            </div>
                     </div>
 
                     <!-- JOBS DROPDOWN -->
