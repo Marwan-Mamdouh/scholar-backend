@@ -1399,32 +1399,37 @@ const cheerio = require('cheerio');
 app.post('/api/admin/linkedin-scrape', async (req, res) => {
     const { query, location } = req.body;
 
-   
-    const cleanQuery = query.trim().toLowerCase().replace(/\s+/g, '-');
-    const cleanLocation = location.trim().toLowerCase().replace(/\s+/g, '-');
-    
-    const targetUrl = `https://www.linkedin.com/jobs/${cleanQuery}-jobs-${cleanLocation}?position=1&pageNum=0`;
+    // 1. Use the official guest API endpoint for job search, which is much more stable than the SEO URL
+    const targetUrl = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&start=0`;
 
     console.log(`[LinkedIn Scraper] Target URL: ${targetUrl}`);
 
     try {
         const response = await axios.get(targetUrl, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                // Update User-Agent to a modern one to prevent blocking
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'en-US,en;q=0.9',
             }
         });
 
         const html = response.data;
         const $ = cheerio.load(html); 
-        const jobs = [];
+        const jobs =[];
 
-        // 3. استخراج البيانات بناءً على كود HTML اللي انت بعته
-        // الكلاس الأساسي لكل كارت هو "base-search-card"
-        $('.base-search-card').each((index, element) => {
-            const title = $(element).find('.base-search-card__title').text().trim();
-            const company = $(element).find('.base-search-card__subtitle a').text().trim() || query;
-            const jobLocation = $(element).find('.job-search-card__location').text().trim();
+        // 2. In the guest API, the response is a list of <li> elements containing the job cards
+        $('.base-search-card, .job-search-card').each((index, element) => {
+            const title = $(element).find('.base-search-card__title').text().trim().replace(/\s+/g, ' ');
+            
+            // Subtitle usually holds the company name. We remove extra spaces/newlines.
+            let company = $(element).find('.base-search-card__subtitle').text().trim().replace(/\s+/g, ' ');
+            if (!company) {
+                // Fallback in case the structure is slightly different
+                company = $(element).find('h4 a').text().trim().replace(/\s+/g, ' ');
+            }
+            if (!company) company = query; // Final fallback
+
+            const jobLocation = $(element).find('.job-search-card__location').text().trim().replace(/\s+/g, ' ');
             const link = $(element).find('a.base-card__full-link').attr('href');
             
             const dateElement = $(element).find('time');
@@ -1438,6 +1443,7 @@ app.post('/api/admin/linkedin-scrape', async (req, res) => {
                     title: title,
                     company: company,
                     location: jobLocation,
+                    // Strip tracking parameters from the URL
                     link: link.split('?')[0], 
                     date: postedDate,
                     logo: logo,
@@ -1446,9 +1452,23 @@ app.post('/api/admin/linkedin-scrape', async (req, res) => {
             }
         });
 
-        console.log(`[LinkedIn Scraper] Found ${jobs.length} jobs.`);
-        res.json({ success: true, data: jobs });
+        // 3. FILTER: Only keep jobs where the parsed company name closely matches the searched text
+        const queryLower = query.trim().toLowerCase();
+        const filteredJobs = jobs.filter(j => {
+            const compLower = j.company.toLowerCase();
+            // Check if either contains the other to be safe (e.g. "Siemens" vs "Siemens AG")
+            return compLower.includes(queryLower) || queryLower.includes(compLower);
+        });
 
+        console.log(`[LinkedIn Scraper] Found ${jobs.length} jobs. After filtering by exact company: ${filteredJobs.length}`);
+        
+        if (jobs.length > 0 && filteredJobs.length === 0) {
+             console.log(`[LinkedIn Scraper] Warning: Filter removed all jobs. LinkedIn returned jobs, but none matched the exact company name "${query}".`);
+        }
+
+        res.json({ success: true, data: filteredJobs });
+
+    
     } catch (error) {
         console.error("[LinkedIn Scraper] Error:", error.message);
         if (error.response && error.response.status === 404) {
@@ -1568,6 +1588,66 @@ app.get('/api/directory/stats', async (req, res) => {
     });
 });
 
+// ================================================================
+//  SECTION 8: Import Jobs
+// ================================================================
+
+//  Fetch all companies for the dropdown autocomplete
+app.get('/api/admin/all-companies', async (req, res) => {
+    const { data, error } = await supabase.from('companies').select('name');
+    if (error) return res.status(500).json({ error: error.message });
+    // Also merge companies from the jobs table just in case
+    const { data: jobData } = await supabase.from('jobs').select('company');
+    const allNames = new Set([...(data || []).map(c => c.name), ...(jobData ||[]).map(j => j.company)]);
+    res.json(Array.from(allNames).filter(Boolean).sort());
+});
+
+//  Bulk Import Jobs from Scraper
+app.post('/api/admin/import-jobs-bulk', isAdmin, async (req, res) => {
+    const { jobs } = req.body;
+    const owner_id = req.user.id;
+    
+    if (!jobs || !Array.isArray(jobs)) return res.status(400).json({ error: "Invalid jobs array" });
+
+    try {
+        const links = jobs.map(j => j.link);
+        const { data: existing, error: fetchError } = await supabase
+            .from('jobs')
+            .select('apply_link')
+            .in('apply_link', links);
+            
+        if (fetchError) throw fetchError;
+        const existingLinks = new Set(existing.map(e => e.apply_link));
+        
+        const toInsert = jobs.filter(j => !existingLinks.has(j.link)).map(j => ({
+            owner_id,
+            title: j.title,
+            company: j.company,
+            country: j.location,
+            country_code: j.location ? j.location.substring(0, 2).toUpperCase() : 'XX',
+            track: 'Uncategorized', 
+            type: 'Full-time',
+            seniority: 'Not Specified',
+            description: 'Imported via LinkedIn Direct Scanner.',
+            requirements: 'See external link for details.',
+            salary: 'Not Disclosed',
+            apply_link: j.link
+        }));
+
+        if (toInsert.length === 0) {
+            return res.json({ success: true, message: "No new jobs added. All selected jobs are already in the database." });
+        }
+
+        // 3. Insert into database
+        const { error: insertError } = await supabase.from('jobs').insert(toInsert);
+        if (insertError) throw insertError;
+
+        res.json({ success: true, message: `Successfully added ${toInsert.length} new jobs! (${jobs.length - toInsert.length} duplicates skipped)` });
+    } catch (error) {
+        console.error("[Bulk Import Error]:", error.message);
+        res.status(500).json({ error: "Failed to import jobs." });
+    }
+});
 // ================================================================
 //  HELPERS & STARTUP
 // ================================================================
