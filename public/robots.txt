@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /linkedin-scraper
+Disallow: /api/
+
+Sitemap: https://www.scholarnexus.com/sitemap.xml
