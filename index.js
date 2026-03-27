@@ -1648,6 +1648,146 @@ app.post('/api/admin/import-jobs-bulk', isAdmin, async (req, res) => {
         res.status(500).json({ error: "Failed to import jobs." });
     }
 });
+
+
+// ================================================================ 
+// // SECTION 6: COMPANIES DIRECTORY API section.
+// ================================================================ 
+
+// ================================================================
+//  SECTION: USER PROFILE API
+// ================================================================
+
+// Route for serving the profile page
+app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profile.html')));
+
+// GET /api/profile -> Returns full user data
+app.get('/api/profile', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Fetch basic user credentials
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('id, name, email, role, is_approved')
+            .eq('id', userId)
+            .single();
+            
+        if (userError) throw userError;
+
+        // Fetch detailed profile data
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single(); // It's okay if this is null for new users
+
+        res.json({
+            success: true,
+            data: { ...user, profile: profile || {} }
+        });
+    } catch (error) {
+        console.error("Profile Fetch Error:", error);
+        res.status(500).json({ success: false, error: "Failed to fetch profile data" });
+    }
+});
+
+app.put('/api/profile', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {
+            full_name, role, bio, skills, university,
+            graduation_year, linkedin_url, github_url,
+            graduation_project, experience
+        } = req.body;
+
+        // 1. Sync name and role in the `users` table
+        const userUpdate = {};
+        if (full_name) userUpdate.name = full_name;
+        if (role) userUpdate.role = role; 
+        
+        if (Object.keys(userUpdate).length > 0) {
+            await supabase.from('users').update(userUpdate).eq('id', userId);
+        }
+
+        // 2. Sanitize arrays for JSONB columns
+        const safeSkills = Array.isArray(skills) ? skills : (typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(Boolean) :[]);
+
+        const profilePayload = {
+            full_name,
+            bio,
+            skills: safeSkills,
+            university,
+            graduation_year: graduation_year ? parseInt(graduation_year) : null,
+            linkedin_url,
+            github_url,
+            graduation_project: graduation_project || {}, // Full JSON Object
+            experience: experience ||[]                  // JSON Array
+        };
+
+        // 3. BULLETPROOF SAVE: Check if exists first instead of using Upsert
+        const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', userId)
+            .maybeSingle(); // Prevents throwing an error if it doesn't exist
+
+        let profile, error;
+
+        if (existingProfile) {
+            // Update existing
+            const res = await supabase.from('profiles').update(profilePayload).eq('user_id', userId).select().single();
+            profile = res.data;
+            error = res.error;
+        } else {
+            // Insert new
+            const res = await supabase.from('profiles').insert([{ user_id: userId, ...profilePayload }]).select().single();
+            profile = res.data;
+            error = res.error;
+        }
+
+        if (error) throw error;
+
+        res.json({ success: true, data: profile, message: "Profile updated successfully." });
+    } catch (error) {
+        console.error("Profile Update Error:", error);
+        res.status(500).json({ success: false, error: "Failed to update profile." });
+    }
+});
+
+app.post('/api/profile/avatar', isAuthenticated, uploadTemp.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "No image file provided" });
+
+        const userId = req.user.id;
+        const fileExt = req.file.originalname.split('.').pop();
+        const fileName = `${userId}-${Date.now()}.${fileExt}`;
+
+        // Upload to Supabase 'avatars' bucket
+        const { error: uploadError } = await supabase.storage
+            .from('avatars') 
+            .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+        const avatarUrl = publicUrlData.publicUrl;
+
+        // Save URL in database
+        await supabase.from('profiles').upsert({ user_id: userId, avatar_url: avatarUrl }, { onConflict: 'user_id' });
+
+        res.json({ success: true, avatar_url: avatarUrl, message: "Avatar updated successfully." });
+    } catch (error) {
+        console.error("Avatar Upload Error:", error);
+        res.status(500).json({ success: false, error: "Failed to upload avatar." });
+    }
+});
+
+
+
+
+
 // ================================================================
 //  HELPERS & STARTUP
 // ================================================================

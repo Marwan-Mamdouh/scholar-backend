@@ -123,11 +123,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Auth Section
         const authLink = user
             ? `<div style="display:flex; align-items:center; gap:15px;">
-                 <span style="color:var(--accent); font-weight:bold;"><i class="fas fa-user-circle"></i> ${user.name}</span>
+                 <a href="/profile" style="color:var(--accent); font-weight:bold; text-decoration:none;"><i class="fas fa-user-circle"></i> ${user.name}</a>
                  <button onclick="logout()" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); padding:5px 10px; border-radius:6px; cursor:pointer;">Logout</button>
                </div>`
             : `<a href="/login" class="nav-link" style="color:var(--accent); font-weight:bold;"><i class="fas fa-sign-in-alt"></i> Login</a>`;
 
+            
         // Define Navigation Groups
         // Check if any sub-link is active to highlight the parent dropdown
         const isAcademicActive = ['/scanner', '/explorer', '/local-search', '/grad-form.html'].includes(path);
