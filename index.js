@@ -20,7 +20,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+// const { GoogleGenerativeAI } = require("@google/generative-ai");
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -37,8 +37,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Initialize Google Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // Multer Storage Configuration (Now using Memory Storage for Supabase Uploads)
 // Ensure uploads directory exists comment kept for context, but Supabase handles storage now
@@ -476,17 +476,17 @@ app.get('/api/search', async (req, res) => {
 
 /**
  * API: Deep Analyze Researcher
- * Fetches papers from S2, then sends data to Gemini AI for profiling.
+ * Fetches papers from S2 and formats the profile (Gemini AI Removed).
  */
 app.post('/api/analyze', async (req, res) => {
-    const { authorId, userDescription } = req.body;
+    const { authorId } = req.body;
     if (!authorId) return res.status(400).send("Target ID Required");
 
     try {
-        // 1. Fetch Author Data from S2
+        // Fetch Author Data from S2
         const resData = await axios.get(`https://api.semanticscholar.org/graph/v1/author/${authorId}`, {
             params: { 
-                fields: 'name,citationCount,hIndex,paperCount,url,papers.title,papers.year,papers.venue,papers.citationCount,papers.fieldsOfStudy,papers.authors,papers.url' 
+                fields: 'name,citationCount,hIndex,paperCount,url,papers.title,papers.year,papers.venue,papers.citationCount,papers.fieldsOfStudy,papers.authors,papers.url,papers.openAccessPdf' 
             },
             headers: { 'x-api-key': process.env.S2_API_KEY || '' }
         });
@@ -494,71 +494,44 @@ app.post('/api/analyze', async (req, res) => {
         const author = resData.data;
         author.primaryField = extractTopField(author.papers);
 
-        // 2. Prepare Data for AI
-        const keyPapers = author.papers
-            .sort((a,b) => (b.citationCount || 0) - (a.citationCount || 0))
-            .slice(0, 30) // Top 30 papers
-            .map(p => `[${p.year}] "${p.title}" (Citations: ${p.citationCount})`)
-            .join('\n');
-
-        // 3. Calculate Collaborations
-        const collaborators = {};
+        // Calculate Collaborations
+        const collabMap = new Map();
         if(author.papers) {
             author.papers.forEach(p => {
-                if(p.authors) p.authors.forEach(a => {
-                    if (a.authorId !== authorId && a.name) {
-                        collaborators[a.name] = (collaborators[a.name] || 0) + 1;
-                    }
-                });
+                if(p.authors) {
+                    p.authors.forEach(a => {
+                        // Don't count the researcher themselves
+                        if (a.authorId !== authorId && a.name) {
+                            if (!collabMap.has(a.authorId)) {
+                                collabMap.set(a.authorId, { id: a.authorId, name: a.name, count: 0 });
+                            }
+                            collabMap.get(a.authorId).count++;
+                        }
+                    });
+                }
             });
         }
-        const topCollabs = Object.entries(collaborators)
-            .sort((a,b) => b[1]-a[1])
-            .slice(0, 8);
-
-        // 4. Generate AI Prompt
-        const prompt = `
-            Act as an Academic Profiler.
-            TARGET: ${author.name}. FIELD: ${author.primaryField}.
-            STATS: H-Index: ${author.hIndex}, Citations: ${author.citationCount}.
-            TOP PAPERS:
-            ${keyPapers}
-
-            USER CONTEXT: "${userDescription || 'General Academic Assessment'}".
-
-            TASK:
-            1. Analyze the career trajectory & specific expertise.
-            2. Calculate a "Relevance Match Score" (0-100) based on the user's context.
-            3. Identify key technologies or methodologies used.
-            
-            OUTPUT JSON ONLY (No Markdown):
-            {
-                "full_report": "3 paragraphs analysis.",
-                "match_score": 85,
-                "match_reason": "One sentence explaining the score.",
-                "key_technologies": ["Tech1", "Tech2", "Tech3"]
-            }
-        `;
-
-        // 5. Call Gemini
-        const aiResult = await model.generateContent(prompt);
-        const text = aiResult.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
         
-        let analysisData;
-        try { 
-            analysisData = JSON.parse(text); 
-        } catch (e) { 
-            analysisData = { full_report: text, match_score: 0, key_technologies: [] }; 
-        }
+        const topCollabs = Array.from(collabMap.values())
+            .sort((a,b) => b.count - a.count)
+            .slice(0, 10); // Return top 10
 
-        res.json({ author, analysis: analysisData, collaborators: topCollabs });
+        // Format Data identically to the local database endpoint
+        const localData = {
+            name: author.name,
+            affiliation: "Semantic Scholar Global",
+            main_topic: author.primaryField,
+            subtopics: author.primaryField,
+            scholar_id: authorId
+        };
+
+        res.json({ local: localData, author: author, collaborators: topCollabs });
 
     } catch (e) {
         console.error("Analysis Error:", e);
         res.status(500).json({ error: "Analysis Failed" });
     }
 });
-
 
 // ================================================================
 //  SECTION 3: TOPIC EXPLORER API
