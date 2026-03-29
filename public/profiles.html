@@ -7,7 +7,7 @@
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/global.css">
 
     <style>
         /* --- CORE VARIABLES --- */
@@ -42,7 +42,7 @@
             flex: 1; padding-top: 40px; padding-bottom: 60px;
         }
 
-        /* --- STATS & FILTERS (Keep existing design) --- */
+        /* --- STATS & FILTERS --- */
         .stats-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; }
         .stat-icon { width: 48px; height: 48px; border-radius: 10px; background: rgba(79, 70, 229, 0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
@@ -92,7 +92,7 @@
         .profiles-list .card-footer { border: none; padding: 0; }
         @media (min-width: 900px) { .profiles-list .skills-wrap { display: flex; margin-left: auto; margin-right: 20px; } }
 
-        /* --- DETAILED MODAL STYLES (NEW) --- */
+        /* --- DETAILED MODAL STYLES --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-box { background: var(--bg-card); width: 95%; max-width: 800px; height: 90vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
         
@@ -107,7 +107,6 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
-        /* Content Styling */
         .section-title { font-size: 1.1rem; color: var(--accent); margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .info-item { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
@@ -118,11 +117,6 @@
         .timeline-box::before { content: ''; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: absolute; left: -6px; top: 5px; }
         
         .close-modal-btn { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-
-        @media (max-width: 768px) {
-            .modal-header { flex-direction: column; text-align: center; align-items: center; }
-            .close-modal-btn { position: absolute; top: 15px; right: 15px; }
-        }
     </style>
 </head>
 <body>
@@ -158,10 +152,13 @@
 
         <!-- Filters -->
         <div class="filter-bar">
-            <div class="search-group">
+            <!-- Search row -->
+            <div class="search-group" style="flex: 1 1 100%;">
                 <i class="fas fa-search"></i>
                 <input type="text" id="filter-name" class="form-input" placeholder="Search by Name, Bio, or Keyword...">
             </div>
+            
+            <!-- Filters row -->
             <div class="filter-group">
                 <select id="filter-role" class="form-select">
                     <option value="All">All Roles</option>
@@ -175,9 +172,33 @@
                     <option value="All">All Universities</option>
                 </select>
             </div>
-            <div class="filter-group">
-                 <input type="text" id="filter-skill" class="form-input" placeholder="Filter by Skill (e.g. Verification)">
+            
+            <!-- Range Year Filters -->
+            <div class="filter-group" style="display: flex; gap: 8px; min-width: 220px;">
+                <input type="number" id="filter-year-min" class="form-input" placeholder="Min Year" style="padding-left: 15px;">
+                <input type="number" id="filter-year-max" class="form-input" placeholder="Max Year" style="padding-left: 15px;">
             </div>
+
+            <div class="filter-group">
+                 <input type="text" id="filter-skill" class="form-input" placeholder="Skill (e.g. Verification)">
+            </div>
+            
+            <!-- Combined ITI/NTI Filter -->
+            <div class="filter-group">
+                <select id="filter-gov" class="form-select">
+                    <option value="All">ITI / NTI: All</option>
+                    <option value="Taken">ITI or NTI Taken</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select id="filter-exp" class="form-select">
+                    <option value="All">Experience: All</option>
+                    <option value="Yes">Has Experience</option>
+                    <option value="No">No Experience</option>
+                </select>
+            </div>
+            
             <button onclick="applyFilters()" class="btn-primary">Filter</button>
             <div class="view-toggles">
                 <button class="view-btn active" onclick="setView('grid')" id="btn-grid"><i class="fas fa-th-large"></i></button>
@@ -262,9 +283,7 @@
                 <!-- 4. Training Tab -->
                 <div id="tab-training" class="tab-panel">
                     <div class="section-title"><i class="fas fa-certificate"></i> Specialized Training</div>
-                    <div class="info-grid" id="m-iti-nti">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="info-grid" id="m-iti-nti"></div>
 
                     <div class="section-title" style="margin-top:20px;"><i class="fas fa-book-open"></i> Courses & Certifications</div>
                     <div id="m-courses"></div>
@@ -277,7 +296,7 @@
 
     <script src="js/layout.js"></script>
     <script>
-        let allUsers = []; 
+        let allUsers =[]; 
         let uniqueUnis = new Set();
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -285,6 +304,7 @@
             fetchAllProfiles();
         });
 
+        // Fetches directory stats from the backend
         async function loadStats() {
             try {
                 const res = await fetch('/api/directory/stats');
@@ -292,17 +312,21 @@
                 document.getElementById('stat-total').innerText = data.total;
                 document.getElementById('stat-uni').innerText = data.topUniversity;
                 document.getElementById('stat-skill').innerText = data.topSkill;
-            } catch(e) {}
+            } catch(e) { console.error(e); }
         }
 
+        // Fetches all profiles
         async function fetchAllProfiles() {
             try {
                 const res = await fetch('/api/directory/profiles');
                 allUsers = await res.json();
                 
-                // Populate Dropdown
                 const uniSelect = document.getElementById('filter-uni');
-                allUsers.forEach(u => { if(u.university) uniqueUnis.add(u.university); });
+
+                allUsers.forEach(u => { 
+                    if(u.university) uniqueUnis.add(u.university); 
+                });
+
                 Array.from(uniqueUnis).sort().forEach(uni => {
                     const opt = document.createElement('option');
                     opt.value = uni;
@@ -314,11 +338,21 @@
             } catch(e) { console.error(e); }
         }
 
+        // Filters full dataset based on frontend inputs
         function applyFilters() {
             const nameQ = document.getElementById('filter-name').value.toLowerCase();
             const roleQ = document.getElementById('filter-role').value.toLowerCase();
             const uniQ = document.getElementById('filter-uni').value;
+            
+            // Year Range Data
+            const minYearStr = document.getElementById('filter-year-min').value;
+            const maxYearStr = document.getElementById('filter-year-max').value;
+            const minYear = minYearStr ? parseInt(minYearStr) : 0;
+            const maxYear = maxYearStr ? parseInt(maxYearStr) : 9999;
+            
             const skillQ = document.getElementById('filter-skill').value.toLowerCase();
+            const govQ = document.getElementById('filter-gov').value;
+            const expQ = document.getElementById('filter-exp').value;
 
             const filtered = allUsers.filter(user => {
                 const uRole = (user.users?.role || '').toLowerCase();
@@ -330,16 +364,57 @@
                 const matchesRole = (roleQ === 'all') || (displayRole === roleQ);
                 const matchesUni = (uniQ === 'All') || (user.university === uniQ);
                 
+                // RANGE YEAR LOGIC
+                let matchesYear = true;
+                if (minYearStr || maxYearStr) {
+                    const y = parseInt(user.graduation_year);
+                    if (!y || isNaN(y) || y < minYear || y > maxYear) {
+                        matchesYear = false;
+                    }
+                }
+                
                 let matchesSkill = true;
                 if(skillQ) {
-                    const skills = Array.isArray(user.skills) ? user.skills : [];
+                    const skills = Array.isArray(user.skills) ? user.skills :[];
                     matchesSkill = skills.some(s => s.toLowerCase().includes(skillQ));
                 }
-                return matchesName && matchesRole && matchesUni && matchesSkill;
+
+                // COMBINED GOV (ITI/NTI) LOGIC
+                let matchesGov = true;
+                if (govQ === 'Taken') {
+                    const itiData = typeof user.iti_training === 'string' ? JSON.parse(user.iti_training) : (user.iti_training || {});
+                    const ntiData = typeof user.nti_training === 'string' ? JSON.parse(user.nti_training) : (user.nti_training || {});
+                    
+                    const hasITI = !!(itiData && itiData.track && itiData.track.trim() !== "");
+                    const hasNTI = !!(ntiData && ntiData.track && ntiData.track.trim() !== "");
+                    matchesGov = hasITI || hasNTI;
+                }
+
+                let matchesExp = true;
+                if (expQ !== 'All') {
+                    const expList = typeof user.experience === 'string' ? JSON.parse(user.experience) : (user.experience ||[]);
+                    const hasExp = Array.isArray(expList) && expList.length > 0;
+                    if (expQ === 'Yes') matchesExp = hasExp;
+                    if (expQ === 'No') matchesExp = !hasExp;
+                }
+
+                return matchesName && matchesRole && matchesUni && matchesYear && matchesSkill && matchesGov && matchesExp;
             });
+
             renderProfiles(filtered);
         }
 
+function getFirstName(fullName) {
+            if (!fullName) return "Member";
+            let parts = fullName.trim().split(/\s+/);
+            let first = parts[0];
+            if ((first === 'عبد' || first.toLowerCase() === 'abd') && parts.length > 1) {
+                first = first + ' ' + parts[1];
+            }
+            return first;
+        }
+
+        // Renders filtered profiles
         function renderProfiles(users) {
             const container = document.getElementById('profiles-container');
             container.innerHTML = '';
@@ -349,7 +424,10 @@
             }
 
             users.forEach(u => {
-                const initials = u.full_name ? u.full_name.substring(0,2).toUpperCase() : 'ME';
+                // STRICT CLIENT-SIDE PRIVACY: Force First Name Only
+                const firstName = getFirstName(u.full_name);
+                const initials = firstName.substring(0,2).toUpperCase();
+                
                 let rawRole = (u.users?.role || '').toLowerCase();
                 let displayRole = 'Industry';
                 let badgeClass = 'badge-industry';
@@ -357,7 +435,7 @@
                 if (rawRole === 'student') { displayRole = 'Student'; badgeClass = 'badge-student'; } 
                 else if (rawRole.includes('grad')) { displayRole = 'Graduate'; badgeClass = 'badge-graduate'; }
                 
-                const skills = Array.isArray(u.skills) ? u.skills.slice(0, 3) : [];
+                const skills = Array.isArray(u.skills) ? u.skills.slice(0, 3) :[];
                 const userJson = encodeURIComponent(JSON.stringify(u));
 
                 const html = `
@@ -365,7 +443,7 @@
                         <div class="card-header-bg"></div>
                         <div class="card-avatar">${initials}</div>
                         <div class="card-body">
-                            <div class="user-name">${u.full_name}</div>
+                            <div class="user-name">${firstName}</div>
                             <span class="badge ${badgeClass}">${displayRole}</span>
                             <div class="detail-row"><i class="fas fa-university"></i> ${u.university || 'N/A'}</div>
                             <div class="detail-row"><i class="fas fa-map-marker-alt"></i> ${u.governorate || 'Egypt'}</div>
@@ -381,6 +459,99 @@
                 container.innerHTML += html;
             });
         }
+
+        function openModal(json) {
+            const u = JSON.parse(decodeURIComponent(json));
+            const safe = (val) => val ? val : '<span style="color:#555">Not Provided</span>';
+            const parse = (val) => {
+                if(!val) return[];
+                return typeof val === 'string' ? JSON.parse(val) : val;
+            };
+
+            // STRICT CLIENT-SIDE PRIVACY: Force First Name Only in Modal
+            const firstName = getFirstName(u.full_name);
+
+            document.getElementById('m-avatar').innerText = firstName.substring(0,2).toUpperCase();
+            document.getElementById('m-name').innerText = firstName;
+            document.getElementById('m-title').innerText = `${u.users?.role || 'Member'} • ${u.university || ''}`;
+            
+            let linkHtml = '';
+            if(u.linkedin_url) linkHtml += `<a href="${u.linkedin_url}" target="_blank" style="color:#0a66c2"><i class="fab fa-linkedin"></i></a>`;
+            if(u.github_url) linkHtml += `<a href="${u.github_url}" target="_blank" style="color:#fff"><i class="fab fa-github"></i></a>`;
+            if(u.scholar_url) linkHtml += `<a href="${u.scholar_url}" target="_blank" style="color:#4285F4"><i class="fas fa-graduation-cap"></i></a>`;
+            document.getElementById('m-links').innerHTML = linkHtml || '<span style="font-size:0.8rem; color:grey">No links</span>';
+
+            document.getElementById('m-role').innerText = u.users?.role || '-';
+            document.getElementById('m-gender').innerText = safe(u.gender);
+            document.getElementById('m-country').innerText = safe(u.country);
+            document.getElementById('m-gov').innerText = safe(u.governorate);
+            
+            // STRICT CLIENT-SIDE PRIVACY: Completely override email with lock
+            document.getElementById('m-email').innerHTML = '<span style="color:#f87171;"><i class="fas fa-lock"></i> Hidden for Privacy</span>'; 
+            
+            document.getElementById('m-uni').innerText = safe(u.university);
+            document.getElementById('m-faculty').innerText = safe(u.faculty);
+            document.getElementById('m-dept').innerText = safe(u.department);
+            document.getElementById('m-year').innerText = safe(u.graduation_year);
+
+            const skills = parse(u.skills);
+            document.getElementById('m-skills').innerHTML = skills.length 
+                ? skills.map(s => `<span class="skill-pill" style="font-size:0.85rem; padding:5px 10px;">${s}</span>`).join('') 
+                : 'No skills listed';
+
+            const renderTimeline = (arr, id) => {
+                const list = parse(arr);
+                const el = document.getElementById(id);
+                if(list.length === 0) { el.innerHTML = '<div style="color:grey; padding:10px;">None listed.</div>'; return; }
+                el.innerHTML = list.map(item => `
+                    <div class="timeline-box">
+                        <strong style="color:var(--accent); font-size:1.05rem;">${item.title || item.role || item.position || 'Role'}</strong>
+                        <div style="font-size:0.9rem; color:#ccc; margin-bottom:5px;">${item.company || item.organization || ''} ${item.date || item.duration ? '• ' + (item.date || item.duration) : ''}</div>
+                        <p style="font-size:0.9rem; color:var(--text-muted); margin:0;">${item.description || ''}</p>
+                    </div>
+                `).join('');
+            };
+            renderTimeline(u.experience, 'm-work');
+            renderTimeline(u.internships, 'm-internships');
+
+            const gp = typeof u.graduation_project === 'string' ? JSON.parse(u.graduation_project) : u.graduation_project;
+            const gpDiv = document.getElementById('m-grad-project');
+            if (gp && (gp.title || gp.description)) {
+                gpDiv.innerHTML = `
+                    <h3 style="margin:0 0 5px 0; color:white;">${gp.title || 'Untitled Project'}</h3>
+                    ${gp.grade ? `<span class="badge badge-graduate">Grade: ${gp.grade}</span>` : ''}
+                    <p style="margin-top:10px; color:#ccc;">${gp.description || ''}</p>
+                `;
+            } else { gpDiv.innerHTML = 'No graduation project info.'; }
+
+            const pg = typeof u.postgraduate_research === 'string' ? JSON.parse(u.postgraduate_research) : u.postgraduate_research;
+            document.getElementById('m-postgrad').innerHTML = (pg && pg.topic) ? 
+                `<div class="timeline-box"><strong>${pg.topic}</strong><br><span style="color:grey">${pg.field || ''} • ${pg.status || ''}</span></div>` 
+                : '<span style="color:grey">None.</span>';
+
+            renderTimeline(u.personal_projects, 'm-projects');
+
+            const iti = typeof u.iti_training === 'string' ? JSON.parse(u.iti_training) : u.iti_training;
+            const nti = typeof u.nti_training === 'string' ? JSON.parse(u.nti_training) : u.nti_training;
+            
+            let trainingHTML = '';
+            if (iti && iti.track) trainingHTML += `<div class="info-item"><span class="info-label" style="color:#e94e77">ITI Training</span><span class="info-value">${iti.track}<br><small>${iti.status || ''}</small></span></div>`;
+            if (nti && nti.track) trainingHTML += `<div class="info-item"><span class="info-label" style="color:#4caf50">NTI Training</span><span class="info-value">${nti.track}<br><small>${nti.status || ''}</small></span></div>`;
+            
+            document.getElementById('m-iti-nti').innerHTML = trainingHTML || '<span style="grid-column:1/-1; color:grey">No government training records.</span>';
+
+            const courses = parse(u.courses);
+            document.getElementById('m-courses').innerHTML = courses.length ? courses.map(c => `
+                <div style="background:#222; padding:10px; margin-bottom:5px; border-radius:6px; display:flex; justify-content:space-between;">
+                    <span>${c.name || c}</span>
+                    <span style="color:grey; font-size:0.8rem;">${c.provider || ''}</span>
+                </div>
+            `).join('') : '<span style="color:grey">No extra courses.</span>';
+
+            document.getElementById('modal-overlay').style.display = 'flex';
+            switchTab('overview');
+        }
+
 
         function setView(view) {
             const container = document.getElementById('profiles-container');
@@ -398,110 +569,11 @@
             }
         }
 
-        /* --- THE BIG MODAL FUNCTION --- */
-        function openModal(json) {
-            const u = JSON.parse(decodeURIComponent(json));
-            const safe = (val) => val ? val : '<span style="color:#555">Not Provided</span>';
-            const parse = (val) => {
-                if(!val) return [];
-                return typeof val === 'string' ? JSON.parse(val) : val;
-            };
-
-            // 1. Header
-            document.getElementById('m-avatar').innerText = u.full_name.substring(0,2).toUpperCase();
-            document.getElementById('m-name').innerText = u.full_name;
-            document.getElementById('m-title').innerText = `${u.users?.role || 'Member'} • ${u.university || ''}`;
-            
-            let linkHtml = '';
-            if(u.linkedin_url) linkHtml += `<a href="${u.linkedin_url}" target="_blank" style="color:#0a66c2"><i class="fab fa-linkedin"></i></a>`;
-            if(u.github_url) linkHtml += `<a href="${u.github_url}" target="_blank" style="color:#fff"><i class="fab fa-github"></i></a>`;
-            if(u.scholar_url) linkHtml += `<a href="${u.scholar_url}" target="_blank" style="color:#4285F4"><i class="fas fa-graduation-cap"></i></a>`;
-            document.getElementById('m-links').innerHTML = linkHtml || '<span style="font-size:0.8rem; color:grey">No links</span>';
-
-            // 2. Overview Tab
-            document.getElementById('m-role').innerText = u.users?.role || '-';
-            document.getElementById('m-gender').innerText = safe(u.gender);
-            document.getElementById('m-country').innerText = safe(u.country);
-            document.getElementById('m-gov').innerText = safe(u.governorate);
-            document.getElementById('m-email').innerText = safe(u.university_email);
-            
-            document.getElementById('m-uni').innerText = safe(u.university);
-            document.getElementById('m-faculty').innerText = safe(u.faculty);
-            document.getElementById('m-dept').innerText = safe(u.department);
-            document.getElementById('m-year').innerText = safe(u.graduation_year);
-
-            const skills = parse(u.skills);
-            document.getElementById('m-skills').innerHTML = skills.length 
-                ? skills.map(s => `<span class="skill-pill" style="font-size:0.85rem; padding:5px 10px;">${s}</span>`).join('') 
-                : 'No skills listed';
-
-            // 3. Experience Tab (Timeline Style)
-            const renderTimeline = (arr, id, type) => {
-                const list = parse(arr);
-                const el = document.getElementById(id);
-                if(list.length === 0) { el.innerHTML = '<div style="color:grey; padding:10px;">None listed.</div>'; return; }
-                el.innerHTML = list.map(item => `
-                    <div class="timeline-box">
-                        <strong style="color:var(--accent); font-size:1.05rem;">${item.title || item.role || item.position || 'Role'}</strong>
-                        <div style="font-size:0.9rem; color:#ccc; margin-bottom:5px;">${item.company || item.organization || ''} ${item.date || item.duration ? '• ' + (item.date || item.duration) : ''}</div>
-                        <p style="font-size:0.9rem; color:var(--text-muted); margin:0;">${item.description || ''}</p>
-                    </div>
-                `).join('');
-            };
-            renderTimeline(u.experience, 'm-work');
-            renderTimeline(u.internships, 'm-internships');
-
-            // 4. Academic Tab
-            // Graduation Project
-            const gp = typeof u.graduation_project === 'string' ? JSON.parse(u.graduation_project) : u.graduation_project;
-            const gpDiv = document.getElementById('m-grad-project');
-            if (gp && (gp.title || gp.description)) {
-                gpDiv.innerHTML = `
-                    <h3 style="margin:0 0 5px 0; color:white;">${gp.title || 'Untitled Project'}</h3>
-                    ${gp.grade ? `<span class="badge badge-graduate">Grade: ${gp.grade}</span>` : ''}
-                    <p style="margin-top:10px; color:#ccc;">${gp.description || ''}</p>
-                `;
-            } else { gpDiv.innerHTML = 'No graduation project info.'; }
-
-            // Postgrad
-            const pg = typeof u.postgraduate_research === 'string' ? JSON.parse(u.postgraduate_research) : u.postgraduate_research;
-            document.getElementById('m-postgrad').innerHTML = (pg && pg.topic) ? 
-                `<div class="timeline-box"><strong>${pg.topic}</strong><br><span style="color:grey">${pg.field || ''} • ${pg.status || ''}</span></div>` 
-                : '<span style="color:grey">None.</span>';
-
-            // Projects
-            renderTimeline(u.personal_projects, 'm-projects');
-
-            // 5. Training Tab (ITI / NTI / Courses)
-            const iti = typeof u.iti_training === 'string' ? JSON.parse(u.iti_training) : u.iti_training;
-            const nti = typeof u.nti_training === 'string' ? JSON.parse(u.nti_training) : u.nti_training;
-            
-            let trainingHTML = '';
-            if (iti && iti.track) trainingHTML += `<div class="info-item"><span class="info-label" style="color:#e94e77">ITI Training</span><span class="info-value">${iti.track}<br><small>${iti.status || ''}</small></span></div>`;
-            if (nti && nti.track) trainingHTML += `<div class="info-item"><span class="info-label" style="color:#4caf50">NTI Training</span><span class="info-value">${nti.track}<br><small>${nti.status || ''}</small></span></div>`;
-            
-            document.getElementById('m-iti-nti').innerHTML = trainingHTML || '<span style="grid-column:1/-1; color:grey">No government training records.</span>';
-
-            // Courses
-            const courses = parse(u.courses);
-            document.getElementById('m-courses').innerHTML = courses.length ? courses.map(c => `
-                <div style="background:#222; padding:10px; margin-bottom:5px; border-radius:6px; display:flex; justify-content:space-between;">
-                    <span>${c.name || c}</span>
-                    <span style="color:grey; font-size:0.8rem;">${c.provider || ''}</span>
-                </div>
-            `).join('') : '<span style="color:grey">No extra courses.</span>';
-
-            // Show Modal & Reset Tab
-            document.getElementById('modal-overlay').style.display = 'flex';
-            switchTab('overview');
-        }
-
         function switchTab(tabId) {
             document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             
-            // Find the clicked tab (based on text is tricky, better use index or bound context, but here simpler:)
-            const tabs = ['overview', 'experience', 'academic', 'training'];
+            const tabs =['overview', 'experience', 'academic', 'training'];
             const index = tabs.indexOf(tabId);
             document.querySelectorAll('.modal-tab')[index].classList.add('active');
             
@@ -509,15 +581,14 @@
         }
 
         function closeModal(e) {
-    if (e === true) {
-        document.getElementById('modal-overlay').style.display = 'none';
-        return;
-    }
-
-    if (e && e.target && e.target.id === 'modal-overlay') {
-        document.getElementById('modal-overlay').style.display = 'none';
-    }
-}
+            if (e === true) {
+                document.getElementById('modal-overlay').style.display = 'none';
+                return;
+            }
+            if (e && e.target && e.target.id === 'modal-overlay') {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
