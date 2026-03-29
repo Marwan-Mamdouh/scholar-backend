@@ -87,6 +87,14 @@
                         <datalist id="suggestions-university"></datalist>
                     </div>
 
+                    <!-- NEW: Title Keywords Search -->
+                    <div class="ls-form-group">
+                        <label>TITLE KEYWORDS (Multi)</label>
+                        <div id="tags-keywords" class="tag-container"></div>
+                        <input type="text" id="input-keywords" placeholder="Type keyword & press Enter..." 
+                            onkeydown="if(event.key === 'Enter') { event.preventDefault(); addTag('keywords', this.value); }">
+                    </div>
+
                     <!-- Researcher Name -->
                     <div class="ls-form-group">
                         <label>RESEARCHER NAME</label>
@@ -182,16 +190,15 @@
         // STATE MANAGEMENT
         // ===========================
         let allData = [];
-        let filteredData = [];
-        let selectedFilters = { maintopic: [], subtopic: [], university: [] };
+        let filteredData =[];
+        // Added keywords to the state object
+        let selectedFilters = { maintopic: [], subtopic: [], university:[], keywords: [] };
         let chartInstances = {};
-        let currentAuthorPapers = [];
+        let currentAuthorPapers =[];
         let localResearcherMap = new Map();
         let currentView = 'grid'; // 'grid' | 'list'
 
-        const IGNORED_LOCATIONS = ["Egypt", "Saudi Arabia", "USA", "UK", "Canada", "China", "France", "Cairo", "Giza"];
-
-
+        const IGNORED_LOCATIONS =["Egypt", "Saudi Arabia", "USA", "UK", "Canada", "China", "France", "Cairo", "Giza"];
 
         window.onload = () => {
             const user = JSON.parse(localStorage.getItem('nexus_user'));
@@ -208,8 +215,6 @@
             try {
                 const res = await fetch(`/api/local-researchers/filter`);
                 allData = await res.json();
-
-
 
                 localResearcherMap.clear();
                 allData.forEach(r => {
@@ -253,14 +258,16 @@
         // MULTI-SELECT LOGIC
         // ===========================
         function addTag(type, value) {
+            value = value.trim();
             if (!value) return;
             if (selectedFilters[type].includes(value)) return;
 
             selectedFilters[type].push(value);
             renderTags(type);
 
-            if (type !== 'maintopic') document.getElementById(`input-${type}`).value = '';
-            else document.getElementById(`select-maintopic`).value = '';
+            // Clear input logic
+            if (type === 'maintopic') document.getElementById(`select-maintopic`).value = '';
+            else document.getElementById(`input-${type}`).value = '';
 
             runFilter();
         }
@@ -280,12 +287,10 @@
             `).join('');
         }
 
-        // Handle datalist-based inputs (subtopic, university)
         function handleDatalistSelect(type, inputEl) {
             const val = inputEl.value;
-            // Check if value matches a datalist option
             const datalist = document.getElementById(`suggestions-${type}`);
-            const options = datalist ? Array.from(datalist.options).map(o => o.value) : [];
+            const options = datalist ? Array.from(datalist.options).map(o => o.value) :[];
             if (options.includes(val)) {
                 addTag(type, val);
             }
@@ -330,13 +335,14 @@
             if (selectedFilters.maintopic.length) params.append('main_topic', selectedFilters.maintopic.join(','));
             if (selectedFilters.subtopic.length) params.append('subtopic', selectedFilters.subtopic.join(','));
             if (selectedFilters.university.length) params.append('university', selectedFilters.university.join(','));
+            // Send keywords to backend
+            if (selectedFilters.keywords.length) params.append('keywords', selectedFilters.keywords.join(','));
+            
             if (researcher) params.append('researcher', researcher);
 
             try {
                 const res = await fetch(`/api/local-researchers/filter?${params.toString()}`);
                 filteredData = await res.json();
-
-
 
                 document.getElementById('result-count').innerText = filteredData.length;
                 renderResearchers(filteredData);
@@ -349,10 +355,9 @@
             }
         }
 
-
-
         function resetFilters() {
-            selectedFilters = { maintopic: [], subtopic: [], university: [] };
+            // Reset keywords state too
+            selectedFilters = { maintopic: [], subtopic: [], university:[], keywords:[] };
 
             // Clear inputs
             document.getElementById('filter-researcher').value = '';
@@ -362,11 +367,14 @@
             if (inpSub) inpSub.value = '';
             const inpUni = document.getElementById('input-university');
             if (inpUni) inpUni.value = '';
+            const inpKw = document.getElementById('input-keywords');
+            if (inpKw) inpKw.value = '';
 
             // Re-render tags
             renderTags('maintopic');
             renderTags('subtopic');
             renderTags('university');
+            renderTags('keywords');
 
             runFilter();
         }
@@ -567,7 +575,7 @@
         function renderProfile(data) {
             const { local, author, collaborators } = data;
             const cleanUni = cleanAffiliation(local.affiliation);
-            currentAuthorPapers = author ? author.papers : [];
+            currentAuthorPapers = author ? author.papers :[];
             const initials = getInitials(local.name);
             const avatarColor = getAvatarColor(local.name);
             const badgeClass = getTopicClass(local.main_topic);
@@ -709,9 +717,9 @@
                 type: 'doughnut',
                 data: {
                     labels: sorted.map(x => x[0]),
-                    datasets: [{
+                    datasets:[{
                         data: sorted.map(x => x[1]),
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#6366f1'],
+                        backgroundColor:['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#6366f1'],
                         borderWidth: 0
                     }]
                 },
@@ -796,10 +804,10 @@
                 type: type,
                 data: {
                     labels: data.map(d => d[0]),
-                    datasets: [{
+                    datasets:[{
                         label: label,
                         data: data.map(d => d[1]),
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#a855f7'],
+                        backgroundColor:['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#a855f7'],
                         borderWidth: 0
                     }]
                 },
