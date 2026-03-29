@@ -216,9 +216,17 @@ app.get('/api/local-researchers/main-topics', async (req, res) => {
     res.json(topics);
 });
 
+
+    // بص لو حد هيعدل بعدي في كام نوت مهمه لحاجات مسحتهم و حاجات كان لازم تتضاف 
+    // الحته دي كنت حاططها علشان مبعتش كل حاجه من الداتا بيز للفرونت مباشر 
+    // بس كان فيه مشكلة اني هبقي مضطر احسب حسابات الداش بورد في الباك اند و ابعتها للفرونت فانا مش هعمل كده
+    // طبعا المفروض اني كنت اخطط لده من الاول بس ما علينا لو لقيت نفسك مضطر ترجع لهنا يعني و تقلل الي بيتبعت للفرونت 
+    //عدل بس هنا و خد بالك من تحديث الداش بورد  في الصفحة دي 
+
+
 // 3. New Specific Filter Endpoint
 app.get('/api/local-researchers/filter', async (req, res) => {
-    const { main_topic, subtopic, university, researcher } = req.query;
+    const { main_topic, subtopic, university, researcher, keywords } = req.query;
     
     let query = supabase.from('academic_researchers').select('*');
     
@@ -227,18 +235,40 @@ app.get('/api/local-researchers/filter', async (req, res) => {
     if (university) query = query.ilike('affiliation', `%${university}%`);
     if (researcher) query = query.ilike('name', `%${researcher}%`);
     
-    // بص لو حد هيعدل بعدي في كام نوت مهمه لحاجات مسحتهم و حاجات كان لازم تتضاف 
-    // الحته دي كنت حاططها علشان مبعتش كل حاجه من الداتا بيز للفرونت مباشر 
-    // بس كان فيه مشكلة اني هبقي مضطر احسب حسابات الداش بورد في الباك اند و ابعتها للفرونت فانا مش هعمل كده
-    // طبعا المفروض اني كنت اخطط لده من الاول بس ما علينا لو لقيت نفسك مضطر ترجع لهنا يعني و تقلل الي بيتبعت للفرونت 
-    //عدل بس هنا و خد بالك من تحديث الداش بورد  في الصفحة دي 
-    // REMOVED: sql += ` LIMIT 150`;  <-- DELETE THIS LINE
-    // If you really want a safety cap, make it huge like 10000
-    // sql += ` LIMIT 10000`; 
+    // --- TITLE KEYWORDS LOGIC ---
+    if (keywords) {
+        const kwArray = keywords.split(',').filter(k => k.trim() !== '');
+        if (kwArray.length > 0) {
+            // Using the 'titles' column
+            const orString = kwArray.map(kw => `titles.ilike.%${kw.trim()}%`).join(',');
+            query = query.or(orString);
+        }
+    }
 
     const { data: rows, error } = await query;
-    if (error) return res.status(500).json({error: error.message});
-    res.json(rows);
+    
+    if (error) {
+        console.error("Filter Error:", error.message);
+        return res.status(500).json({error: error.message});
+    }
+
+    // --- DEDUPLICATION LOGIC ---
+    // This guarantees a researcher is never displayed twice.
+    const uniqueResearchers = new Map();
+    
+    rows.forEach(row => {
+        // Use scholar_id as the primary unique key. If empty, fallback to their name, then their DB id.
+        const uniqueKey = row.scholar_id || row.name || row.id;
+        
+        if (!uniqueResearchers.has(uniqueKey)) {
+            uniqueResearchers.set(uniqueKey, row);
+        }
+    });
+
+    const finalResults = Array.from(uniqueResearchers.values());
+    
+    // Send only the unique results to the frontend
+    res.json(finalResults);
 });
 
 // 4. Detailed Analyze (Smart ID or Name Search)
