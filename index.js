@@ -1499,32 +1499,51 @@ app.get('/api/directory/profiles', async (req, res) => {
         `)
         .eq('users.is_approved', 1); // Only show approved users
 
-    // Apply Filters
-    if (role && role !== 'All') {
-        query = query.eq('users.role', role);
-    }
-    if (university && university !== 'All') {
-        query = query.ilike('university', `%${university}%`);
-    }
-    // Note: Supabase JSON filtering for skills array
-    if (skill) {
-        query = query.contains('skills', [skill]);
-    }
+    // Apply Backend Filters
+    if (role && role !== 'All') query = query.eq('users.role', role);
+    if (university && university !== 'All') query = query.ilike('university', `%${university}%`);
+    if (skill) query = query.contains('skills', [skill]);
     
     const { data, error } = await query;
 
     if (error) return res.status(500).json({ error: error.message });
 
-    // Client-side text search (Simpler for combined name/bio search)
     let filteredData = data;
+    
+    // Client-side text search (Simpler for combined name/bio search)
     if (q) {
         const lowerQ = q.toLowerCase();
-        filteredData = data.filter(p => 
+        filteredData = filteredData.filter(p => 
             p.full_name?.toLowerCase().includes(lowerQ) || 
             p.users?.role?.toLowerCase().includes(lowerQ) ||
             p.university?.toLowerCase().includes(lowerQ)
         );
     }
+
+    // STRICT BACKEND PRIVACY: ALWAYS mask data in the public directory payload
+    filteredData = filteredData.map(p => {
+        let firstName = "Member";
+        if (p.full_name) {
+            let parts = p.full_name.trim().split(/\s+/);
+            firstName = parts[0];
+            // Handle compound Arabic names
+            if ((firstName === 'عبد' || firstName.toLowerCase() === 'abd') && parts.length > 1) {
+                firstName = firstName + ' ' + parts[1];
+            }
+        }
+
+        return {
+            ...p,
+            full_name: firstName,
+            university_email: "Hidden", // Hard-coded removal
+            email: "Hidden", // Hard-coded removal
+            users: p.users ? {
+                ...p.users,
+                name: firstName,
+                email: "Hidden" // Hard-coded removal
+            } : null
+        };
+    });
 
     res.json(filteredData);
 });
