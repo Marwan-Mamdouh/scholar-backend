@@ -1821,9 +1821,7 @@ app.post('/api/profile/avatar', isAuthenticated, uploadTemp.single('avatar'), as
 // ================================================================
 
 
-app.get('/open-source-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'open-source-ic-tools.html')));
-
-
+app.get('/ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ic-tools.html')));
 
 // ================================================================
 //  HELPERS & STARTUP
