@@ -1816,7 +1816,12 @@ app.post('/api/profile/avatar', isAuthenticated, uploadTemp.single('avatar'), as
     }
 });
 
+// ================================================================
+//  open source Tools and repos
+// ================================================================
 
+
+app.get('/open-source-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'open-source-ic-tools.html')));
 
 
 
