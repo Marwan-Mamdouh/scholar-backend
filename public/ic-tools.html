@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IC Design Toolchain — NEXUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+
+/* ─── TOKENS ──────────────────────────────────────────────── */
+:root {
+  --ink:        #0f0f0f;
+  --ink-2:      #2a2a2a;
+  --ink-3:      #555;
+  --ink-4:      #888;
+  --paper:      #faf9f7;
+  --paper-2:    #f2f0ec;
+  --paper-3:    #e8e5e0;
+  --rule:       #d8d4ce;
+  --accent:     #c8521a;
+  --accent-dim: rgba(200,82,26,.10);
+  --f-serif:    'Instrument Serif', Georgia, serif;
+  --f-sans:     'Geist', system-ui, sans-serif;
+  --f-mono:     'Geist Mono', 'Courier New', monospace;
+}
+[data-theme="dark"] {
+  --ink:        #f0ede8;
+  --ink-2:      #c8c4bc;
+  --ink-3:      #888;
+  --ink-4:      #555;
+  --paper:      #111010;
+  --paper-2:    #181714;
+  --paper-3:    #221f1c;
+  --rule:       #2e2b27;
+  --accent:     #e06c30;
+  --accent-dim: rgba(224,108,48,.09);
+}
+
+/* ─── RESET ───────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-sans);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+#app-header{position:sticky;top:0;z-index:200}
+.main-header{display:flex;align-items:center;gap:12px;padding:0 32px;height:58px;background:var(--paper);border-bottom:1px solid var(--rule)}
+.brand{font-family:var(--f-sans);font-weight:600;font-size:1rem;color:var(--ink);cursor:pointer;letter-spacing:.06em;display:flex;align-items:center;gap:7px;text-transform:uppercase}
+.brand i{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:2px;margin-left:auto}
+.nav-link{color:var(--ink-3);text-decoration:none;font-size:.84rem;padding:5px 11px;border-radius:6px;transition:color .15s;font-weight:500}
+.nav-link:hover{color:var(--ink)}
+.nav-link.active{color:var(--ink);font-weight:600}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page{max-width:1100px;margin:0 auto;padding:0 28px 100px}
+
+/* ─── HERO ────────────────────────────────────────────────── */
+.hero{padding:72px 0 60px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:end}
+.hero-eyebrow{font-family:var(--f-mono);font-size:.7rem;font-weight:500;letter-spacing:.14em;color:var(--accent);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--accent)}
+.hero h1{font-family:var(--f-serif);font-size:clamp(2.5rem,4.5vw,3.8rem);font-weight:400;line-height:1.08;letter-spacing:-.01em;color:var(--ink);margin-bottom:22px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-body{color:var(--ink-3);font-size:.95rem;max-width:420px;line-height:1.72}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.hero-stat{padding:22px 20px;background:var(--paper-2);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.hero-stat:nth-child(2n){border-right:none}
+.hero-stat:nth-last-child(-n+2){border-bottom:none}
+.stat-n{font-family:var(--f-serif);font-size:2.4rem;line-height:1;color:var(--ink);margin-bottom:4px}
+.stat-l{font-size:.7rem;color:var(--ink-4);letter-spacing:.06em;text-transform:uppercase;font-family:var(--f-mono)}
+@media(max-width:720px){.hero{grid-template-columns:1fr;gap:36px}.hero-body{max-width:100%}}
+
+/* ─── SECTIONS ────────────────────────────────────────────── */
+.section{margin-top:72px}
+.section-label{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--rule)}
+.section-title{font-family:var(--f-serif);font-size:1.85rem;font-weight:400;margin-bottom:8px;line-height:1.2}
+.section-sub{color:var(--ink-3);font-size:.9rem;margin-bottom:28px;max-width:540px}
+
+/* ─── AWESOME LISTS ───────────────────────────────────────── */
+.awesome-list{border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.awesome-row{display:flex;align-items:center;gap:16px;padding:16px 22px;background:var(--paper-2);border-bottom:1px solid var(--rule);text-decoration:none;color:inherit;transition:background .15s}
+.awesome-row:last-child{border-bottom:none}
+.awesome-row:hover{background:var(--paper-3)}
+.awesome-row-icon{font-size:1.2rem;flex-shrink:0}
+.awesome-row-name{font-size:.86rem;font-weight:600;color:var(--ink);margin-bottom:2px;font-family:var(--f-mono)}
+.awesome-row-desc{font-size:.77rem;color:var(--ink-3)}
+.awesome-row-arrow{margin-left:auto;color:var(--ink-4);font-size:.7rem;flex-shrink:0}
+
+/* ─── FLOW TABLE ──────────────────────────────────────────── */
+.flow-wrap{border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.flow-row{display:grid;border-bottom:1px solid var(--rule);cursor:pointer;transition:background .18s}
+.flow-row:last-child{border-bottom:none}
+.flow-row:hover{background:var(--paper-2)}
+.flow-row.is-active{background:var(--paper-2)}
+.flow-row.single{grid-template-columns:1fr}
+.flow-row.paired{grid-template-columns:1fr 1fr}
+.flow-cell{padding:20px 26px;display:flex;align-items:flex-start;gap:16px;position:relative}
+.flow-cell+.flow-cell{border-left:1px solid var(--rule)}
+.flow-num{font-family:var(--f-mono);font-size:.63rem;letter-spacing:.1em;color:var(--ink-4);margin-top:3px;flex-shrink:0;width:26px}
+.flow-body{flex:1}
+.flow-name{font-size:.9rem;font-weight:600;color:var(--ink);margin-bottom:3px}
+.flow-desc{font-size:.79rem;color:var(--ink-3);line-height:1.55}
+.flow-meta{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px}
+.flow-count{font-family:var(--f-mono);font-size:.63rem;color:var(--ink-4);white-space:nowrap}
+.flow-cta{font-size:.72rem;color:var(--accent);opacity:0;transition:opacity .18s;font-weight:600;white-space:nowrap}
+.flow-row:hover .flow-cta,.flow-row.is-active .flow-cta{opacity:1}
+
+/* stripe per stage */
+.flow-cell::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.s-spec .flow-cell::before{background:#7c6fcd}
+.s-rtl  .flow-cell:first-child::before{background:#2d9d5c}
+.s-sim  .flow-cell:first-child::before{background:#2d9d5c}
+.s-fml  .flow-cell+.flow-cell::before,.s-fml.flow-cell::before{background:#c05c8a}
+.paired .s-fml::before{background:#c05c8a}
+.s-syn  .flow-cell::before{background:#7c6fcd}
+.s-pnr  .flow-cell:first-child::before{background:#c8521a}
+.s-sta  .flow-cell+.flow-cell::before{background:#c8a21a}
+.paired .s-sta::before{background:#c8a21a}
+.s-pdk  .flow-cell::before{background:#1a6cc8}
+
+.parallel-bar{padding:7px 26px;background:var(--paper-3);border-bottom:1px solid var(--rule);font-family:var(--f-mono);font-size:.63rem;color:var(--ink-4);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.parallel-bar::before,.parallel-bar::after{content:'';flex:1;height:1px;background:var(--rule)}
+
+/* ─── SLIDE PANEL ─────────────────────────────────────────── */
+.backdrop{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop.open{opacity:1;pointer-events:all}
+.panel{position:fixed;top:0;right:0;width:min(640px,100vw);height:100vh;background:var(--paper);border-left:1px solid var(--rule);z-index:400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94)}
+.panel.open{transform:translateX(0)}
+.panel-top{padding:26px 30px 22px;border-bottom:1px solid var(--rule);flex-shrink:0;position:relative}
+.panel-eye{font-family:var(--f-mono);font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px}
+.panel-title{font-family:var(--f-serif);font-size:1.7rem;font-weight:400;line-height:1.15;margin-bottom:8px;color:var(--ink)}
+.panel-desc{font-size:.83rem;color:var(--ink-3);line-height:1.68;max-width:470px}
+.panel-x{position:absolute;top:22px;right:26px;background:none;border:1px solid var(--rule);color:var(--ink-3);width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.panel-x:hover{border-color:var(--ink-3);color:var(--ink)}
+.panel-body{flex:1;overflow-y:auto;padding:22px 30px 40px}
+.panel-body::-webkit-scrollbar{width:3px}
+.panel-body::-webkit-scrollbar-thumb{background:var(--rule)}
+
+.p-cat{margin-bottom:32px}
+.p-cat-title{font-family:var(--f-mono);font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:14px}
+.t-row{padding:15px 0;border-bottom:1px solid var(--rule)}
+.t-row:last-child{border-bottom:none}
+.t-name{font-size:.88rem;font-weight:600;color:var(--ink);margin-bottom:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.t-tag{font-family:var(--f-mono);font-size:.58rem;padding:2px 6px;border-radius:2px;border:1px solid var(--rule);color:var(--ink-4);text-transform:uppercase;letter-spacing:.04em}
+.t-tag.core{border-color:var(--accent);color:var(--accent)}
+.t-desc{font-size:.8rem;color:var(--ink-3);line-height:1.62;margin-bottom:6px}
+.t-use{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:9px}
+.t-links{display:flex;gap:6px;flex-wrap:wrap}
+.t-link{font-family:var(--f-mono);font-size:.67rem;font-weight:500;padding:4px 10px;text-decoration:none;border:1px solid var(--rule);border-radius:3px;color:var(--ink-3);transition:all .15s;letter-spacing:.03em}
+.t-link:hover{border-color:var(--ink-3);color:var(--ink)}
+
+/* ─── FULL CATALOG ────────────────────────────────────────── */
+.filter-bar{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:22px;border:1px solid var(--rule);border-radius:4px;padding:3px;background:var(--paper-2);width:fit-content}
+.f-btn{padding:5px 11px;border-radius:3px;font-size:.76rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--ink-3);font-family:var(--f-sans);transition:all .15s;white-space:nowrap}
+.f-btn:hover{color:var(--ink)}
+.f-btn.on{background:var(--paper);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+[data-theme="dark"] .f-btn.on{box-shadow:0 1px 4px rgba(0,0,0,.5)}
+
+.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.c-card{background:var(--paper);padding:18px 20px;transition:background .15s;display:none}
+.c-card.show{display:block}
+.c-card:hover{background:var(--paper-2)}
+.c-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.c-name{font-size:.86rem;font-weight:600;color:var(--ink);line-height:1.3}
+.c-pill{font-family:var(--f-mono);font-size:.58rem;font-weight:500;padding:3px 7px;border-radius:2px;flex-shrink:0;margin-left:10px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.pill-sim   {background:rgba(45,157,92,.1);color:#2d9d5c}
+.pill-synth {background:rgba(124,111,205,.1);color:#7c6fcd}
+.pill-formal{background:rgba(192,92,138,.1);color:#c05c8a}
+.pill-pnr   {background:rgba(200,82,26,.1);color:#c8521a}
+.pill-pdk   {background:rgba(26,108,200,.1);color:#1a6cc8}
+.pill-sta   {background:rgba(200,162,26,.1);color:#c8a21a}
+.pill-hdl   {background:rgba(45,106,79,.1);color:#2d6a4f}
+.pill-build {background:rgba(90,58,122,.1);color:#5a3a7a}
+.pill-fpga  {background:rgba(192,92,138,.1);color:#c05c8a}
+.pill-online{background:rgba(124,111,205,.1);color:#7c6fcd}
+.c-desc{font-size:.78rem;color:var(--ink-3);line-height:1.6;margin-bottom:11px}
+.c-links{display:flex;gap:6px;flex-wrap:wrap}
+.c-link{font-family:var(--f-mono);font-size:.65rem;padding:3px 9px;border:1px solid var(--rule);border-radius:3px;text-decoration:none;color:var(--ink-4);transition:all .15s}
+.c-link:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.main-footer{border-top:1px solid var(--rule);padding:28px 0;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--ink-4);text-decoration:none;font-size:.82rem;transition:color .15s}
+.footer-links a:hover{color:var(--ink)}
+
+/* ─── REVEAL ──────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .flow-row.paired{grid-template-columns:1fr}
+  .flow-cell+.flow-cell{border-left:none;border-top:1px solid var(--rule)}
+  .main-header{padding:0 16px}
+  .page{padding:0 16px 80px}
+  .panel-top,.panel-body{padding-left:18px;padding-right:18px}
+}
+</style>
+
+    <link rel="stylesheet" href="/css/global.css">
+
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closePanel()"></div>
+
+<div class="panel" id="panel">
+  <div class="panel-top">
+    <div class="panel-eye"   id="p-eye"></div>
+    <div class="panel-title" id="p-title"></div>
+    <div class="panel-desc"  id="p-desc"></div>
+    <button class="panel-x" onclick="closePanel()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="panel-body" id="p-body"></div>
+</div>
+
+<div id="app-header"></div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">Open Source IC Toolchain</div>
+      <h1>Every tool for<br><em>Digital IC design</em>,<br>in one place.</h1>
+      <p class="hero-body">A carefully curated reference for working engineers and students — covering simulation, formal verification, synthesis, place &amp; route, timing, and beyond. All open source.</p>
+    </div>
+    <div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="stat-n">60+</div><div class="stat-l">Tools indexed</div></div>
+        <div class="hero-stat"><div class="stat-n">10</div><div class="stat-l">Flow stages</div></div>
+        <div class="hero-stat"><div class="stat-n">3</div><div class="stat-l">Open PDKs</div></div>
+        <div class="hero-stat"><div class="stat-n">100%</div><div class="stat-l">Open source</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- START HERE -->
+  <div class="section reveal">
+    <div class="section-label">Reference lists</div>
+    <h2 class="section-title">Start here</h2>
+    <p class="section-sub">Before diving into individual tools, these curated lists give you the full landscape.</p>
+    <div class="awesome-list">
+      <a href="https://github.com/mattvenn/awesome-opensource-asic-resources" target="_blank" class="awesome-row">
+        <div class="awesome-row-icon"></div>
+        <div><div class="awesome-row-name">awesome-opensource-asic-resources</div><div class="awesome-row-desc">The most comprehensive open-source ASIC list — Matt Venn / Zero to ASIC Course</div></div>
+        <div class="awesome-row-arrow"><i class="fas fa-arrow-up-right-from-square"></i></div>
+      </a>
+      <a href="https://github.com/ben-marshall/awesome-open-hardware-verification" target="_blank" class="awesome-row">
+        <div class="awesome-row-icon"></div>
+        <div><div class="awesome-row-name">awesome-open-hardware-verification</div><div class="awesome-row-desc">Every free and open-source hardware verification tool, organized</div></div>
+        <div class="awesome-row-arrow"><i class="fas fa-arrow-up-right-from-square"></i></div>
+      </a>
+      <a href="https://github.com/pkuzjx/eda-collection" target="_blank" class="awesome-row">
+        <div class="awesome-row-icon"></div>
+        <div><div class="awesome-row-name">eda-collection</div><div class="awesome-row-desc">Comprehensive EDA tool collection mapped to the full design flow</div></div>
+        <div class="awesome-row-arrow"><i class="fas fa-arrow-up-right-from-square"></i></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div class="section reveal">
+    <div class="section-label">Interactive flow</div>
+    <h2 class="section-title">The IC design flow</h2>
+    <p class="section-sub">Click any stage to see its tools, what they do, and when to use them.</p>
+
+    <div class="flow-wrap">
+      <!-- 01 -->
+      <div class="flow-row single s-spec" onclick="openPanel('spec')">
+        <div class="flow-cell">
+          <div class="flow-num">01</div>
+          <div class="flow-body">
+            <div class="flow-name"> Specification &amp; Architecture</div>
+            <div class="flow-desc">System requirements, micro-architecture decisions, register map definition, interface protocols</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">4 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+      </div>
+      <!-- 02 -->
+      <div class="flow-row single s-rtl" onclick="openPanel('hdl')">
+        <div class="flow-cell">
+          <div class="flow-num">02</div>
+          <div class="flow-body">
+            <div class="flow-name"> RTL Design &amp; HDL Coding</div>
+            <div class="flow-desc">Writing RTL in Verilog, SystemVerilog, VHDL — or generating it via Chisel, Amaranth, or HLS</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">8 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+      </div>
+      <!-- Parallel -->
+      <div class="parallel-bar">Runs in parallel</div>
+      <!-- 03A + 03B -->
+      <div class="flow-row paired">
+        <div class="flow-cell s-sim" data-panel="sim" style="cursor:pointer">
+          <div class="flow-num">03A</div>
+          <div class="flow-body">
+            <div class="flow-name"> Simulation</div>
+            <div class="flow-desc">RTL simulation, Python testbenches, waveform analysis, coverage-driven verification</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">10 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+        <div class="flow-cell s-fml" data-panel="formal" style="cursor:pointer">
+          <div class="flow-num">03B</div>
+          <div class="flow-body">
+            <div class="flow-name"> Formal Verification</div>
+            <div class="flow-desc">Property checking, model checking, SAT/SMT solvers, equivalence checking</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">8 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+      </div>
+      <!-- 04 -->
+      <div class="flow-row single s-syn" onclick="openPanel('synth')">
+        <div class="flow-cell">
+          <div class="flow-num">04</div>
+          <div class="flow-body">
+            <div class="flow-name"> Logic Synthesis</div>
+            <div class="flow-desc">RTL → gate-level netlist: technology mapping, logic minimization, elaboration</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">4 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+      </div>
+      <!-- Parallel -->
+      <div class="parallel-bar">Runs in parallel</div>
+      <!-- 05A + 05B -->
+      <div class="flow-row paired">
+        <div class="flow-cell s-pnr" data-panel="pnr" style="cursor:pointer">
+          <div class="flow-num">05A</div>
+          <div class="flow-body">
+            <div class="flow-name"> Place &amp; Route</div>
+            <div class="flow-desc">Floorplan, placement, CTS, routing, DRC/LVS — all the way to GDSII</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">6 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+        <div class="flow-cell s-sta" data-panel="sta" style="cursor:pointer">
+          <div class="flow-num">05B</div>
+          <div class="flow-body">
+            <div class="flow-name"> Static Timing Analysis</div>
+            <div class="flow-desc">Setup/hold checking, timing closure, SPEF parasitics, SDC constraints</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">2 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+      </div>
+      <!-- PDK -->
+      <div class="flow-row single s-pdk" onclick="openPanel('pdk')">
+        <div class="flow-cell">
+          <div class="flow-num">◈</div>
+          <div class="flow-body">
+            <div class="flow-name"> Process Design Kit (PDK)</div>
+            <div class="flow-desc">Technology libraries, standard cells, DRC rules, SPICE models — the silicon foundation all stages depend on</div>
+          </div>
+          <div class="flow-meta"><div class="flow-count">5 tools</div><div class="flow-cta">Open →</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATALOG -->
+  <div class="section reveal">
+    <div class="section-label">Complete reference</div>
+    <h2 class="section-title">Full tool catalog</h2>
+    <p class="section-sub">Every tool indexed, filterable by stage.</p>
+
+    <div class="filter-bar">
+      <button class="f-btn on" onclick="filter('all',this)">All</button>
+      <button class="f-btn" onclick="filter('sim',this)">Simulation</button>
+      <button class="f-btn" onclick="filter('synth',this)">Synthesis</button>
+      <button class="f-btn" onclick="filter('formal',this)">Formal</button>
+      <button class="f-btn" onclick="filter('pnr',this)">P&amp;R</button>
+      <button class="f-btn" onclick="filter('pdk',this)">PDK</button>
+      <button class="f-btn" onclick="filter('sta',this)">Timing</button>
+      <button class="f-btn" onclick="filter('hdl',this)">HDL Tools</button>
+      <button class="f-btn" onclick="filter('build',this)">Build</button>
+      <button class="f-btn" onclick="filter('fpga',this)">FPGA</button>
+      <button class="f-btn" onclick="filter('online',this)">Online</button>
+    </div>
+    <div class="catalog" id="catalog"></div>
+  </div>
+
+</div>
+
+<div id="app-footer"></div>
+
+<script src="/js/layout.js"></script>
+<script>
+/* ── DATA ──────────────────────────────────────────────── */
+const TOOLS=[
+  {cat:'sim',name:'Icarus Verilog',core:true,desc:'The most widely used open-source Verilog simulator. Compiles Verilog to bytecode and runs it. Reliable, fast to set up, and compatible with every open-source flow.',use:'First stop for functional RTL simulation.',gh:'https://github.com/steveicarus/iverilog',web:'http://iverilog.icarus.com'},
+  {cat:'sim',name:'Verilator',desc:'Translates Verilog/SystemVerilog RTL into a cycle-accurate C++ model — orders of magnitude faster than interpreted simulation. The go-to for large SoCs and co-simulation.',use:'High-speed simulation and C/C++ co-simulation.',gh:'https://github.com/verilator/verilator',web:'https://verilator.org',docs:'https://verilator.org/guide/latest/'},
+  {cat:'sim',name:'GHDL',desc:'Open-source VHDL simulator with full VHDL-2008 support. Can be linked into Yosys for VHDL synthesis workflows.',use:'VHDL simulation and synthesis prep.',gh:'https://github.com/ghdl/ghdl',web:'https://ghdl.github.io/ghdl/'},
+  {cat:'sim',name:'GTKWave',desc:'The standard open-source waveform viewer for VCD and FST files. Inspect signals, add cursors, measure time.',use:'Post-simulation waveform debugging.',gh:'https://github.com/gtkwave/gtkwave',web:'https://gtkwave.sourceforge.net'},
+  {cat:'sim',name:'cocotb',core:true,desc:'Python-based testbench framework plugging into any simulator. Write async testbenches in pure Python — the open-source UVM replacement.',use:'Structured, reusable testbenches in Python.',gh:'https://github.com/cocotb/cocotb',web:'https://www.cocotb.org',docs:'https://docs.cocotb.org'},
+  {cat:'sim',name:'pyuvm',desc:'Full UVM implemented in Python on top of cocotb — phasing, components, sequences, scoreboards without SystemVerilog.',use:'UVM-methodology verification using Python.',gh:'https://github.com/pyuvm/pyuvm'},
+  {cat:'sim',name:'VUnit',desc:'Unit testing framework for VHDL and SystemVerilog with CI support and automated regression.',use:'Automated regression testing and CI pipelines.',gh:'https://github.com/VUnit/vunit',web:'https://vunit.github.io'},
+  {cat:'sim',name:'OSVVM',desc:'Open Source VHDL Verification Methodology — functional coverage, constrained random, scoreboards. The VHDL counterpart to UVM.',use:'Full VHDL verification methodology.',gh:'https://github.com/OSVVM/OsvvmLibraries',web:'https://osvvm.org'},
+  {cat:'sim',name:'MCY',desc:'Mutation coverage tool from YosysHQ. Injects RTL mutations to measure how many bugs your testbench actually catches.',use:'Quantifying testbench completeness.',gh:'https://github.com/YosysHQ/mcy',docs:'https://mcy.readthedocs.io'},
+  {cat:'sim',name:'PyMTL3',desc:'Python framework for hardware modeling, simulation, and verification from Cornell. Full stack: model → simulate → verify.',use:'Research-grade hardware modeling.',gh:'https://github.com/pymtl/pymtl3'},
+  {cat:'synth',name:'Yosys',core:true,desc:'The cornerstone of open-source synthesis. Parses Verilog-2005 and much of SystemVerilog, optimizes logic, maps to standard cells. Used in virtually every open-source ASIC and FPGA flow.',use:'RTL → gate-level netlist with technology mapping.',gh:'https://github.com/YosysHQ/yosys',web:'https://yosyshq.net/yosys/',docs:'https://yosys.readthedocs.io'},
+  {cat:'synth',name:'OSS CAD Suite',desc:'Pre-built nightly bundle: Yosys, SymbiYosys, nextpnr, all SMT solvers, and more. One download, everything works.',use:'Instant setup of the full open-source EDA toolchain.',gh:'https://github.com/YosysHQ/oss-cad-suite-build'},
+  {cat:'synth',name:'ABC',desc:'Logic synthesis and verification from UC Berkeley. Used internally by Yosys for technology mapping, retiming, and sequential optimization.',use:'Gate-level logic optimization and mapping.',gh:'https://github.com/berkeley-abc/abc'},
+  {cat:'synth',name:'Surelog + UHDM',desc:'Full SystemVerilog 2017 parser and elaborator that improves SV support inside Verilator and Yosys. Critical for SV-heavy designs.',use:'Correct elaboration of complex SystemVerilog code.',gh:'https://github.com/chipsalliance/Surelog'},
+  {cat:'formal',name:'SymbiYosys (sby)',core:true,desc:'The primary open-source formal verification front-end. Parses RTL via Yosys, then drives SMT/SAT solver backends. Supports BMC, k-induction, and cover analysis.',use:'Running formal property checks on RTL assertions.',gh:'https://github.com/YosysHQ/sby',docs:'https://symbiyosys.readthedocs.io'},
+  {cat:'formal',name:'Z3 Solver',core:true,desc:'The most widely deployed SMT solver, from Microsoft Research. Supports all major SMT-LIB theories. Powers SymbiYosys and countless other formal tools.',use:'Core formal reasoning engine behind most FV tools.',gh:'https://github.com/Z3Prover/z3',docs:'https://z3prover.github.io/api/html/z3.html'},
+  {cat:'formal',name:'Boolector',desc:'SMT solver specialized in Bit-Vector and Array theories — purpose-built for hardware formal verification.',use:'Bit-precise SMT solving for hardware properties.',gh:'https://github.com/Boolector/boolector',web:'https://boolector.github.io'},
+  {cat:'formal',name:'Yices 2',desc:'Fast SMT solver from SRI International. The default solver in SymbiYosys, with strong performance on hardware benchmarks.',use:'Default SMT backend for SymbiYosys.',gh:'https://github.com/SRI-CSL/yices2',web:'https://yices.csl.sri.com'},
+  {cat:'formal',name:'EBMC / CBMC',desc:'Bounded model checker for hardware and C. Proves absence of specific bug classes via exhaustive bounded analysis.',use:'Formal model checking for RTL and C-based hardware.',gh:'https://github.com/diffblue/cbmc',web:'https://www.cprover.org/ebmc/'},
+  {cat:'formal',name:'riscv-formal',desc:'Formal verification framework for RISC-V cores using SymbiYosys. Tests ISA compliance at the instruction level.',use:'Formally verifying RISC-V core correctness.',gh:'https://github.com/YosysHQ/riscv-formal'},
+  {cat:'formal',name:'MiniSat',desc:'Compact, efficient SAT solver — the foundational engine behind many formal verification and EDA tools.',use:'Core SAT solving underlying formal methods.',gh:'https://github.com/niklasso/minisat',web:'http://minisat.se'},
+  {cat:'formal',name:'CaDiCaL',desc:'Modern high-performance SAT solver with excellent results on hardware benchmarks. Used as a backend by Boolector.',use:'State-of-the-art SAT solving for large problems.',gh:'https://github.com/arminbiere/cadical'},
+  {cat:'pnr',name:'OpenLane / LibreLane',core:true,desc:'The most popular automated RTL-to-GDSII flow. Integrates Yosys, OpenROAD, Magic, and Netgen into a CI-ready pipeline for SKY130 and GF180.',use:'Complete push-button flow from RTL to tape-out GDSII.',gh:'https://github.com/The-OpenROAD-Project/OpenLane',docs:'https://openlane.readthedocs.io'},
+  {cat:'pnr',name:'OpenROAD',desc:'No-human-in-the-loop physical implementation tool: floorplanning, placement, CTS, routing, and timing — all open source.',use:'Automated physical design from netlist to routed layout.',gh:'https://github.com/The-OpenROAD-Project/OpenROAD',web:'https://theopenroadproject.org'},
+  {cat:'pnr',name:'Magic VLSI',desc:'Open-source VLSI layout editor with interactive DRC and LVS for open PDKs. One of the longest-running open EDA tools.',use:'Layout editing, DRC, and LVS verification.',gh:'https://github.com/RTimothyEdwards/magic',web:'http://opencircuitdesign.com/magic/'},
+  {cat:'pnr',name:'KLayout',desc:'Professional layout viewer and editor for GDSII. DRC scripting in Python or Ruby. Widely used for tape-out review.',use:'GDSII inspection, DRC scripting, layout editing.',gh:'https://github.com/KLayout/klayout',web:'https://www.klayout.de'},
+  {cat:'pnr',name:'Qflow',desc:'Lightweight complete Verilog-to-layout toolchain: iverilog + Yosys + graywolf + qrouter.',use:'Lightweight alternative RTL-to-layout flow.',gh:'https://github.com/RTimothyEdwards/qflow',web:'http://opencircuitdesign.com/qflow/'},
+  {cat:'pnr',name:'Netgen (LVS)',desc:'LVS tool comparing the routed netlist to the schematic — confirms the layout matches the intended design.',use:'Layout vs. Schematic verification before tape-out.',gh:'https://github.com/RTimothyEdwards/netgen'},
+  {cat:'pdk',name:'SkyWater SKY130 PDK',core:true,desc:"The world's first open-source PDK, from Google and SkyWater Technology. 130nm CMOS. The standard for all open ASIC tape-outs and the Efabless chipIgnite program.",use:'Technology library for all open-source ASIC flows.',gh:'https://github.com/google/skywater-pdk',docs:'https://skywater-pdk.readthedocs.io'},
+  {cat:'pdk',name:'GF180MCU PDK',desc:'180nm CMOS PDK from GlobalFoundries, open-sourced by Google. More mature node with wider standard cell options.',use:'Alternative process node for open designs.',gh:'https://github.com/google/gf180mcu-pdk'},
+  {cat:'pdk',name:'IHP SG13G2 PDK',desc:'Open-source 130nm BiCMOS PDK from IHP Microelectronics — supports both digital CMOS and analog/RF design.',use:'Mixed-signal and RF design in the open ecosystem.',gh:'https://github.com/IHP-GmbH/IHP-Open-PDK'},
+  {cat:'pdk',name:'Open_PDKs',desc:'Installation and management scripts for all open-source PDKs by Tim Edwards. Handles tool-PDK compatibility automatically.',use:'Installing and configuring open PDKs.',gh:'https://github.com/RTimothyEdwards/open_pdks'},
+  {cat:'pdk',name:'Efabless / chipIgnite',desc:'The leading platform for open-source chip manufacturing — submit your RTL and receive a real chip on SKY130, at no cost.',use:'Taking your open-source design to actual silicon.',web:'https://efabless.com',gh:'https://github.com/efabless'},
+  {cat:'sta',name:'OpenTimer',desc:'High-performance STA engine in C++17, built on parallel incremental timing. Supports .lib, SPEF, and SDC.',use:'Pre- and post-layout static timing analysis.',gh:'https://github.com/OpenTimer/OpenTimer'},
+  {cat:'sta',name:'OpenSTA',desc:'Open-source STA tool integrated into OpenROAD. The standard timing engine in OpenLane. Supports SDC.',use:'Timing analysis within OpenROAD and OpenLane.',gh:'https://github.com/The-OpenROAD-Project/OpenSTA'},
+  {cat:'hdl',name:'Verible',desc:'SystemVerilog parser, linter, and formatter from Google/ChipsAlliance. The essential code quality tool for any professional SV project.',use:'RTL linting, formatting, and style enforcement.',gh:'https://github.com/chipsalliance/verible'},
+  {cat:'hdl',name:'PyVerilog',desc:'Python toolkit for Verilog analysis — parser, dataflow analyzer, and code generator. Useful for design automation scripts.',use:'Automated Verilog processing and analysis.',gh:'https://github.com/PyHDI/Pyverilog'},
+  {cat:'hdl',name:'Chisel',desc:'Hardware Construction Language in Scala that generates clean Verilog. Widely used for parameterized hardware generators and RISC-V projects.',use:'Generating parameterized RTL from Scala.',gh:'https://github.com/chipsalliance/chisel',web:'https://www.chisel-lang.org'},
+  {cat:'hdl',name:'Amaranth HDL',desc:'Python-based HDL generating Verilog or RTLIL. Modern, well-typed API. Fully supported in OSS CAD Suite.',use:'Python-native RTL design.',gh:'https://github.com/amaranth-lang/amaranth',docs:'https://amaranth-lang.org/docs/amaranth/'},
+  {cat:'hdl',name:'LegUp HLS',desc:'High-Level Synthesis from C to FPGA/ASIC from University of Toronto. Bridges software algorithms and hardware.',use:'Synthesizing C algorithms into hardware.',gh:'https://github.com/ljhsiun2/legup',web:'http://legup.eecg.utoronto.ca'},
+  {cat:'hdl',name:'ROHD',desc:'Rapid Open Hardware Design framework in Dart from Intel, with an integrated verification framework.',use:'Modern hardware design and verification in Dart.',gh:'https://github.com/intel/rohd'},
+  {cat:'build',name:'FuseSoC',core:true,desc:'Package manager and build tool for HDL projects. Manages dependencies and build flows for FPGA and ASIC targets — like npm, but for hardware.',use:'Dependency management and reproducible HDL builds.',gh:'https://github.com/olofk/fusesoc',docs:'https://fusesoc.readthedocs.io'},
+  {cat:'build',name:'Edalize',desc:'Python library providing a unified interface to EDA tools — supports Icarus, Yosys, Verilator, Vivado, Quartus from one API.',use:'Driving any EDA tool from Python automation.',gh:'https://github.com/olofk/edalize'},
+  {cat:'build',name:'IIC-OSIC-TOOLS',desc:'Ready-to-use Docker image with every open-source IC tool for SKY130, GF180, and IHP130. Supports AMD64 and ARM64. From JKU Austria.',use:'Zero-setup open-source ASIC environment.',gh:'https://github.com/iic-jku/IIC-OSIC-TOOLS'},
+  {cat:'build',name:'RgGen',desc:'Generates CSR RTL and UVM RAL models from a register spec file. Eliminates hand-coding of register banks.',use:'Automating CSR RTL and verification model generation.',gh:'https://github.com/rggen/rggen'},
+  {cat:'fpga',name:'nextpnr',desc:'Open-source place and route for Lattice iCE40, ECP5, and Gowin FPGAs. Works with Yosys for a complete open FPGA toolchain.',use:'Placing and routing netlist onto FPGAs.',gh:'https://github.com/YosysHQ/nextpnr'},
+  {cat:'fpga',name:'Project IceStorm',desc:'Reverse-engineered open toolchain for the Lattice iCE40 — the first FPGA with a fully open-source bitstream and toolchain.',use:'Complete open-source flow for iCE40 FPGAs.',gh:'https://github.com/YosysHQ/icestorm',web:'http://bygone.clairexen.net/icestorm/'},
+  {cat:'fpga',name:'VTR',desc:'Complete FPGA CAD research flow from University of Toronto: ODIN-II + ABC + VPR for synthesis, mapping, and place-and-route.',use:'Academic FPGA research and RTL-to-bitstream.',gh:'https://github.com/verilog-to-routing/vtr-verilog-to-routing'},
+  {cat:'online',name:'EDA Playground',desc:'Free online simulator for Verilog, SystemVerilog, and VHDL. Includes commercial simulators (VCS, Cadence) and open-source options. No install needed.',use:'Quick RTL simulation and code sharing.',web:'https://www.edaplayground.com'},
+  {cat:'online',name:'Makerchip',desc:'Online IDE for Verilog and TL-Verilog from Redwood EDA — free, with built-in waveform viewer. Ideal for learning.',use:'Browser-based RTL development.',web:'https://www.makerchip.com'},
+  {cat:'online',name:'OpenCores',desc:"The largest library of open-source IP cores — thousands of processor, interface, DSP, and memory controller designs.",use:'Sourcing pre-verified IP cores for your design.',web:'https://opencores.org'},
+];
+
+const PANELS={
+  spec:{eye:'Stage 01 — Specification',title:'Specification & Architecture',desc:'Before writing a line of RTL, the design must be fully specified. This stage establishes functional requirements, performance targets, interface protocols, power budgets, and micro-architecture decisions. The outputs are the documents every subsequent stage works from.',cats:[{title:'Reference & Planning',tools:[{name:'Awesome ASIC Resources',tags:['start here'],desc:'The single best starting point for any open-source ASIC project — a curated list by Matt Venn.',use:'Understanding what tools exist before starting.',gh:'https://github.com/mattvenn/awesome-opensource-asic-resources'},{name:'EDA Collection',desc:'Flow-organized list of EDA tools with descriptions and links.',use:'Quick lookup of which tool handles a specific task.',gh:'https://github.com/pkuzjx/eda-collection'}]},{title:'Register Map & Interface Spec',tools:[{name:'RgGen',tags:['code gen'],desc:'Generates CSR RTL and UVM RAL models from a SystemRDL or YAML register specification. Eliminates hand-coding of register banks.',use:'Translating a register spec into RTL and verification models automatically.',gh:'https://github.com/rggen/rggen'},{name:'SystemRDL',desc:'Industry-standard language for specifying register maps. Tool-independent and portable.',use:'Authoring formally defined, portable register specifications.',web:'https://www.accellera.org/downloads/standards/systemrdl'}]}]},
+  hdl:{eye:'Stage 02 — RTL Design',title:'RTL Design & HDL Coding',desc:'The architecture is translated into synthesizable RTL code. This can be traditional HDL (Verilog, SV, VHDL) or higher-abstraction generators that produce RTL as output — giving better parameterization and reuse.',cats:[{title:'Traditional HDLs',tools:[{name:'Verilog / SystemVerilog',tags:['standard'],desc:'The dominant HDLs in industry. SV adds powerful verification constructs and improved type safety over Verilog.',use:'Writing synthesizable RTL and behavioral simulation code.'},{name:'GHDL',tags:['vhdl'],desc:'Open-source VHDL simulator with VHDL-2008 support. Can interface with Yosys for synthesis.',use:'VHDL RTL development.',gh:'https://github.com/ghdl/ghdl',web:'https://ghdl.github.io/ghdl/'},{name:'Verible',tags:['linter'],desc:'SystemVerilog parser, linter, and formatter from Google. Enforces coding conventions and catches style issues early.',use:'Code quality enforcement and automated formatting.',gh:'https://github.com/chipsalliance/verible'},{name:'Surelog + UHDM',tags:['sv parser'],desc:'Full SystemVerilog 2017 parser/elaborator improving SV support in Verilator and Yosys.',use:'Correct elaboration of complex SystemVerilog designs.',gh:'https://github.com/chipsalliance/Surelog'}]},{title:'Hardware Construction Languages',tools:[{name:'Chisel',tags:['scala'],desc:'Hardware Construction Language in Scala that generates clean, readable Verilog. Widely used in the RISC-V ecosystem.',use:'Parameterized hardware generators and reusable IP.',gh:'https://github.com/chipsalliance/chisel',web:'https://www.chisel-lang.org'},{name:'Amaranth HDL',tags:['python'],desc:'Python-based HDL targeting Verilog/RTLIL. Clean modern API with strong typing.',use:'Python-native RTL design.',gh:'https://github.com/amaranth-lang/amaranth',docs:'https://amaranth-lang.org/docs/amaranth/'},{name:'LegUp HLS',tags:['hls'],desc:'High-Level Synthesis from C to FPGA/ASIC from University of Toronto.',use:'Translating C algorithms directly to hardware.',gh:'https://github.com/ljhsiun2/legup',web:'http://legup.eecg.utoronto.ca'},{name:'ROHD',tags:['dart'],desc:'Rapid Open Hardware Design in Dart from Intel, with an integrated verification framework.',use:'Hardware design and verification in Dart.',gh:'https://github.com/intel/rohd'}]}]},
+  sim:{eye:'Stage 03A — Simulation',title:'Simulation & Dynamic Verification',desc:'RTL is exercised with directed and constrained-random testbenches. Coverage models drive stimulus until all corner cases are hit. Runs in parallel with formal verification — together they close the verification gap.',cats:[{title:'RTL Simulators',tools:[{name:'Icarus Verilog',tags:['core'],desc:'Most widely used open-source Verilog simulator. Simple, reliable, universally compatible.',use:'Functional RTL simulation.',gh:'https://github.com/steveicarus/iverilog',web:'http://iverilog.icarus.com'},{name:'Verilator',tags:['fast'],desc:'Converts RTL to a cycle-accurate C++ model — orders of magnitude faster. Essential for large SoC simulation.',use:'High-speed simulation and C++ co-simulation.',gh:'https://github.com/verilator/verilator',web:'https://verilator.org',docs:'https://verilator.org/guide/latest/'},{name:'GHDL',tags:['vhdl'],desc:'Open-source VHDL simulator with VHDL-2008 support.',use:'VHDL simulation.',gh:'https://github.com/ghdl/ghdl'},{name:'GTKWave',tags:['viewer'],desc:'Industry-standard waveform viewer for VCD/FST files.',use:'Post-simulation waveform analysis.',gh:'https://github.com/gtkwave/gtkwave',web:'https://gtkwave.sourceforge.net'}]},{title:'Verification Frameworks',tools:[{name:'cocotb',tags:['core','python'],desc:'Python testbench framework working with any simulator. The open-source alternative to UVM.',use:'Writing reusable, Pythonic testbenches.',gh:'https://github.com/cocotb/cocotb',web:'https://www.cocotb.org',docs:'https://docs.cocotb.org'},{name:'pyuvm',tags:['uvm'],desc:'Full UVM in Python on top of cocotb — phasing, components, sequences, scoreboards.',use:'UVM-compliant verification without SystemVerilog.',gh:'https://github.com/pyuvm/pyuvm'},{name:'VUnit',tags:['sv','vhdl'],desc:'Unit testing framework for HDL with CI integration.',use:'Regression testing and CI/CD for HDL.',gh:'https://github.com/VUnit/vunit',web:'https://vunit.github.io'},{name:'OSVVM',tags:['vhdl'],desc:'VHDL Verification Methodology — coverage, constrained random, scoreboards.',use:'Full VHDL verification methodology.',gh:'https://github.com/OSVVM/OsvvmLibraries',web:'https://osvvm.org'},{name:'MCY',tags:['mutation'],desc:'Measures testbench quality by injecting RTL mutations and checking if tests catch them.',use:'Quantifying verification completeness.',gh:'https://github.com/YosysHQ/mcy',docs:'https://mcy.readthedocs.io'},{name:'PyMTL3',tags:['research'],desc:'Python hardware modeling, simulation, and verification from Cornell.',use:'Research-grade hardware simulation.',gh:'https://github.com/pymtl/pymtl3'}]}]},
+  formal:{eye:'Stage 03B — Formal Verification',title:'Formal Property Verification',desc:'Mathematical methods prove your design satisfies its properties for every possible input — not just tested ones. Formal catches bugs simulation can never find, and runs in parallel with the simulation effort.',cats:[{title:'Formal Frontends',tools:[{name:'SymbiYosys (sby)',tags:['core'],desc:'The main open-source formal front-end. Parses RTL via Yosys, drives SMT/SAT backends. Supports BMC, k-induction, and cover analysis.',use:'Running formal assertion checks and equivalence checking on RTL.',gh:'https://github.com/YosysHQ/sby',docs:'https://symbiyosys.readthedocs.io'},{name:'riscv-formal',desc:'Formal framework for RISC-V cores using SymbiYosys — tests ISA compliance at instruction level.',use:'Formally proving RISC-V core correctness.',gh:'https://github.com/YosysHQ/riscv-formal'},{name:'EBMC / CBMC',desc:'Bounded model checker for hardware and C. Proves absence of bug classes through exhaustive analysis.',use:'Formal model checking for RTL and C.',gh:'https://github.com/diffblue/cbmc',web:'https://www.cprover.org/ebmc/'}]},{title:'SMT Solvers',tools:[{name:'Z3 Solver',tags:['core'],desc:'The most widely deployed SMT solver. Supports all SMT-LIB theories. The engine behind most formal tools.',use:'Core reasoning engine for formal verification.',gh:'https://github.com/Z3Prover/z3',docs:'https://z3prover.github.io/api/html/z3.html'},{name:'Boolector',desc:'SMT solver specialized in Bit-Vector and Array theories. Purpose-built for hardware.',use:'Bit-precise hardware formal verification.',gh:'https://github.com/Boolector/boolector',web:'https://boolector.github.io'},{name:'Yices 2',desc:'Fast SMT solver from SRI International. Default solver in SymbiYosys.',use:'General SMT solving backend.',gh:'https://github.com/SRI-CSL/yices2',web:'https://yices.csl.sri.com'}]},{title:'SAT Solvers',tools:[{name:'MiniSat',desc:'Compact, efficient SAT solver — the foundational engine behind many EDA tools.',use:'Core satisfiability solving.',gh:'https://github.com/niklasso/minisat',web:'http://minisat.se'},{name:'CaDiCaL',desc:'Modern high-performance SAT solver. State-of-the-art on hardware benchmarks.',use:'High-performance SAT solving for large problems.',gh:'https://github.com/arminbiere/cadical'}]}]},
+  synth:{eye:'Stage 04 — Synthesis',title:'Logic Synthesis',desc:'RTL is compiled into a technology-mapped gate-level netlist. Synthesis performs logic minimization, technology mapping, retiming, and optimization for area, timing, and power — producing the input that physical implementation tools consume.',cats:[{title:'Synthesis Tools',tools:[{name:'Yosys',tags:['core'],desc:'The cornerstone open-source synthesis framework. Parses Verilog and much of SystemVerilog, optimizes, maps to standard cells. The backbone of virtually every open-source ASIC flow.',use:'RTL to gate-level netlist — technology mapping and optimization.',gh:'https://github.com/YosysHQ/yosys',web:'https://yosyshq.net/yosys/',docs:'https://yosys.readthedocs.io'},{name:'ABC',desc:'Logic synthesis and verification from UC Berkeley. Used internally by Yosys for mapping and sequential optimization.',use:'Gate-level logic optimization and technology mapping.',gh:'https://github.com/berkeley-abc/abc'},{name:'OSS CAD Suite',desc:'Pre-built bundle with Yosys, SymbiYosys, nextpnr, all solvers. One download, everything included.',use:'Instant setup of the complete open-source EDA stack.',gh:'https://github.com/YosysHQ/oss-cad-suite-build'},{name:'Surelog + UHDM',desc:'Full SystemVerilog 2017 parser/elaborator improving SV support in Yosys and Verilator.',use:'Correct elaboration of complex SV before synthesis.',gh:'https://github.com/chipsalliance/Surelog'}]}]},
+  pnr:{eye:'Stage 05A — Physical Implementation',title:'Place & Route',desc:'The gate-level netlist is transformed into physical layout. Cells are placed, a clock tree is synthesized, all nets are routed, power rails are strapped, and the result is verified against DRC and LVS rules before generating the final GDSII file for tape-out.',cats:[{title:'Complete RTL-to-GDSII Flows',tools:[{name:'OpenLane / LibreLane',tags:['core','most popular'],desc:'The most popular automated RTL-to-GDSII flow. Integrates Yosys, OpenROAD, Magic, and Netgen into a single CI-ready pipeline.',use:'Complete push-button flow from RTL to tape-out GDSII.',gh:'https://github.com/The-OpenROAD-Project/OpenLane',docs:'https://openlane.readthedocs.io'},{name:'Qflow',desc:'Lighter-weight Verilog-to-layout toolchain: iverilog + Yosys + graywolf + qrouter.',use:'Alternative lightweight physical flow.',gh:'https://github.com/RTimothyEdwards/qflow',web:'http://opencircuitdesign.com/qflow/'}]},{title:'Physical Implementation Tools',tools:[{name:'OpenROAD',desc:'No-human-in-the-loop physical design engine: floorplanning, placement, CTS, routing, and timing.',use:'Automated physical design from netlist to routed layout.',gh:'https://github.com/The-OpenROAD-Project/OpenROAD',web:'https://theopenroadproject.org'},{name:'Magic VLSI',desc:'Open-source layout editor with interactive DRC and LVS for open PDKs.',use:'Layout editing, DRC, and LVS.',gh:'https://github.com/RTimothyEdwards/magic',web:'http://opencircuitdesign.com/magic/'},{name:'KLayout',desc:'Professional GDSII viewer and editor. DRC scripting in Python or Ruby.',use:'GDSII inspection, DRC, and layout editing.',gh:'https://github.com/KLayout/klayout',web:'https://www.klayout.de'},{name:'Netgen (LVS)',desc:'LVS tool comparing routed netlist to schematic — confirms layout matches the intended design.',use:'Layout vs. Schematic sign-off.',gh:'https://github.com/RTimothyEdwards/netgen'}]}]},
+  sta:{eye:'Stage 05B — Timing',title:'Static Timing Analysis',desc:'STA verifies setup and hold constraints across all paths for all operating corners, without simulation. It runs in parallel with P&R to drive timing closure — each routing iteration triggers a new STA run to check if timing has been met.',cats:[{title:'STA Tools',tools:[{name:'OpenTimer',desc:'High-performance STA engine in C++17 built on parallel incremental timing. Supports .lib, SPEF, and SDC.',use:'Pre- and post-layout static timing analysis.',gh:'https://github.com/OpenTimer/OpenTimer'},{name:'OpenSTA',desc:'Open-source STA tool integrated into OpenROAD. The standard timing engine in OpenLane. Supports all SDC formats.',use:'Timing analysis within OpenROAD and OpenLane.',gh:'https://github.com/The-OpenROAD-Project/OpenSTA'}]}]},
+  pdk:{eye:'Foundation — PDK',title:'Process Design Kits',desc:"PDKs define the manufacturing process: standard cell libraries, DRC rules, SPICE transistor models, metal layer stackups, and design rule documents. Every tool in the flow — from synthesis through DRC sign-off — depends on the PDK to understand the target technology.",cats:[{title:'Open Process Design Kits',tools:[{name:'SkyWater SKY130 PDK',tags:['core','most popular'],desc:"The world's first open-source PDK from Google and SkyWater Technology. 130nm CMOS. The standard for all open tape-outs.",use:'Technology library for all open-source ASIC flows.',gh:'https://github.com/google/skywater-pdk',docs:'https://skywater-pdk.readthedocs.io'},{name:'GF180MCU PDK',desc:'180nm CMOS PDK from GlobalFoundries, open-sourced by Google.',use:'Alternative mature node for open designs.',gh:'https://github.com/google/gf180mcu-pdk'},{name:'IHP SG13G2 PDK',desc:'Open 130nm BiCMOS PDK from IHP — supports digital CMOS and analog/RF.',use:'Mixed-signal and RF design in the open ecosystem.',gh:'https://github.com/IHP-GmbH/IHP-Open-PDK'}]},{title:'PDK Management & Manufacturing',tools:[{name:'Open_PDKs',desc:'Installation and configuration scripts for all open-source PDKs, by Tim Edwards.',use:'Streamlined PDK installation.',gh:'https://github.com/RTimothyEdwards/open_pdks'},{name:'Efabless / chipIgnite',tags:['tape-out'],desc:'The leading open-source chip manufacturing platform. Submit your RTL and receive a real chip on SKY130 at no cost.',use:'Taking your open-source design to actual silicon.',web:'https://efabless.com',gh:'https://github.com/efabless'}]}]},
+};
+
+/* ── PANEL ──────────────────────────────────────────────── */
+function openPanel(key){
+  const d=PANELS[key];if(!d)return;
+  document.getElementById('p-eye').textContent=d.eye;
+  document.getElementById('p-title').textContent=d.title;
+  document.getElementById('p-desc').textContent=d.desc;
+  let h='';
+  d.cats.forEach(c=>{
+    h+=`<div class="p-cat"><div class="p-cat-title">${c.title}</div>`;
+    c.tools.forEach(t=>{
+      const tags=(t.tags||[]).map(g=>`<span class="t-tag${g==='core'?' core':''}">${g}</span>`).join('');
+      const lks=[
+        t.gh?`<a class="t-link" href="${t.gh}" target="_blank"><i class="fab fa-github"></i> GitHub</a>`:'',
+        t.web?`<a class="t-link" href="${t.web}" target="_blank"><i class="fas fa-globe"></i> Website</a>`:'',
+        t.docs?`<a class="t-link" href="${t.docs}" target="_blank"><i class="fas fa-book"></i> Docs</a>`:'',
+      ].join('');
+      h+=`<div class="t-row"><div class="t-name">${t.name}${tags}</div><div class="t-desc">${t.desc}</div>${t.use?`<div class="t-use">When to use: ${t.use}</div>`:''}<div class="t-links">${lks}</div></div>`;
+    });
+    h+=`</div>`;
+  });
+  document.getElementById('p-body').innerHTML=h;
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.querySelectorAll('.flow-row,.flow-cell').forEach(r=>r.classList.remove('is-active'));
+  const map={spec:'.s-spec',hdl:'.s-rtl',sim:'.s-sim',formal:'.s-fml',synth:'.s-syn',pnr:'.s-pnr',sta:'.s-sta',pdk:'.s-pdk'};
+  if(map[key])document.querySelectorAll(map[key]).forEach(r=>r.classList.add('is-active'));
+}
+function closePanel(){
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('open');
+  document.body.style.overflow='';
+  document.querySelectorAll('.flow-row,.flow-cell').forEach(r=>r.classList.remove('is-active'));
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel()});
+
+// paired cells
+document.querySelectorAll('.flow-cell[data-panel]').forEach(cell=>{
+  cell.addEventListener('click',e=>{e.stopPropagation();openPanel(cell.dataset.panel)});
+});
+// Add hover cta to paired cells
+document.querySelectorAll('.paired').forEach(row=>{
+  row.querySelectorAll('.flow-cell').forEach(cell=>{
+    if(!cell.querySelector('.flow-cta')){
+      const m=cell.querySelector('.flow-meta');
+      if(m)m.insertAdjacentHTML('beforeend','<div class="flow-cta">Open →</div>');
+    }
+  });
+});
+
+/* ── CATALOG ─────────────────────────────────────────────── */
+const PILL={sim:'pill-sim',synth:'pill-synth',formal:'pill-formal',pnr:'pill-pnr',pdk:'pill-pdk',sta:'pill-sta',hdl:'pill-hdl',build:'pill-build',fpga:'pill-fpga',online:'pill-online'};
+const LABEL={sim:'Simulation',synth:'Synthesis',formal:'Formal',pnr:'P&R',pdk:'PDK',sta:'Timing',hdl:'HDL',build:'Build',fpga:'FPGA',online:'Online'};
+document.getElementById('catalog').innerHTML=TOOLS.map(t=>{
+  const lks=[
+    t.gh?`<a class="c-link" href="${t.gh}" target="_blank">GitHub</a>`:'',
+    t.web?`<a class="c-link" href="${t.web}" target="_blank">Website</a>`:'',
+    t.docs?`<a class="c-link" href="${t.docs}" target="_blank">Docs</a>`:'',
+  ].join('');
+  return `<div class="c-card show" data-cat="${t.cat}">
+    <div class="c-top"><div class="c-name">${t.name}${t.core?' <span style="color:var(--accent);font-size:.7rem;">★</span>':''}</div><span class="c-pill ${PILL[t.cat]||''}">${LABEL[t.cat]||t.cat}</span></div>
+    <div class="c-desc">${t.desc}</div>
+    <div class="c-links">${lks}</div>
+  </div>`;
+}).join('');
+
+function filter(cat,btn){
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.c-card').forEach(c=>c.classList.toggle('show',cat==='all'||c.dataset.cat===cat));
+}
+
+/* ── SCROLL REVEAL ─────────────────────────────────────────── */
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
