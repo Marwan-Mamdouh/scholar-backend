@@ -1821,7 +1821,15 @@ app.post('/api/profile/avatar', isAuthenticated, uploadTemp.single('avatar'), as
 // ================================================================
 
 
-app.get('/ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ic-tools.html')));
+app.get('/digital-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ic-tools.html')));
+
+app.get('/analog-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'open-source-analog-tools.html')));
+
+app.get('/general-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'open-source-general-tools.html')));
+
+app.get('/Docker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'Docker.html')));
+
+app.get('/tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tools.html')));
 
 // ================================================================
 //  HELPERS & STARTUP
