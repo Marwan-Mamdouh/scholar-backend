@@ -170,7 +170,7 @@ header.innerHTML = `
                         <div class="dropdown-menu">
                             <a href="/jobs" class="dropdown-item"><i class="fab fa-linkedin"></i> Job Search & Map</a>
                             <a href="/companies.html" class="dropdown-item"><i class="fas fa-building"></i> Companies List</a>
-                            <a href="/ic-tools.html" class="dropdown-item"><i class="fas fa-building"></i> open-source</a>
+                            <a href="/tools.html" class="dropdown-item"><i class="fas fa-building"></i> open-source</a>
 
                         </div>
                     </div>
