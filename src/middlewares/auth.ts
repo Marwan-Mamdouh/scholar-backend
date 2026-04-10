@@ -1,5 +1,3 @@
-const { Request, Response, NextFunction } = require("express");
-
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../config").authConfig.jwtSecret;
 
