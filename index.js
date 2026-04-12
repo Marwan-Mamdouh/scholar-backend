@@ -31,7 +31,6 @@ const multer = require('multer');
 const fs = require('fs');
 const os = require('os');
 const xlsx = require('xlsx');
-const logger = require("./src/middlewares/logger.ts");
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -48,7 +47,6 @@ const uploadTemp = multer({ storage: multer.memoryStorage() });
 
 // Middleware
 app.use(express.json());
-app.use(logger); 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
