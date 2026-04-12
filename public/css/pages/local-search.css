@@ -390,7 +390,7 @@
 .ls-researcher-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 1rem;
     width: 100%;
 }
 

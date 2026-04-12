@@ -110,7 +110,8 @@ async function search() {
 
 async function analyzeTarget(id) {
 	const view = document.getElementById("main-view");
-	const desc = document.getElementById("desc").value;
+	const desc = document.getElementById("desc").value.trim();
+	const query = document.getElementById("q").value.trim();
 
 	view.innerHTML = `
                 <div style="text-align:center; margin-top:100px;">
