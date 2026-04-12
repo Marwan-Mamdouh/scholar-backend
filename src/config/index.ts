@@ -2,7 +2,7 @@
 import env from "./env.js";
 
 export const dbConfig = {
-	url: env.SUPABASE_URL,
+	url: env.DATABASE_URL,
 };
 
 export const authConfig = {
