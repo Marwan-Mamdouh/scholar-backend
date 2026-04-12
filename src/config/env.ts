@@ -1,5 +1,5 @@
-const z = require("zod");
-const dotenv = require("dotenv");
+import z from "zod";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -10,8 +10,8 @@ const envSchema = z.object({
 	PORT: z.coerce.number().positive().default(3000),
 	JWT_SECRET: z.string().min(1),
 	GEMINI_API_KEY: z.string().min(32).optional(),
-	
-	SUPABASE_URL: z.string().url(),
+
+	SUPABASE_URL: z.url(),
 	SUPABASE_KEY: z.string().min(1),
 	S2_API_KEY: z.string().min(32).optional(),
 	SUPABASE_ANON_KEY: z.string().min(32).optional(),
@@ -26,7 +26,9 @@ if (!parsed.success) {
 	if (!process.env.VERCEL) {
 		process.exit(1);
 	}
-	throw new Error("Invalid environment configuration (see logs for field errors).");
+	throw new Error(
+		"Invalid environment configuration (see logs for field errors).",
+	);
 }
 
-module.exports = parsed.data;
+export default parsed.data;

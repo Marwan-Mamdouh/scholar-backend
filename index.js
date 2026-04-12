@@ -17,21 +17,27 @@
    notes: اي كومنت بالعربي يبقي ده مهم جدا 
 */
 
-require('dotenv').config();
-const express = require('express');
-const axios = require('axios');
-// const { GoogleGenerativeAI } = require("@google/generative-ai");
-const cors = require('cors');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import axios from 'axios';
+// import { GoogleGenerativeAI } from "@google/generative-ai";
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'nexus-super-secret-key-2024';
-const cookieParser = require('cookie-parser');
-const multer = require('multer');
-const fs = require('fs');
-const os = require('os');
-const xlsx = require('xlsx');
-const logger = require("./src/middlewares/logger.js");
+import cookieParser from 'cookie-parser';
+import multer from 'multer';
+import fs from 'node:fs';
+import os from 'node:os';
+import xlsx from 'xlsx';
+import { createClient } from '@supabase/supabase-js';
+import * as cheerio from 'cheerio';
+import logger from "./src/middlewares/logger.js";
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -53,7 +59,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 
 // --- DATABASE INITIALIZATION (Supabase) ---
-const { createClient } = require('@supabase/supabase-js');
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey =
 	process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -1448,8 +1454,6 @@ app.post('/api/admin/import-job', isAdmin, (req, res) => {
 app.get('/linkedin-scraper', (req, res) => res.sendFile(path.join(__dirname, 'public', 'linkedin-scraper.html')));
 
 
-const cheerio = require('cheerio'); 
-
 // API: Direct LinkedIn Scraper
 app.post('/api/admin/linkedin-scrape', async (req, res) => {
     const { query, location } = req.body;
@@ -2010,7 +2014,7 @@ if (!process.env.VERCEL) {
 }
 
 
-module.exports = app;
+export default app;
 
 
 

@@ -1,5 +1,7 @@
-// Plain JS logger for Node/Vercel (avoids loading env.ts + process.exit on cold start)
+import type { Request, Response, NextFunction } from "express";
+import appConfig from "../config/env.js";
 
+// --- tiny color utility (no heavy deps like chalk)
 const colors = {
 	reset: "\x1b[0m",
 	gray: "\x1b[90m",
@@ -8,33 +10,40 @@ const colors = {
 	red: "\x1b[31m",
 };
 
+// map status → color (NO if spam)
 const statusColorMap = {
 	info: colors.green,
 	warn: colors.yellow,
 	error: colors.red,
-};
+} as const;
 
-const getLevel = (status) =>
+const getLevel = (status: number): keyof typeof statusColorMap =>
 	status >= 500 ? "error" : status >= 400 ? "warn" : "info";
 
-const sanitizeBody = (body) => {
+// sanitize sensitive fields (extend later if needed)
+const sanitizeBody = (body: any) => {
 	if (!body) return undefined;
+
 	const clone = { ...body };
-	["password", "token", "accessToken"].forEach((key) => {
+	const sensitiveKeys = ["password", "token", "accessToken"];
+
+	sensitiveKeys.forEach((key) => {
 		if (key in clone) clone[key] = "***";
 	});
+
 	return clone;
 };
 
-const logger = (req, res, next) => {
+const logger = (req: Request, res: Response, next: NextFunction) => {
 	const start = process.hrtime.bigint();
 
 	res.on("finish", () => {
 		const duration = Number(process.hrtime.bigint() - start) / 1e6;
+
 		const log = {
 			timestamp: new Date().toISOString(),
 			method: req.method,
-			path: req.originalUrl,
+			path: req.originalUrl, // better than req.path
 			statusCode: res.statusCode,
 			duration: `${duration.toFixed(2)}ms`,
 			...(Object.keys(req.query).length && { query: req.query }),
@@ -43,11 +52,16 @@ const logger = (req, res, next) => {
 					body: sanitizeBody(req.body),
 				}),
 		};
+
 		const level = getLevel(res.statusCode);
-		if (process.env.NODE_ENV === "production") {
+
+		// dev-friendly colored output
+		if (appConfig.NODE_ENV === "production") {
+			// production → structured logs
 			console.log(JSON.stringify({ level, ...log }));
 		} else {
 			const color = statusColorMap[level];
+
 			console.log(
 				`${colors.gray}[${log.timestamp}]${colors.reset} ` +
 					`${log.method} ${log.path} ` +
