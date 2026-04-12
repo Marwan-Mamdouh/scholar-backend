@@ -23,7 +23,7 @@ const axios = require('axios');
 // const { GoogleGenerativeAI } = require("@google/generative-ai");
 const cors = require('cors');
 const path = require('path');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'nexus-super-secret-key-2024';
 const cookieParser = require('cookie-parser');
@@ -55,10 +55,51 @@ app.use(cookieParser());
 // --- DATABASE INITIALIZATION (Supabase) ---
 const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseKey =
+	process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-console.log("Connected to Supabase database.");
+let supabase = null;
+try {
+	if (supabaseUrl && supabaseKey) {
+		supabase = createClient(supabaseUrl, supabaseKey);
+		console.log("Connected to Supabase database.");
+	} else {
+		console.error(
+			"[Supabase] Missing SUPABASE_URL or SUPABASE_KEY (or SUPABASE_SERVICE_ROLE_KEY). API routes will return 503 until set in Vercel env.",
+		);
+	}
+} catch (e) {
+	console.error("[Supabase] Init failed:", e.message);
+}
+
+// Deploy / env diagnostics (no secrets). Open in browser if Vercel logs are unavailable.
+app.get("/api/health", (req, res) => {
+	const keyPresent = !!(
+		process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+	);
+	res.json({
+		ok: true,
+		supabaseConfigured: !!(process.env.SUPABASE_URL && keyPresent),
+		clientReady: !!supabase,
+		vercel: !!process.env.VERCEL,
+		node: process.version,
+	});
+});
+
+app.use((req, res, next) => {
+	if (
+		!supabase &&
+		req.path.startsWith("/api") &&
+		req.path !== "/api/health"
+	) {
+		return res.status(503).json({
+			error: "Database not configured",
+			message:
+				"Set SUPABASE_URL and SUPABASE_KEY (or SUPABASE_SERVICE_ROLE_KEY) in Vercel → Project Settings → Environment Variables, then redeploy.",
+		});
+	}
+	next();
+});
 
 const isAdmin = (req, res, next) => {
     const token = req.cookies.auth_token; // tokens from cookies
