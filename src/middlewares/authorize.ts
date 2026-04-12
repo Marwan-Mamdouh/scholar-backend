@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken";
 import { authConfig } from "../config/index.js";
+import type { Response, NextFunction } from "express";
+import type { AuthRequest } from "../utils/auth.request.js";
 const JWT_SECRET = authConfig.jwtSecret;
 
-const isAdmin = (req, res, next) => {
+const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
 	const token = req.cookies.auth_token; // tokens from cookies
 
 	if (!token) {
@@ -10,7 +12,7 @@ const isAdmin = (req, res, next) => {
 	}
 
 	try {
-		const decoded = jwt.verify(token, JWT_SECRET);
+		const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
 		if (decoded.role !== "admin") {
 			return res.status(403).json({ error: "Access Denied. Admins only." });
 		}

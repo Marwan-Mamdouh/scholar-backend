@@ -1,5 +1,5 @@
 import type { FileFilterCallback } from "multer";
-import type { Express } from "express";
+import type { Request } from "express";
 
 const createFileFilter = (allowedTypes: string[]) => {
 	return (_: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
