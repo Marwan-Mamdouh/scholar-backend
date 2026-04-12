@@ -1,10 +1,14 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "rewrites": [
+  "outputDirectory": "dist",
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/index.js"
     }
   ]
 }
