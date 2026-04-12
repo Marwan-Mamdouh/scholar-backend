@@ -1960,9 +1960,12 @@ app.post('/api/admin/upload-grad-projects', uploadTemp.single('file'), async (re
 
 
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-});
+// Vercel invokes the exported app as a serverless handler; do not bind a listener there.
+if (!process.env.VERCEL) {
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
 
 
 module.exports = app;
