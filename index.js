@@ -31,6 +31,7 @@ const multer = require('multer');
 const fs = require('fs');
 const os = require('os');
 const xlsx = require('xlsx');
+const logger = require("./src/middlewares/logger.js");
 
 // --- APP CONFIGURATION ---
 const app = express();
