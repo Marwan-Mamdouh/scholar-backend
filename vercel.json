@@ -4,5 +4,10 @@
 	"framework": "express",
 	"installCommand": "npm install",
 	"buildCommand": "npm run build",
-	"devCommand": "npm run start"
+	"devCommand": "npm run dev",
+	"functions": {
+		"index.js": {
+			"maxDuration": 60
+		}
+	}
 }
