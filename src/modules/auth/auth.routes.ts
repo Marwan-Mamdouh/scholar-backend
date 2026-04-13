@@ -1,9 +1,13 @@
 import { Router, type Response } from "express";
 import { validate } from "../../middlewares/validator.js";
 import asyncHandler from "../../lib/async.handler.js";
-import { loginSchema, registerSchema } from "./auth.schema.js";
+import {
+	loginSchema,
+	registerSchema,
+	type LoginSchema,
+	type RegisterSchema,
+} from "./auth.schema.js";
 import type { TypedRequest } from "../../types/Request.js";
-import type { z } from "zod";
 import { authService } from "./auth.service.js";
 
 const attachCookie = (res: Response, token: string) => {
@@ -21,35 +25,28 @@ router.post(
 	"/login", // route
 	validate(loginSchema), // validation
 	// async handler to pass the error to the error handler
-	asyncHandler(
-		async (req: TypedRequest<z.infer<typeof loginSchema>>, res: Response) => {
-			const { email, password } = req.validatedData;
-			const response = await authService.login(email, password);
+	asyncHandler(async (req: TypedRequest<LoginSchema>, res: Response) => {
+		const { email, password } = req.validatedData;
+		const response = await authService.login(email, password);
 
-			attachCookie(res, response.token);
+		attachCookie(res, response.token);
 
-			return res.json(response);
-		},
-	),
+		return res.json(response);
+	}),
 );
 
 router.post(
 	"/register",
 	validate(registerSchema),
-	asyncHandler(
-		async (
-			req: TypedRequest<z.infer<typeof registerSchema>>,
-			res: Response,
-		) => {
-			const response = await authService.register(req.validatedData);
-			attachCookie(res, response.token);
-			return res.status(response.statusCode).json({
-				success: response.success,
-				message: response.message,
-				user: response.user,
-			});
-		},
-	),
+	asyncHandler(async (req: TypedRequest<RegisterSchema>, res: Response) => {
+		const response = await authService.register(req.validatedData);
+		attachCookie(res, response.token);
+		return res.status(response.statusCode).json({
+			success: response.success,
+			message: response.message,
+			user: response.user,
+		});
+	}),
 );
 
 router.post(

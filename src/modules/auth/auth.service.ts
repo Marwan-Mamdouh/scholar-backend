@@ -1,9 +1,8 @@
 import { comparePassword, hashPassword } from "../../utils/password.util.js";
 import { ConflictError, UnauthorizedError } from "../../lib/error/index.js";
 import { generateToken } from "../../utils/jwt.util.js";
-import type { registerSchema } from "./auth.schema.js";
+import type { RegisterSchema } from "./auth.schema.js";
 import supabase from "../../lib/db.js";
-import type { z } from "zod";
 
 export const authService = {
 	async login(email: string, password: string) {
@@ -54,7 +53,7 @@ export const authService = {
 		};
 	},
 
-	async register(data: z.infer<typeof registerSchema>) {
+	async register(data: RegisterSchema) {
 		const isApproved = data.role === "admin" ? 0 : 1;
 
 		const hashedPassword = await hashPassword(data.personal_info.password);
@@ -148,5 +147,4 @@ export const authService = {
 			};
 		}
 	},
-	async logout() {},
 };

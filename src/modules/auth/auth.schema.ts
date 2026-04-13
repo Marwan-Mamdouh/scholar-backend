@@ -45,3 +45,6 @@ export const registerSchema = z.object({
 	iti: z.record(z.string(), z.unknown()).default({}),
 	nti: z.record(z.string(), z.unknown()).default({}),
 });
+
+export type LoginSchema = z.infer<typeof loginSchema>;
+export type RegisterSchema = z.infer<typeof registerSchema>;
