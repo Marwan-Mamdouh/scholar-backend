@@ -1,7 +1,17 @@
 //  HELPERS & STARTUP
 // ================================================================
 
-// Helper: Clean academic titles from names to fix S2 API calls
+/**
+ * Removes academic titles and suffixes from names to fix S2 API calls
+ * Strips common academic prefixes (Professor, Dr., PhD, etc.) and removes text after commas.
+ *
+ * @param {string} name - Full name with academic titles/prefixes
+ * @returns {string} Cleaned name without academic titles, with normalized whitespace
+ *
+ * @example
+ * cleanName("Professor Dr. John Smith, PhD")
+ * // Returns: "John Smith"
+ */
 const cleanName = (name: string) => {
 	return name
 		.replace(
@@ -12,6 +22,22 @@ const cleanName = (name: string) => {
 		.trim();
 };
 
+/**
+ * Extracts data from a row object based on type and flexible keyword matching
+ * Maps a data type to multiple possible column name keywords and finds a matching key
+ * in the row object. Performs case-insensitive, alphanumeric-normalized matching.
+ *
+ * @param {Record<string, any>} row - Data row object to extract from (e.g., from CSV/Excel)
+ * @param {string} type - Data type to extract: "name", "website", "linkedin", "glassdoor", "size", "category", "industry", "presence", or "location"
+ * @returns {string} Extracted value or empty string if no matching key found
+ *
+ * @example
+ * extractData({ "CompanyName": "Acme Corp", "Website": "acme.com" }, "name")
+ * // Returns: "Acme Corp"
+ *
+ * extractData({ "CompanyName": "Acme Corp" }, "website")
+ * // Returns: ""
+ */
 const extractData = (row, type) => {
 	const keywords = {
 		name: ["companyname", "company", "name", "entity"],
@@ -54,6 +80,21 @@ const extractData = (row, type) => {
 	return "";
 };
 
+/**
+ * Extracts the most common field of study from an array of paper objects
+ * Counts frequency of all fields across papers and returns the most frequent one.
+ * Falls back to defaults if no papers or fields are found.
+ *
+ * @param {Array<{fieldsOfStudy?: string[]}>} papers - Array of paper objects with fieldsOfStudy property
+ * @returns {string} Most common field of study, or "Multidisciplinary" if frequency is tied, or "General Science" if no papers
+ *
+ * @example
+ * extractTopField([
+ *   { fieldsOfStudy: ["AI", "ML"] },
+ *   { fieldsOfStudy: ["AI", "NLP"] }
+ * ])
+ * // Returns: "AI"
+ */
 const extractTopField = (papers) => {
 	if (!papers || papers.length === 0) return "General Science";
 	const fieldCounts = {};
@@ -70,6 +111,19 @@ const extractTopField = (papers) => {
 	return sortedFields.length > 0 ? sortedFields[0][0] : "Multidisciplinary";
 };
 
+/**
+ * Finds a value from a row object using fuzzy keyword matching on object keys
+ * Performs case-insensitive, alphanumeric-normalized key matching against keywords.
+ * Returns the value of the first matching key, or empty string if no match.
+ *
+ * @param {Record<string, any>} row - Data row object to search
+ * @param {string[]} keywords - Array of keywords to search for in row keys
+ * @returns {string} Matched value (converted to string) or empty string if no match found
+ *
+ * @example
+ * getFuzzyValue({ "LinkedInURL": "linkedin.com/...", "Email": "user@test.com" }, ["linkedin", "url"])
+ * // Returns: "linkedin.com/..."
+ */
 const getFuzzyValue = (row, keywords) => {
 	const keys = Object.keys(row);
 	// Find a key that contains one of the keywords (case insensitive)

@@ -4,3 +4,7 @@ package-lock.json
 /dist
 .vscode
 .vercel
+
+# Testing
+coverage/
+*.lcov

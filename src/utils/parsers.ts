@@ -1,4 +1,15 @@
-// Helper: robust CSV row parser that handles quoted fields with commas
+/**
+ * Parses a CSV row string handling quoted fields with embedded commas
+ * Iterates through each character, tracking quote state to determine field boundaries.
+ * Trims whitespace from each field value.
+ *
+ * @param {string} str - The CSV row string to parse (e.g., "John,Doe,\"Smith, Jr.\"")
+ * @returns {string[]} Array of parsed field values with trimmed whitespace
+ *
+ * @example
+ * parseCSVRow("name,age,\"city, country\"")
+ * // Returns: ["name", "age", "city, country"]
+ */
 const parseCSVRow = (str: string) => {
 	const result = [];
 	let curr = "";
