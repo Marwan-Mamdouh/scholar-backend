@@ -21,6 +21,8 @@ const envSchema = z.object({
 	SUPABASE_KEY: z.preprocess(normalizeEnvString, z.string().min(1).optional()),
 	S2_API_KEY: z.string().min(32).optional(),
 	SUPABASE_ANON_KEY: z.string().min(32).optional(),
+	SUPABASE_SERVICE_ROLE_KEY: z.string().min(32).optional(),
+	VERCEL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

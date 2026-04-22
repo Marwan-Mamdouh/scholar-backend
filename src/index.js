@@ -39,6 +39,7 @@ import { createClient } from '@supabase/supabase-js';
 import * as cheerio from 'cheerio';
 import logger from "./middlewares/logger.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import healthRouter from './modules/health/health.routes.js';
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -81,19 +82,7 @@ try {
 	console.error("[Supabase] Init failed:", e.message);
 }
 
-// Deploy / env diagnostics (no secrets). Open in browser if Vercel logs are unavailable.
-app.get("/api/health", (req, res) => {
-	const keyPresent = !!(
-		process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
-	);
-	res.json({
-		ok: true,
-		supabaseConfigured: !!(process.env.SUPABASE_URL && keyPresent),
-		clientReady: !!supabase,
-		vercel: !!process.env.VERCEL,
-		node: process.version,
-	});
-});
+app.use("/api/health", healthRouter);
 
 app.use((req, res, next) => {
 	if (
