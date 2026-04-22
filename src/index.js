@@ -143,27 +143,6 @@ app.get('/local-search', (req, res) => res.sendFile(path.join(__dirname, 'public
  * Also returns 'activeCountryCodes' to color the map blue.
  */
 
-// Helper: robust CSV row parser 
-function parseCSVRow(str) {
-    const result =[];
-    let curr = ''; let inQuotes = false;
-    for (let i = 0; i < str.length; i++) {
-        let c = str; // SOLVED
-        if (c === '"') inQuotes = !inQuotes;
-        else if (c === ',' && !inQuotes) { result.push(curr.trim()); curr = ''; } 
-        else curr += c;
-    }
-    result.push(curr.trim());
-    return result;
-}
-
-// Helper: Clean academic titles from names to fix S2 API calls
-function cleanName(name) {
-    return name.replace(/^(Professor\.|Professor|Prof\.|Dr\.|PhD Candidate at|PhD Candidate|Associate Professor|Assistant Professor|Ph\.D\.|MSc)\s+/gi, '')
-               .replace(/,.*/, '') // Remove anything after a comma 
-               .trim();
-}
-
 // ================================================================
 //  SECTION 1: LOCAL RESEARCHER DB API
 // ================================================================
@@ -1690,60 +1669,6 @@ app.get('/Docker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'Do
 app.get('/tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tools.html')));
 
 // ================================================================
-//  HELPERS & STARTUP
-// ================================================================
-
-function extractData(row, type) {
-    const keywords = {
-        name: ['companyname', 'company', 'name', 'entity'],
-        website: ['website', 'web', 'url', 'companylink', 'link', 'site', 'homepage'],
-        linkedin: ['linkedin', 'profile'],
-        glassdoor: ['glassdoor', 'review'],
-        size: ['size', 'employee', 'staff', 'number'],
-        category: ['category', 'cat', 'sector'],
-        industry: ['industry', 'focus', 'vlsi', 'specialization'],
-        presence: ['presence', 'type', 'status'],
-        location: ['country', 'state', 'location', 'region', 'hq']
-    };
-
-    const targetKeys = keywords[type] || [];
-    const rowKeys = Object.keys(row);
-    
-    // Find matching key
-    let matchKey = rowKeys.find(key => 
-        targetKeys.some(k => key.toLowerCase().replace(/[^a-z]/g, '').includes(k))
-    );
-
-    let value = matchKey ? row[matchKey] : null;
-
-    if (value && typeof value === 'string') return value.trim();
-    return '';
-}
-
-function extractTopField(papers) {
-    if (!papers || papers.length === 0) return "General Science";
-    const fieldCounts = {};
-    papers.forEach(p => {
-        if (p.fieldsOfStudy) {
-            p.fieldsOfStudy.forEach(field => {
-                fieldCounts[field] = (fieldCounts[field] || 0) + 1;
-            });
-        }
-    });
-    const sortedFields = Object.entries(fieldCounts).sort((a, b) => b[1] - a[1]);
-    return sortedFields.length > 0 ? sortedFields[0][0] : "Multidisciplinary";
-}
-
-
-function getFuzzyValue(row, keywords) {
-    const keys = Object.keys(row);
-    // Find a key that contains one of the keywords (case insensitive)
-    const match = keys.find(key => 
-        keywords.some(word => key.toLowerCase().replace(/[^a-z]/g, '').includes(word))
-    );
-    return match ? row[match] : '';
-}
-
 
 // ================================================================
 //  ADMIN: BULK UPLOAD GRADUATION PROJECTS (CORRECTED)
