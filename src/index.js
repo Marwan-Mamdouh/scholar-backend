@@ -40,6 +40,8 @@ import * as cheerio from 'cheerio';
 import logger from "./middlewares/logger.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import healthRouter from './modules/health/health.routes.js';
+import feedbackRouter from './modules/feedback/feedback.routes.js';
+
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -1331,18 +1333,8 @@ app.post('/api/admin/linkedin-scrape', async (req, res) => {
 // ================================================================
 //  SECTION 7: FEEDBACK API
 // ================================================================
-app.post('/api/feedback', async (req, res) => {
-    const { name, email, category, message } = req.body;
-    if (!name || !email || !message) return res.status(400).json({ error: "Missing fields" });
 
-    const { error } = await supabase.from('feedback').insert([{ name, email, category, message }]);
-    
-    if (error) {
-        console.error("Feedback DB Error:", error.message);
-        return res.status(500).json({ error: "Database error" });
-    }
-    res.json({ success: true, message: "Feedback received." });
-});
+app.use("/api/feedback", feedbackRouter)
 
 
 // --- SECTION 8: PROFILES & DIRECTORY API ---
