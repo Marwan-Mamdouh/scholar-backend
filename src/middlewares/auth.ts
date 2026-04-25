@@ -10,7 +10,8 @@ const isAuthenticated = (
 	next: NextFunction,
 ) => {
 	const token = req.cookies.auth_token;
-	if (!token) return res.status(401).json({ error: "Access Denied" });
+	if (!token)
+		return res.status(401).json({ error: "Access Denied. No token provided." });
 	try {
 		const decoded = jwt.verify(token, authConfig.jwtSecret) as jwt.JwtPayload;
 		req.user = decoded;
@@ -21,4 +22,4 @@ const isAuthenticated = (
 	}
 };
 
-export { isAuthenticated };
+export default isAuthenticated;
