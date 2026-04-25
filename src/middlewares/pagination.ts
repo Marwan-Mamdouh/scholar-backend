@@ -43,7 +43,7 @@ export const paginationMiddleware = (
 			res.status(400).json({
 				success: false,
 				message: "Invalid pagination parameters",
-				errors: z.treeifyError(error).errors,
+				errors: z.treeifyError(error).errors.join("\n"),
 			});
 			return;
 		}

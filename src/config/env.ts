@@ -29,7 +29,7 @@ const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
 	console.error("❌ Invalid environment variables:");
-	console.error(parsed.error.flatten().fieldErrors);
+	console.error(z.treeifyError(parsed.error).errors.join("\n"));
 	// Avoid process.exit(1) on Vercel — it surfaces as FUNCTION_INVOCATION_FAILED with no response body.
 	if (!process.env.VERCEL) {
 		process.exit(1);
@@ -52,5 +52,6 @@ export default {
 	SUPABASE_URL: safeEnv.SUPABASE_URL ?? "",
 	SUPABASE_KEY: safeEnv.SUPABASE_KEY ?? "",
 	S2_API_KEY: safeEnv.S2_API_KEY,
-	SUPABASE_ANON_KEY: safeEnv.SUPABASE_ANON_KEY,
+	SUPABASE_SERVICE_ROLE_KEY: safeEnv.SUPABASE_SERVICE_ROLE_KEY,
+	VERCEL: safeEnv.VERCEL,
 };
