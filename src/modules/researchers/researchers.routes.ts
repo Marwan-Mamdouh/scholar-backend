@@ -5,7 +5,7 @@ import { paginationMiddleware } from "../../middlewares/pagination.js";
 import { type PaginatedRequest } from "../../types/paginatedRequest.js";
 import isAdmin from "../../middlewares/authorize.js";
 import { uploadExcel } from "../../middlewares/uploads.js";
-import { validate, validateQuery } from "../../middlewares/validator.js";
+import { validate } from "../../middlewares/validator.js";
 import {
 	FilterQuerySchema,
 	UploadOptionsSchema,
@@ -30,7 +30,7 @@ router.get(
 router.get(
 	"/local-researchers/filter",
 	paginationMiddleware,
-	validateQuery(FilterQuerySchema),
+	validate(FilterQuerySchema, "query"),
 	asyncHandler(
 		async (req: PaginatedRequest & { validatedQuery: any }, res: Response) => {
 			const pagination = req.pagination;
