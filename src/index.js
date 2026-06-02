@@ -43,7 +43,6 @@ import authRoutes from "./modules/auth/auth.routes.js";
 import healthRouter from './modules/health/health.routes.js';
 import feedbackRouter from './modules/feedback/feedback.routes.js';
 import researchersRouter from './modules/researchers/researchers.routes.js';
-
 import { extractTopField, extractData } from './utils/extractors.js';
 
 
