@@ -1,0 +1,20 @@
+model PublicationYearlyMetric {
+  id                        Int                 @id @default(autoincrement())
+  publicationId             Int
+  metricYear                Int
+  journalImpactFactor       Decimal?            @db.Decimal(10, 4)
+  fiveYearImpactFactor      Decimal?            @db.Decimal(10, 4)
+  quartile                  String?             @db.Char(2)
+  jci                       Decimal?            @db.Decimal(10, 4)
+  eigenfactor               Decimal?            @db.Decimal(10, 6)
+  articleInfluenceScore     Decimal?            @db.Decimal(10, 4)
+  citescore                 Decimal?            @db.Decimal(10, 4)
+  updatedAt                 DateTime            @updatedAt
+
+  // Relations
+  publication               AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  // Composite UK with pub_id and metric_year
+  @@unique([publicationId, metricYear])
+  @@map("publicationYearlyMetrics")
+}

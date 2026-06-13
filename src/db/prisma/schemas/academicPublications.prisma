@@ -1,0 +1,21 @@
+model AcademicPublication {
+  id                 Int                     @id @default(autoincrement())
+  subCategoryId      Int
+  acronym            String?
+  publicationType    String?
+  title              String                  @unique
+  issn               String?                 @unique @db.Char(8)
+  eissn              String?                 @unique @db.Char(8)
+  openAccessType     String?
+  indexingService    String?
+  specificFocusScope String?
+  websiteLink        String?
+  journalScope       String?                 @db.Text
+  createdAt          DateTime                @default(now())
+
+  // Relations
+  subCategory        PublicationSubCategory  @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  yearlyMetrics      PublicationYearlyMetric[]
+
+  @@map("academicPublications")
+}
