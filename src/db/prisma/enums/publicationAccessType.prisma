@@ -1,0 +1,5 @@
+enum PublicationAccessType {
+ Hybrid_Open_Access
+ Full_Open_Access
+ Subscriber_Based_Access
+}
