@@ -1,21 +1,25 @@
 model AcademicPublication {
   id                 Int                     @id @default(autoincrement())
   subCategoryId      Int
-  acronym            String?
-  publicationType    String?
+  acronym            String?                 @db.VarChar(100)
+  publicationType    PublicationType
   title              String                  @unique
   issn               String?                 @unique @db.Char(8)
   eissn              String?                 @unique @db.Char(8)
-  openAccessType     String?
-  indexingService    String?
-  specificFocusScope String?
-  websiteLink        String?
+  openAccessType     PublicationAccessType
+  specificFocusScope String?                 @db.VarChar(500)
+  websiteLink        String?                 @db.VarChar(500)
   journalScope       String?                 @db.Text
   createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
 
   // Relations
   subCategory        PublicationSubCategory  @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
   yearlyMetrics      PublicationYearlyMetric[]
 
+  @@index([subCategoryId])
+  @@index([title])
+  @@index([acronym])
   @@map("academicPublications")
 }
