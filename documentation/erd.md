@@ -138,6 +138,17 @@ erDiagram
     }
 
 
+    team_members {
+        bigint id PK
+        varchar name
+        varchar role
+        varchar linkedin_url
+        varchar team "web | industry | academia"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+
 
 
     ACADEMIC_PUBLICATIONS {
