@@ -18,6 +18,7 @@ model PublicationYearlyMetric {
 
   // Composite UK with pub_id and metric_year
   @@unique([publicationId, metricYear, indexingService])
-  @@index([metricYear]) 
+  @@index([metricYear, citescore(sort: Desc)]) 
+  @@index([metricYear, journalImpactFactor(sort: Desc)]) 
   @@map("publicationYearlyMetrics")
 }
