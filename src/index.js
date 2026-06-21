@@ -38,6 +38,7 @@ import { errorHandler } from "./middlewares/error.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import feedbackRouter from './modules/feedback/feedback.routes.js';
 import researchersRouter from './modules/researchers/researchers.routes.js';
+import teamRouter from './modules/team/team.routes.js';
 import { extractTopField, extractData } from './utils/extractors.js';
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/authentication/auth.js";
@@ -59,6 +60,7 @@ app.use(cookieParser());
 
 
 app.use("/api", researchersRouter);
+app.use("/api/team", teamRouter);
 
 // ================================================================
 //  SECTION 2: ACADEMIC SCANNER API (Researcher Analysis)
