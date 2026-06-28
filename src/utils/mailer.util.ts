@@ -12,12 +12,14 @@ const transporter = nodemailer.createTransport({
 	},
 });
 
-interface SendMailOptions {
+interface BaseMailOptions {
 	to: string | string[];
 	subject: string;
-	text?: string;
-	html?: string;
 }
+
+type SendMailOptions =
+	| (BaseMailOptions & { text: string; html?: never })
+	| (BaseMailOptions & { html: string; text?: never });
 
 /**
  * Utility function to send an email
