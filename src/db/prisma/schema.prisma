@@ -3,6 +3,5 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js",
-  output   = "./enums"
+  provider = "prisma-client-js"
 }
