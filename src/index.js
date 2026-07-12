@@ -32,12 +32,10 @@ import cookieParser from 'cookie-parser';
 import fs from 'node:fs';
 import os from 'node:os';
 import xlsx from 'xlsx';
-import { createClient } from '@supabase/supabase-js';
 import * as cheerio from 'cheerio';
 import logger from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/error.js";
 import authRoutes from "./modules/auth/auth.routes.js";
-import healthRouter from './modules/health/health.routes.js';
 import feedbackRouter from './modules/feedback/feedback.routes.js';
 import researchersRouter from './modules/researchers/researchers.routes.js';
 import { extractTopField, extractData } from './utils/extractors.js';
@@ -59,44 +57,8 @@ app.use(cors());
 app.use(logger); // Custom logging middleware to log all requests with timestamps and details
 app.use(cookieParser());
 
-// --- DATABASE INITIALIZATION (Supabase) ---
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey =
-    process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-let supabase = null;
-try {
-    if (supabaseUrl && supabaseKey) {
-        supabase = createClient(supabaseUrl, supabaseKey);
-        console.log("Connected to Supabase database.");
-    } else {
-        console.error(
-            "[Supabase] Missing SUPABASE_URL or SUPABASE_KEY (or SUPABASE_SERVICE_ROLE_KEY). API routes will return 503 until set in Vercel env.",
-        );
-    }
-} catch (e) {
-    console.error("[Supabase] Init failed:", e.message);
-}
-
-app.use("/api/health", healthRouter);
 
 app.use("/api", researchersRouter);
-
-app.use((req, res, next) => {
-    if (
-        !supabase &&
-        req.path.startsWith("/api") &&
-        req.path !== "/api/health"
-    ) {
-        return res.status(503).json({
-            error: "Database not configured",
-            message:
-                "Set SUPABASE_URL and SUPABASE_KEY (or SUPABASE_SERVICE_ROLE_KEY) in Vercel → Project Settings → Environment Variables, then redeploy.",
-        });
-    }
-    next();
-});
 
 // --- FRONTEND ROUTES (HTML PAGES) ---
 
@@ -111,131 +73,6 @@ app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'p
 app.get('/contact', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contact.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/local-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'local-search.html')));
-
-
-// ================================================================
-//  SECTION 1: JOB PORTAL API
-// ================================================================
-
-/**
- * API: Get Job Filters & Map Data
- * Returns unique countries, companies, and tracks to populate UI dropdowns.
- * Also returns 'activeCountryCodes' to color the map blue.
- */
-
-
-
-
-// بص لو حد هيعدل بعدي في كام نوت مهمه لحاجات مسحتهم و حاجات كان لازم تتضاف 
-// الحته دي كنت حاططها علشان مبعتش كل حاجه من الداتا بيز للفرونت مباشر 
-// بس كان فيه مشكلة اني هبقي مضطر احسب حسابات الداش بورد في الباك اند و ابعتها للفرونت فانا مش هعمل كده
-// طبعا المفروض اني كنت اخطط لده من الاول بس ما علينا لو لقيت نفسك مضطر ترجع لهنا يعني و تقلل الي بيتبعت للفرونت 
-//عدل بس هنا و خد بالك من تحديث الداش بورد  في الصفحة دي 
-
-
-// Get Filters & Map Status
-app.get('/api/job-filters', async (req, res) => {
-    const { data: rows, error } = await supabase.from('jobs').select('country, country_code, company, track');
-    if (error) return res.status(500).json({ error: error.message });
-
-    const countriesSet = new Map();
-    const companies = new Set();
-    const tracks = new Set();
-    const activeCodes = new Set();
-
-    rows.forEach(r => {
-        if (r.country && r.country_code) {
-            countriesSet.set(r.country_code, { country: r.country, country_code: r.country_code });
-            activeCodes.add(r.country_code);
-        }
-        if (r.company) companies.add(r.company);
-        if (r.track) tracks.add(r.track);
-    });
-
-    res.json({
-        countries: Array.from(countriesSet.values()),
-        companies: Array.from(companies),
-        tracks: Array.from(tracks),
-        activeCodes: Array.from(activeCodes)
-    });
-});
-
-// Get Jobs with Multi-Selection Logic
-app.post('/api/jobs/query', async (req, res) => {
-    // We use POST to easily send arrays (for multi-select)
-    const { countries, track, company, q } = req.body; // countries is an Array ['US', 'EG']
-
-    let query = supabase.from('jobs').select('*');
-
-    // Multi-Country Filter
-    if (countries && countries.length > 0 && !countries.includes('All')) {
-        query = query.in('country_code', countries);
-    }
-
-    if (track && track !== 'All') {
-        query = query.eq('track', track);
-    }
-    if (company && company !== 'All') {
-        query = query.eq('company', company);
-    }
-    if (q) {
-        query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
-    }
-
-    const { data: rows, error } = await query;
-
-    if (error) return res.status(500).json({ error: error.message });
-
-    // Enhance rows with Logo URL
-    const enhanced = rows.map(r => ({
-        ...r,
-        logo: `https://logo.clearbit.com/${r.company_domain}`
-    }));
-    res.json(enhanced);
-});
-
-/**
- * API: Submit Application
- * Receives JSON data and stores it in memory.
- */
-app.post('/api/apply', async (req, res) => {
-    const { jobId, applicantName, applicantEmail, applicantPhone } = req.body;
-
-    let cvPath = null;
-
-    // Construct the public URL path for the file via Supabase Storage
-    if (req.file) {
-        const fileExt = req.file.originalname.split('.').pop();
-        const fileName = `${jobId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('cv-uploads') // Ensure this bucket exists in Supabase
-            .upload(fileName, req.file.buffer, {
-                contentType: req.file.mimetype
-            });
-
-        if (uploadError) {
-            console.error(uploadError);
-            return res.status(500).json({ error: "File upload failed" });
-        }
-
-        const { data: publicUrlData } = supabase.storage
-            .from('cv-uploads')
-            .getPublicUrl(fileName);
-
-        cvPath = publicUrlData.publicUrl;
-    }
-
-    const { error } = await supabase
-        .from('applications')
-        .insert([{ jobId, applicantName, applicantEmail, applicantPhone, cvPath }]);
-
-    if (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Application failed" });
-    }
-    res.json({ success: true, message: "Application submitted successfully." });
-});
 
 
 // ================================================================
@@ -430,113 +267,11 @@ app.delete('/api/hottopics/:id', isAdmin, async (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/api/jobs/add', isAuthenticated, async (req, res) => {
-    const { title, company, country, country_code, track, type, seniority, description, requirements, salary, apply_link } = req.body;
-    const owner_id = req.user.id; // From Token
-
-    const { data, error } = await supabase
-        .from('jobs')
-        .insert([{ owner_id, title, company, country, country_code, track, type, seniority, description, requirements, salary, apply_link }])
-        .select()
-        .single();
-
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true, jobId: data.id });
-});
-
 // ================================================================
 //  SECTION 5: AUTHENTICATION & USERS (FINALIZED)
 // ================================================================
 
 app.use("/api/auth", authRoutes);
-
-// Add New Job (Company/Admin Only)
-// (Note: There was a duplicate definition of this route in SQLite version, mapped to the same behavior)
-app.post('/api/jobs/add', async (req, res) => {
-    const { title, company, country, country_code, track, type, seniority, description, requirements, salary } = req.body;
-
-    const { data, error } = await supabase
-        .from('jobs')
-        .insert([{ title, company, country, country_code, track, type, seniority, description, requirements, salary }])
-        .select()
-        .single();
-
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true, jobId: data.id });
-});
-
-
-// GET Applicants for a specific job (Secured)
-app.get('/api/jobs/:id/applicants', isAdmin, async (req, res) => {
-    // Note: isAdmin here checks if user is logged in. 
-    // Ideally, create a specific middleware 'isJobOwner' as discussed before.
-    // For now, assuming 'isAdmin' simply verifies a valid JWT token exists.
-
-    const jobId = req.params.id;
-    const userId = req.user.id; // From the token
-    const userRole = req.user.role;
-
-    // 1. Verify this user owns the job
-    const { data: job, error: jobError } = await supabase
-        .from('jobs')
-        .select('owner_id, title')
-        .eq('id', jobId)
-        .single();
-
-    if (jobError || !job) return res.status(404).json({ error: "Job not found" });
-
-    // Allow if user is the Owner OR an Admin
-    if (job.owner_id !== userId && userRole !== 'admin') {
-        return res.status(403).json({ error: "Access Denied. You do not own this job post." });
-    }
-
-    // 2. Fetch Applicants
-    const { data: rows, error } = await supabase
-        .from('applications')
-        .select('id, applicantName, applicantEmail, applicantPhone, cvPath, timestamp')
-        .eq('jobId', jobId)
-        .order('timestamp', { ascending: false });
-
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(rows);
-});
-
-
-app.delete('/api/jobs/:id', isAuthenticated, async (req, res) => {
-    const jobId = req.params.id;
-    const userId = req.user.id;
-    const userRole = req.user.role;
-
-    // First check if user owns the job or is admin
-    const { data: row, error: jobError } = await supabase
-        .from('jobs')
-        .select('owner_id')
-        .eq('id', jobId)
-        .single();
-
-    if (jobError || !row) return res.status(404).json({ error: "Job not found" });
-
-    if (row.owner_id !== userId && userRole !== 'admin') {
-        return res.status(403).json({ error: "Unauthorized" });
-    }
-
-    // 1. Delete Job Entry
-    const { error: delJobError } = await supabase.from('jobs').delete().eq('id', jobId);
-    if (delJobError) return res.status(500).json({ error: delJobError.message });
-
-    // 2. Delete Applications Entry
-    await supabase.from('applications').delete().eq('jobId', jobId);
-
-    // 3. Delete CV Folder (Optional, but keeps server clean)
-    // Note: Since we are using Supabase storage, folder deletion logic is commented out here to preserve exact structural comments.
-    // const jobFolder = path.join(__dirname, `public/uploads/jobs/${jobId}`);
-    // if (fs.existsSync(jobFolder)) {
-    //     fs.rm(jobFolder, { recursive: true, force: true }, () => {});
-    // }
-
-    res.json({ success: true });
-});
-
 
 app.get('/api/admin/pending-users', async (req, res) => {
     const { data: rows, error } = await supabase
@@ -784,26 +519,6 @@ app.get('/api/companies/analytics', async (req, res) => {
     res.json({ jobs, timeline });
 });
 
-// NEW: Import Job (Admin)
-app.post('/api/admin/import-job', isAdmin, async (req, res) => {
-    const { title, company, country, description, apply_link, track, seniority } = req.body;
-    const owner_id = req.user.id;
-
-    // Auto-fill logic
-    const country_code = country ? country.substring(0, 2).toUpperCase() : 'XX';
-    const salary = "Not Disclosed";
-    const type = "Full-time";
-    const requirements = "See external link for details.";
-
-    const { data, error } = await supabase
-        .from('jobs')
-        .insert([{ owner_id, title, company, country, country_code, track, type, seniority, description, requirements, salary, apply_link }])
-        .select()
-        .single();
-
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true, jobId: data.id });
-});
 // 1. Serve HTML Pages
 app.get('/team', (req, res) => res.sendFile(path.join(__dirname, 'public', 'team.html')));
 app.get('/grad-form', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grad-form.html')));
@@ -963,26 +678,6 @@ app.post('/api/admin/external-search', async (req, res) => {
         console.error("--- [SERPER DEBUG] ERROR ---");
         res.status(500).json({ error: "Search Service Failed" });
     }
-});
-// 2. Import Job Route (Slightly different from regular add)
-app.post('/api/admin/import-job', isAdmin, (req, res) => {
-    const { title, company, country, description, apply_link, track, seniority } = req.body;
-    const owner_id = req.user.id; // Admin ID
-
-    // Auto-fill missing fields for imported jobs
-    const country_code = country.substring(0, 2).toUpperCase(); // Rough guess, admin can edit later
-    const salary = "Not Disclosed";
-    const type = "Full-time";
-    const requirements = "See external link for details.";
-
-    const sql = `INSERT INTO jobs 
-    (owner_id, title, company, country, country_code, track, type, seniority, description, requirements, salary, apply_link) 
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-    db.run(sql, [owner_id, title, company, country, country_code, track, type, seniority, description, requirements, salary, apply_link], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true, jobId: this.lastID });
-    });
 });
 
 app.get('/linkedin-scraper', (req, res) => res.sendFile(path.join(__dirname, 'public', 'linkedin-scraper.html')));
@@ -1202,53 +897,6 @@ app.get('/api/admin/all-companies', async (req, res) => {
     const { data: jobData } = await supabase.from('jobs').select('company');
     const allNames = new Set([...(data || []).map(c => c.name), ...(jobData || []).map(j => j.company)]);
     res.json(Array.from(allNames).filter(Boolean).sort());
-});
-
-//  Bulk Import Jobs from Scraper
-app.post('/api/admin/import-jobs-bulk', isAdmin, async (req, res) => {
-    const { jobs } = req.body;
-    const owner_id = req.user.id;
-
-    if (!jobs || !Array.isArray(jobs)) return res.status(400).json({ error: "Invalid jobs array" });
-
-    try {
-        const links = jobs.map(j => j.link);
-        const { data: existing, error: fetchError } = await supabase
-            .from('jobs')
-            .select('apply_link')
-            .in('apply_link', links);
-
-        if (fetchError) throw fetchError;
-        const existingLinks = new Set(existing.map(e => e.apply_link));
-
-        const toInsert = jobs.filter(j => !existingLinks.has(j.link)).map(j => ({
-            owner_id,
-            title: j.title,
-            company: j.company,
-            country: j.location,
-            country_code: j.location ? j.location.substring(0, 2).toUpperCase() : 'XX',
-            track: 'Uncategorized',
-            type: 'Full-time',
-            seniority: 'Not Specified',
-            description: 'Imported via LinkedIn Direct Scanner.',
-            requirements: 'See external link for details.',
-            salary: 'Not Disclosed',
-            apply_link: j.link
-        }));
-
-        if (toInsert.length === 0) {
-            return res.json({ success: true, message: "No new jobs added. All selected jobs are already in the database." });
-        }
-
-        // 3. Insert into database
-        const { error: insertError } = await supabase.from('jobs').insert(toInsert);
-        if (insertError) throw insertError;
-
-        res.json({ success: true, message: `Successfully added ${toInsert.length} new jobs! (${jobs.length - toInsert.length} duplicates skipped)` });
-    } catch (error) {
-        console.error("[Bulk Import Error]:", error.message);
-        res.status(500).json({ error: "Failed to import jobs." });
-    }
 });
 
 
