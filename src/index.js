@@ -439,20 +439,6 @@ app.delete('/api/hottopics/:id', isAdmin, async (req, res) => {
     res.json({ success: true });
 });
 
-
-// Middleware to extract user from token (Reuse your isAdmin logic or make a generic one)
-const isAuthenticated = (req, res, next) => {
-    const token = req.cookies.auth_token;
-    if (!token) return res.status(401).json({ error: "Access Denied" });
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (ex) {
-        res.status(400).json({ error: "Invalid token." });
-    }
-};
-
 app.post('/api/jobs/add', isAuthenticated, async (req, res) => {
     const { title, company, country, country_code, track, type, seniority, description, requirements, salary, apply_link } = req.body;
     const owner_id = req.user.id; // From Token
