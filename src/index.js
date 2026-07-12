@@ -60,21 +60,6 @@ app.use(cookieParser());
 
 app.use("/api", researchersRouter);
 
-// --- FRONTEND ROUTES (HTML PAGES) ---
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scanner.html')));
-app.get('/explorer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'explorer.html')));
-app.get('/hottopics', (req, res) => res.sendFile(path.join(__dirname, 'public', 'hottopics.html')));
-app.get('/jobs', (req, res) => res.sendFile(path.join(__dirname, 'public', 'jobs.html')));
-app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'public', 'about.html')));
-app.get('/api-docs', (req, res) => res.sendFile(path.join(__dirname, 'public', 'api-docs.html')));
-app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
-app.get('/contact', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contact.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
-app.get('/local-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'local-search.html')));
-
-
 // ================================================================
 //  SECTION 2: ACADEMIC SCANNER API (Researcher Analysis)
 // ================================================================
@@ -519,11 +504,6 @@ app.get('/api/companies/analytics', async (req, res) => {
     res.json({ jobs, timeline });
 });
 
-// 1. Serve HTML Pages
-app.get('/team', (req, res) => res.sendFile(path.join(__dirname, 'public', 'team.html')));
-app.get('/grad-form', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grad-form.html')));
-app.get('/grad-dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grad-dashboard.html')));
-
 // 2. API: Submit Project
 app.post('/api/grad-projects/submit', async (req, res) => {
     const {
@@ -680,8 +660,6 @@ app.post('/api/admin/external-search', async (req, res) => {
     }
 });
 
-app.get('/linkedin-scraper', (req, res) => res.sendFile(path.join(__dirname, 'public', 'linkedin-scraper.html')));
-
 
 // API: Direct LinkedIn Scraper
 app.post('/api/admin/linkedin-scrape', async (req, res) => {
@@ -776,7 +754,6 @@ app.use("/api/feedback", feedbackRouter)
 // --- SECTION 8: PROFILES & DIRECTORY API ---
 
 // 1. Serve the Profiles Page
-app.get('/profiles', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profiles.html')));
 
 // 2. API: Get Public Profiles (with Filters)
 app.get('/api/directory/profiles', async (req, res) => {
@@ -909,7 +886,6 @@ app.get('/api/admin/all-companies', async (req, res) => {
 // ================================================================
 
 // Route for serving the profile page
-app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profile.html')));
 
 // GET /api/profile -> Returns full user data
 app.get('/api/profile', isAuthenticated, async (req, res) => {
@@ -1033,21 +1009,6 @@ app.post('/api/profile/avatar', isAuthenticated,  async (req, res) => {
         res.status(500).json({ success: false, error: "Failed to upload avatar." });
     }
 });
-
-// ================================================================
-//  open source Tools and repos
-// ================================================================
-
-
-app.get('/digital-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ic-tools.html')));
-
-app.get('/analog-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'open-source-analog-tools.html')));
-
-app.get('/general-ic-tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'open-source-general-tools.html')));
-
-app.get('/Docker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'Docker.html')));
-
-app.get('/tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tools.html')));
 
 // ================================================================
 
