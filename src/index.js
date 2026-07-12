@@ -65,7 +65,6 @@ app.use(express.json());
 app.use(cors());
 
 app.use(logger); // Custom logging middleware to log all requests with timestamps and details
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 
 // --- DATABASE INITIALIZATION (Supabase) ---
