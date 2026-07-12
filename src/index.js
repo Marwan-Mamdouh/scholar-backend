@@ -27,11 +27,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.join(process.cwd());
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'nexus-super-secret-key-2024';
 import cookieParser from 'cookie-parser';
-import multer from 'multer';
 import fs from 'node:fs';
 import os from 'node:os';
 import xlsx from 'xlsx';
@@ -54,11 +51,6 @@ const port = process.env.PORT || 3000;
 // Initialize Google Gemini AI
 // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-// Multer Storage Configuration (Now using Memory Storage for Supabase Uploads)
-// Ensure uploads directory exists comment kept for context, but Supabase handles storage now
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
-const uploadTemp = multer({ storage: multer.memoryStorage() });
 
 // Middleware
 app.use(express.json());
@@ -206,7 +198,7 @@ app.post('/api/jobs/query', async (req, res) => {
  * API: Submit Application
  * Receives JSON data and stores it in memory.
  */
-app.post('/api/apply', upload.single('cv'), async (req, res) => {
+app.post('/api/apply', async (req, res) => {
     const { jobId, applicantName, applicantEmail, applicantPhone } = req.body;
 
     let cvPath = null;
@@ -576,9 +568,9 @@ app.post('/api/admin/approve-user', async (req, res) => {
 
 // API: Upload Companies
 // 1. Upload Companies (Revised with Glassdoor & Link Mining)
-app.post('/api/admin/upload-companies', isAdmin, uploadTemp.single('file'), async (req, res) => {
-    if (!req.file || !req.file.buffer) return res.status(400).json({ error: "No file uploaded" });
-
+app.post('/api/admin/upload-companies', isAdmin, async (req, res) => {
+    if (!req.file || !req.file.buffer) return res.status(400).json({error: "No file uploaded"});
+    
     const clearDb = req.body.clear_db === 'true';
 
     try {
@@ -1365,7 +1357,7 @@ app.put('/api/profile', isAuthenticated, async (req, res) => {
     }
 });
 
-app.post('/api/profile/avatar', isAuthenticated, uploadTemp.single('avatar'), async (req, res) => {
+app.post('/api/profile/avatar', isAuthenticated,  async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "No image file provided" });
 
@@ -1415,7 +1407,7 @@ app.get('/tools', (req, res) => res.sendFile(path.join(__dirname, 'public', 'too
 //  ADMIN: BULK UPLOAD GRADUATION PROJECTS (CORRECTED)
 // ================================================================
 
-app.post('/api/admin/upload-grad-projects', uploadTemp.single('file'), async (req, res) => {
+app.post('/api/admin/upload-grad-projects', async (req, res) => {
     if (!req.file || !req.file.buffer) {
         return res.status(400).json({ error: "No file uploaded or invalid format" });
     }
