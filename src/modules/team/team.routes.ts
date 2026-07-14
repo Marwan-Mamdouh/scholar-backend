@@ -18,7 +18,7 @@ router.get(
 	"/",
 	asyncHandler(async (_: Request, res: Response) => {
 		const data = await teamService.getAll();
-		res.status(200).json({ data });
+		res.json({ data });
 	}),
 );
 
@@ -28,7 +28,7 @@ router.get(
 	asyncHandler(async (req: Request, res: Response) => {
 		const { id } = teamIdSchema.parse(req.params);
 		const data = await teamService.getById(id);
-		res.status(200).json({ data });
+		res.json({ data });
 	}),
 );
 
@@ -49,7 +49,7 @@ router.patch(
 	asyncHandler(async (req: TypedRequest<UpdateTeamMember>, res: Response) => {
 		const { id } = teamIdSchema.parse(req.params);
 		const data = await teamService.update(id, req.validatedData);
-		res.status(200).json({ data });
+		res.json({ data });
 	}),
 );
 
@@ -59,7 +59,7 @@ router.delete(
 	asyncHandler(async (req: Request, res: Response) => {
 		const { id } = teamIdSchema.parse(req.params);
 		await teamService.remove(id);
-		res.status(204).send();
+		res.sendStatus(204);
 	}),
 );
 
