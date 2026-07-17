@@ -1,6 +1,6 @@
 model Feedback {
   id          Int              @id @default(autoincrement())
-  userId      Int?             
+  userId      String?             
   firstName   String?          
   lastName    String?          
   email       String?
