@@ -1,7 +1,7 @@
 model JobApplication {
   id              Int               @id @default(autoincrement())
   jobId           Int
-  applicantUserId Int
+  applicantUserId String
   cvPath          String?
   status          ApplicationStatus @default(pending)
   submittedAt     DateTime          @default(now())

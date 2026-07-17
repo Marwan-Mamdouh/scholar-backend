@@ -1,5 +1,5 @@
 model Profile {
-  userId         Int      @id 
+  userId         String      @id 
   firstName      String  
   lastName       String  
   gender         String?
