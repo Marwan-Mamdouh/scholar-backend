@@ -52,6 +52,10 @@ const port = process.env.PORT || 3000;
 // const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // Middleware
+// Authentication Routes
+app.all("/api/auth/*path", (req, res) => {
+    return toNodeHandler(auth)(req, res);
+})
 app.use(express.json());
 app.use(cors());
 
@@ -291,8 +295,8 @@ app.post('/api/admin/approve-user', async (req, res) => {
 // API: Upload Companies
 // 1. Upload Companies (Revised with Glassdoor & Link Mining)
 app.post('/api/admin/upload-companies', isAdmin, async (req, res) => {
-    if (!req.file || !req.file.buffer) return res.status(400).json({error: "No file uploaded"});
-    
+    if (!req.file || !req.file.buffer) return res.status(400).json({ error: "No file uploaded" });
+
     const clearDb = req.body.clear_db === 'true';
 
     try {
@@ -983,7 +987,7 @@ app.put('/api/profile', isAuthenticated, async (req, res) => {
     }
 });
 
-app.post('/api/profile/avatar', isAuthenticated,  async (req, res) => {
+app.post('/api/profile/avatar', isAuthenticated, async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "No image file provided" });
 
