@@ -29,6 +29,7 @@ model UniversityStaff {
   researchInterests            String[]
   bio                           String?
   otherUrl                     String?
+  researchPapers              ResearchPaper[]
 
   createdAt                     DateTime        @default(now()) 
   updatedAt                     DateTime        @updatedAt 
