@@ -1,6 +1,7 @@
-import {db} from "../../db/db_config.js"
+import db from "../../db/db_config.js"
+import { Prisma } from "@prisma/client";
 import type { PaginationQuery } from "../../middlewares/pagination.js";
-import type { domainSchema , domain, domainFilter, subCategory, subCategoryFilter, publication, publicationID, publicationPatch, publicationMetrics, publicationMetricsID, publicationMetricsPatch } from "./publication.schema.js";
+import type { domainSchema, publicationEditorialStatsID, publicationFilterInput, domain, domainFilter, subCategory, subCategoryFilter, publication, publicationID, publicationPatch, publicationMetrics, publicationMetricsID, publicationMetricsPatch, PublicationEditorialStat, PublicationEditorialStatPatch, PublicationPricing, PublicationPricingPatch } from "./publication.schema.js";
 
 const publicationService = {
     async addDomain( doaminData: domain ){
@@ -126,6 +127,196 @@ const publicationService = {
         }    
     },
     
+    async getPublicationFiltered( filterData: publicationFilterInput ){
+        try {
+            const { 
+            categories, 
+            publishingModel, 
+            licensing, 
+            pricing, 
+            metrics, 
+            editorialSpeed, 
+            } = filterData;
+
+            // Dynamically build Prisma where input
+            const where: Prisma.AcademicPublicationWhereInput = {};
+
+            // 1. Filter by SubCategory / Category IDs
+            if (categories?.categoryIds?.length) {
+            where.subCategoryId = { in: categories.categoryIds };
+            }
+
+            // 2. Filter by Open Access / Publishing Model
+            if (publishingModel?.length) {
+            where.openAccessType = { in: publishingModel };
+            }
+
+            // 3. Filter by License Type
+            if (licensing?.length) {
+            where.licenseType = { in: licensing };
+            }
+
+            // 4. Max Article Fee (APC) + Currency + Year
+            if (pricing?.maxCost !== undefined || pricing?.currency) {
+            where.pricings = {
+                some: {
+                ...(pricing.currency && { currency: pricing.currency }),
+                // ...(pricing.year && { pricingYear: pricing.year }),
+                ...(pricing.maxCost !== undefined && { cost: { lte: pricing.maxCost } }),
+                },
+            };
+            }
+
+            // 5. Yearly Metrics (Impact Factor, SJR, CiteScore, Quartile)
+            if (metrics) {
+            const metricFilters: Prisma.PublicationYearlyMetricWhereInput = {};
+
+            // if (metrics.year) metricFilters.metricYear = metrics.year;
+            if (metrics.quartiles?.length) metricFilters.quartile = { in: metrics.quartiles };
+
+            if (metrics.impactFactor) {
+                metricFilters.impactFactor = {
+                ...(metrics.impactFactor.min !== undefined && { gte: metrics.impactFactor.min }),
+                ...(metrics.impactFactor.max !== undefined && { lte: metrics.impactFactor.max }),
+                };
+            }
+
+            if (metrics.sjr) {
+                metricFilters.sjr = {
+                ...(metrics.sjr.min !== undefined && { gte: metrics.sjr.min }),
+                ...(metrics.sjr.max !== undefined && { lte: metrics.sjr.max }),
+                };
+            }
+
+            if (metrics.citeScore) {
+                metricFilters.citescore = {
+                ...(metrics.citeScore.min !== undefined && { gte: metrics.citeScore.min }),
+                ...(metrics.citeScore.max !== undefined && { lte: metrics.citeScore.max }),
+                };
+            }
+
+            where.yearlyMetrics = { some: metricFilters };
+            }
+
+            // 6. Editorial Speed & Acceptance Rate (Convert UI Weeks -> DB Days)
+            if (editorialSpeed) {
+            const speedFilters: Prisma.PublicationEditorialStatWhereInput = {};
+
+            if (editorialSpeed.firstDecisionWeeks) {
+                speedFilters.submissionToFirstDecision = {
+                ...(editorialSpeed.firstDecisionWeeks.min !== undefined && { gte: editorialSpeed.firstDecisionWeeks.min * 7 }),
+                ...(editorialSpeed.firstDecisionWeeks.max !== undefined && { lte: editorialSpeed.firstDecisionWeeks.max * 7 }),
+                };
+            }
+
+            if (editorialSpeed.submissionToAcceptanceWeeks) {
+                speedFilters.submissionToAcceptance = {
+                ...(editorialSpeed.submissionToAcceptanceWeeks.min !== undefined && { gte: editorialSpeed.submissionToAcceptanceWeeks.min * 7 }),
+                ...(editorialSpeed.submissionToAcceptanceWeeks.max !== undefined && { lte: editorialSpeed.submissionToAcceptanceWeeks.max * 7 }),
+                };
+            }
+
+            // if (editorialSpeed.acceptanceRatePercent) {
+            //     speedFilters.acceptanceRate = {
+            //     ...(editorialSpeed.acceptanceRatePercent.min !== undefined && { gte: editorialSpeed.acceptanceRatePercent.min }),
+            //     ...(editorialSpeed.acceptanceRatePercent.max !== undefined && { lte: editorialSpeed.acceptanceRatePercent.max }),
+            //     };
+            // }
+
+            where.editorialStats = { some: speedFilters };
+            }
+
+            // Execute query and total count in parallel
+            const [total, publications] = await Promise.all([
+            db.academicPublication.count({ where }),
+            db.academicPublication.findMany({
+                where,
+                include: {
+                yearlyMetrics: {
+                    take: 1,
+                    orderBy: { metricYear: 'desc' },
+                },
+                subCategory: {
+                    include: {
+                    domain: true,
+                    },
+                },
+                pricings: true,
+                editorialStats: true,
+                },
+            }),
+            ]);
+
+            console.log("Found publications count:", total);
+
+            return {
+                publications: publications || [],
+            };
+        } catch (error) {
+            if (error) throw error;
+        }
+    },
+
+    
+    async getFilterRanges() {
+        try {
+            // Run aggregates on both tables in parallel
+            const [metricStats, editorialStats] = await Promise.all([
+            db.publicationYearlyMetric.aggregate({
+                _min: {
+                impactFactor: true,
+                sjr: true,
+                citescore: true,
+                },
+                _max: {
+                impactFactor: true,
+                sjr: true,
+                citescore: true,
+                },
+            }),
+            db.publicationEditorialStat.aggregate({
+                _min: {
+                submissionToFirstDecision: true,
+                submissionToAcceptance: true,
+                },
+                _max: {
+                submissionToFirstDecision: true,
+                submissionToAcceptance: true,
+                },
+            }),
+        ]);
+
+    // Helpers to cast Prisma Decimal/null values and convert Days -> Weeks
+            const toNumber = (val: any) => (val !== null && val !== undefined ? Number(val) : 0);
+            const daysToWeeks = (days: any) => (days !== null && days !== undefined ? Number((Number(days) / 7).toFixed(1)) : 0);
+
+            return {
+            impactFactor: {
+                min: toNumber(metricStats._min.impactFactor),
+                max: toNumber(metricStats._max.impactFactor),
+            },
+            sjr: {
+                min: toNumber(metricStats._min.sjr),
+                max: toNumber(metricStats._max.sjr),
+            },
+            citeScore: {
+                min: toNumber(metricStats._min.citescore),
+                max: toNumber(metricStats._max.citescore),
+            },
+            firstDecisionWeeks: {
+                min: daysToWeeks(editorialStats._min.submissionToFirstDecision),
+                max: daysToWeeks(editorialStats._max.submissionToFirstDecision),
+            },
+            submissionToAcceptanceWeeks: {
+                min: daysToWeeks(editorialStats._min.submissionToAcceptance),
+                max: daysToWeeks(editorialStats._max.submissionToAcceptance),
+            },
+            };
+        } catch (error) {
+            if (error) throw error;
+        }
+    },
+    
     async getAllPublication(){
         try {
             const allPublication = await db
@@ -205,6 +396,14 @@ const publicationService = {
                     .deleteMany({
                         where:{publicationId:publicationData.id}
                     }),
+                db.publicationEditorialStat
+                    .deleteMany({
+                        where:{publicationId:publicationData.id}
+                    }),
+                db.publicationPricing
+                    .deleteMany({
+                        where:{publicationId:publicationData.id}
+                    }),
                 db.academicPublication
                     .delete({
                         where:{id:publicationData.id}
@@ -243,7 +442,7 @@ const publicationService = {
         }    
     },
     
-    async getMetrics(metricsData:publicationMetricsID){
+    async getMetrics( metricsData:publicationMetricsID ){
         try {
             const metrics = await db
                 .publicationYearlyMetric
@@ -308,6 +507,205 @@ const publicationService = {
             if (error) {
                 console.error("publicationYearlyMetric DB Error:", error.message);
                 throw new Error("error removing Publication Metric.");
+            }
+        }
+    },
+//! //////////////////////////
+    async addEditorialStats( editorialStatsData: PublicationEditorialStat ){
+        try {
+            const found = await db
+                .academicPublication
+                .findUnique({
+                    where:{id:editorialStatsData.publicationId}
+                })
+            
+            if (!found) {
+                console.error("Invalid data Error:", "Publication isn't found in db");
+                throw new Error("Error adding metrics: subCategory not found.");
+            }
+    
+            const newPublicationEitorialStats = await db
+                .publicationEditorialStat
+                .create({
+                    data: editorialStatsData
+                })
+            return newPublicationEitorialStats
+        } catch (error) {
+            if (error) {
+                console.error("PublicationEitorialStats DB Error:", error.message);
+                throw new Error("error adding EitorialStats.");
+            }            
+        }    
+    },
+    
+    async getEditorialStats( editorialStatsData:publicationEditorialStatsID ){
+        try {
+            const metrics = await db
+                .publicationYearlyMetric
+                .findUnique({
+                    where:{id:editorialStatsData.id},
+                    include:{
+                        publication:{
+                            include:{
+                                subCategory:{
+                                    include:{
+                                        domain:true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+                console.log("publication metrics:", metrics);
+                return metrics || {};
+        } catch (error) {
+            if (error) throw error;
+        }
+    },
+
+    async patchEditorialStat( editorialStatsData: PublicationEditorialStatPatch ){
+        try {
+            if(editorialStatsData.publicationId){
+                const found = await db
+                    .academicPublication
+                    .findUnique({
+                        where:{id:editorialStatsData.publicationId}
+                    })
+                
+                if (!found) {
+                    console.error("Invalid data Error:", "Publication isn't found in db");
+                    throw new Error("Error editing metric: Publication not found.");
+                }
+            }
+            const patchedEditorialStats = await db
+                .publicationEditorialStat
+                .update({
+                    where:{id:editorialStatsData.id},
+                    data:editorialStatsData
+                })
+            return patchedEditorialStats;
+        } catch (error) {
+            if (error) {
+                console.error("publicationEditorialStat DB Error:", error.message);
+                throw new Error("error patching Publication Editorial Stat.");
+            }            
+        }    
+    },
+    
+    async removeEditorialStat( editorialStatsData: publicationEditorialStatsID ){
+        try {
+            const removedEditorialStat = await db
+                .publicationEditorialStat
+                .delete({
+                    where:{id:editorialStatsData.id}
+                })
+        } catch (error) {
+            if (error) {
+                console.error("publicationEditorialStat DB Error:", error.message);
+                throw new Error("error removing Publication Editorial Stat.");
+            }
+        }
+    },
+//! //////////////////////////
+    async addPricing( pricingData: PublicationPricing ){
+        try {
+            const found = await db
+                .academicPublication
+                .findUnique({
+                    where:{id:pricingData.publicationId}
+                })
+            
+            if (!found) {
+                console.error("Invalid data Error:", "Publication isn't found in db");
+                throw new Error("Error adding pricing: publication not found.");
+            }
+    
+            const newPricing = await db
+                .publicationPricing
+                .create({
+                    data: {
+                        pricingYear: pricingData.pricingYear,
+                        cost: pricingData.cost,
+                        isSubscription: pricingData.isSubscription,
+                        currency: pricingData.currency,
+                        publicationId: pricingData.publicationId
+                        }
+                    }
+                )
+            return newPricing
+        } catch (error) {
+            if (error) {
+                console.error("PublicationPricing DB Error:", error.message);
+                throw new Error("error adding publication pricing.");
+            }            
+        }    
+    },
+    
+    async getPricing( pricingData:publicationID ){
+        try {
+            const pricing = await db
+                .publicationPricing
+                .findUnique({
+                    where:{id:pricingData.id},
+                    include:{
+                        publication:{
+                            include:{
+                                subCategory:{
+                                    include:{
+                                        domain:true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+                console.log("publication pricing:", pricing);
+                return pricing || {};
+        } catch (error) {
+            if (error) throw error;
+        }
+    },
+
+    async patchPricing( pricingData: PublicationPricingPatch ){
+        try {
+            if(pricingData.publicationId){
+                const found = await db
+                    .academicPublication
+                    .findUnique({
+                        where:{id:pricingData.publicationId}
+                    })
+                
+                if (!found) {
+                    console.error("Invalid data Error:", "Publication isn't found in db");
+                    throw new Error("Error editing metric: Publication not found.");
+                }
+            }
+            const patchedPricing = await db
+                .publicationPricing
+                .update({
+                    where:{id:pricingData.id},
+                    data:pricingData
+                })
+            return patchedPricing;
+        } catch (error) {
+            if (error) {
+                console.error("publicationPricing DB Error:", error.message);
+                throw new Error("error patching Publication Pricing.");
+            }            
+        }    
+    },
+    
+    async removePricing( pricingData: publicationID ){
+        try {
+            const removedPricing = await db
+                .publicationPricing
+                .delete({
+                    where:{id:pricingData.id}
+                })
+        } catch (error) {
+            if (error) {
+                console.error("publicationPricing DB Error:", error.message);
+                throw new Error("error removing Publication Pricing.");
             }
         }
     },
