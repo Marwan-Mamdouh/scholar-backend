@@ -1,4 +1,4 @@
-import db from "../../db/db_config.js"
+import {db} from "../../db/db_config.js"
 import type { PaginationQuery } from "../../middlewares/pagination.js";
 import type { domainSchema , domain, domainFilter, subCategory, subCategoryFilter, publication, publicationID, publicationPatch, publicationMetrics, publicationMetricsID, publicationMetricsPatch } from "./publication.schema.js";
 
