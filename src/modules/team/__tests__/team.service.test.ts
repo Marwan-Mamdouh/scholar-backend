@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import teamService from "../team.service.js";
-import db from "../../../db/db_config.js";
+import { db } from "../../../db/db_config.js";
 import { NotFoundError } from "../../../lib/error/index.js";
 
 vi.mock("../../../db/db_config.js", () => ({
