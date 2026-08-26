@@ -7,9 +7,9 @@ const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, {
         persistSession: false,
         autoRefreshToken: false,
     },
-    realtime: {
-        transport: ws,
-    },
+    // realtime: {
+    //     transport: ws,
+    // },
 });
 
 export default supabase;
