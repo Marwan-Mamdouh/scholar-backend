@@ -33,49 +33,67 @@ const percentRangeSchema = z
     { message: "'min' must be less than or equal to 'max'" }
   );
 
-// Main Payload Schema
-export const publicationFilterSchema = z.object({
-  categories: z
-    .object({
-      categoryIds: z.array(z.int()).optional(),
-    })
+// Helpers for parsing query-string filters (comma-separated values, string coercion)
+const numParam = z.preprocess(
+  (v) => (v === undefined || v === "" ? undefined : Number(v)),
+  z.number().optional()
+);
+
+const csvPreprocess = <T,>(
+  v: unknown,
+  cast: (s: string) => T
+) =>
+  typeof v === "string" && v.trim() !== ""
+    ? v.split(",").map((s) => s.trim()).filter(Boolean).map(cast)
+    : undefined;
+
+const csvIntArray = z.preprocess(
+  (v) => csvPreprocess(v, (s) => Number(s)),
+  z.array(z.number().int())
+).optional();
+
+const csvEnumArray = <T extends z.ZodTypeAny>(e: T) =>
+  z
+    .preprocess((v) => csvPreprocess(v, (s) => s), z.array(e))
+    .optional();
+
+// GET /search query schema (filters flattened into query-string params)
+export const publicationSearchQuerySchema = z.object({
+  q: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.string().optional()
+  ),
+
+  categoryIds: csvIntArray,
+
+  publishingModel: csvEnumArray(z.nativeEnum(PublicationAccessType)),
+
+  licensing: csvEnumArray(z.nativeEnum(LicenseType)),
+
+  currency: z
+    .string()
+    .length(3, "Currency code must be 3 letters (e.g. USD)")
+    .transform((val) => val.toUpperCase())
     .optional(),
 
-  publishingModel: z
-    .array(z.enum(PublicationAccessType))
-    .optional(),
+  maxCost: numParam,
 
-  licensing: z.array(z.enum(LicenseType)).optional(),
+  quartiles: csvEnumArray(z.nativeEnum(Quartile)),
 
-  pricing: z
-    .object({
-      currency: z
-        .string()
-        .length(3, "Currency code must be 3 letters (e.g. USD)")
-        .transform((val) => val.toUpperCase())
-        .optional(),
-      maxCost: z.number().min(0, "Price cannot be negative").optional(),
-      // year: z.number().int().min(2000).max(2100).optional(),
-    })
-    .optional(),
+  impactFactorMin: numParam,
+  impactFactorMax: numParam,
 
-  metrics: z
-    .object({
-      // year: z.number().int().min(2000).max(2100).optional(),
-      quartiles: z.array(z.enum(Quartile)).optional(),
-      impactFactor: rangeSchema.optional(),
-      sjr: rangeSchema.optional(),
-      citeScore: rangeSchema.optional(),
-    })
-    .optional(),
+  sjrMin: numParam,
+  sjrMax: numParam,
 
-  editorialSpeed: z
-    .object({
-      firstDecisionWeeks: rangeSchema.optional(),
-      submissionToAcceptanceWeeks: rangeSchema.optional(),
-      // acceptanceRatePercent: percentRangeSchema.optional(),
-    })
-    .optional(),
+  citeScoreMin: numParam,
+  citeScoreMax: numParam,
+
+  firstDecisionWeeksMin: numParam,
+  firstDecisionWeeksMax: numParam,
+
+  submissionToAcceptanceWeeksMin: numParam,
+  submissionToAcceptanceWeeksMax: numParam,
 });
 
 export const publicationEditorialStatSchema = z.object({
@@ -237,7 +255,7 @@ export type PublicationPricing = z.infer<typeof publicationPricingSchema>;
 export type PublicationPricingPatch = z.infer<typeof publicationPricingPatchSchema>;
 export type PublicationEditorialStat = z.infer<typeof publicationEditorialStatSchema>;
 export type PublicationEditorialStatPatch = z.infer<typeof publicationEditorialStatPatchSchema>;
-export type publicationFilterInput = z.infer<typeof publicationFilterSchema>;
+export type publicationSearchQuery = z.infer<typeof publicationSearchQuerySchema>;
 export type publicationMetricsPatch = z.infer<typeof publicationMetricsPatchSchema>;
 export type publicationMetricsID = z.infer<typeof publicationMetricsIDSchema>;
 export type publicationMetrics = z.infer<typeof publicationMetricsSchema>;

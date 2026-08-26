@@ -1,14 +1,15 @@
-import db from "../../db/db_config.js"
+import { db } from "../../db/db_config.js"
 import { Prisma } from "@prisma/client";
-import type { PaginationQuery } from "../../middlewares/pagination.js";
-import type { domainSchema, publicationEditorialStatsID, publicationFilterInput, domain, domainFilter, subCategory, subCategoryFilter, publication, publicationID, publicationPatch, publicationMetrics, publicationMetricsID, publicationMetricsPatch, PublicationEditorialStat, PublicationEditorialStatPatch, PublicationPricing, PublicationPricingPatch } from "./publication.schema.js";
+import type { PaginationMeta } from "../../utils/pagination.util.js";
+import { buildPaginatedResponse } from "../../utils/pagination.util.js";
+import type { domainSchema, publicationEditorialStatsID, publicationSearchQuery, domain, domainFilter, subCategory, subCategoryFilter, publication, publicationID, publicationPatch, publicationMetrics, publicationMetricsID, publicationMetricsPatch, PublicationEditorialStat, PublicationEditorialStatPatch, PublicationPricing, PublicationPricingPatch } from "./publication.schema.js";
 
 const publicationService = {
-    async addDomain( doaminData: domain ){
+    async addDomain( domainData: domain ){
         try {
             const newDomain = await db
                 .publicationDomain
-                .create({data: doaminData });
+                .create({data: domainData });
             return newDomain;
         } catch (error) {
             if (error) {
@@ -32,12 +33,12 @@ const publicationService = {
         }
     },
 
-    async removeDomain( doaminData: domainFilter ){
+    async removeDomain( domainData: domainFilter ){
         try {
             const removedDomain = await db
                 .publicationDomain
                 .delete({
-                    where:{id:doaminData.id}
+                    where:{id:domainData.id}
                 })            
         } catch (error) {
             if (error) {
@@ -127,137 +128,128 @@ const publicationService = {
         }    
     },
     
-    async getPublicationFiltered( filterData: publicationFilterInput ){
+    async searchPublications( query: publicationSearchQuery, pagination: PaginationMeta ){
         try {
-            const { 
-            categories, 
-            publishingModel, 
-            licensing, 
-            pricing, 
-            metrics, 
-            editorialSpeed, 
-            } = filterData;
-
-            // Dynamically build Prisma where input
+            // 1. Build the Prisma where input from the flattened query params
             const where: Prisma.AcademicPublicationWhereInput = {};
 
-            // 1. Filter by SubCategory / Category IDs
-            if (categories?.categoryIds?.length) {
-            where.subCategoryId = { in: categories.categoryIds };
+            // 1a. SubCategory / Category IDs
+            if (query.categoryIds?.length) {
+                where.subCategoryId = { in: query.categoryIds };
             }
 
-            // 2. Filter by Open Access / Publishing Model
-            if (publishingModel?.length) {
-            where.openAccessType = { in: publishingModel };
+            // 1b. Open Access / Publishing Model
+            if (query.publishingModel?.length) {
+                where.openAccessType = { in: query.publishingModel };
             }
 
-            // 3. Filter by License Type
-            if (licensing?.length) {
-            where.licenseType = { in: licensing };
+            // 1c. License Type
+            if (query.licensing?.length) {
+                where.licenseType = { in: query.licensing };
             }
 
-            // 4. Max Article Fee (APC) + Currency + Year
-            if (pricing?.maxCost !== undefined || pricing?.currency) {
-            where.pricings = {
-                some: {
-                ...(pricing.currency && { currency: pricing.currency }),
-                // ...(pricing.year && { pricingYear: pricing.year }),
-                ...(pricing.maxCost !== undefined && { cost: { lte: pricing.maxCost } }),
-                },
-            };
+            // 1d. Max Article Fee (APC) + Currency
+            if (query.maxCost !== undefined || query.currency) {
+                where.pricings = {
+                    some: {
+                        ...(query.currency && { currency: query.currency }),
+                        ...(query.maxCost !== undefined && { cost: { lte: query.maxCost } }),
+                    },
+                };
             }
 
-            // 5. Yearly Metrics (Impact Factor, SJR, CiteScore, Quartile)
-            if (metrics) {
+            // 1e. Yearly Metrics (Impact Factor, SJR, CiteScore, Quartile)
             const metricFilters: Prisma.PublicationYearlyMetricWhereInput = {};
 
-            // if (metrics.year) metricFilters.metricYear = metrics.year;
-            if (metrics.quartiles?.length) metricFilters.quartile = { in: metrics.quartiles };
+            if (query.quartiles?.length) metricFilters.quartile = { in: query.quartiles };
 
-            if (metrics.impactFactor) {
+            if (query.impactFactorMin !== undefined || query.impactFactorMax !== undefined) {
                 metricFilters.impactFactor = {
-                ...(metrics.impactFactor.min !== undefined && { gte: metrics.impactFactor.min }),
-                ...(metrics.impactFactor.max !== undefined && { lte: metrics.impactFactor.max }),
+                    ...(query.impactFactorMin !== undefined && { gte: query.impactFactorMin }),
+                    ...(query.impactFactorMax !== undefined && { lte: query.impactFactorMax }),
                 };
             }
 
-            if (metrics.sjr) {
+            if (query.sjrMin !== undefined || query.sjrMax !== undefined) {
                 metricFilters.sjr = {
-                ...(metrics.sjr.min !== undefined && { gte: metrics.sjr.min }),
-                ...(metrics.sjr.max !== undefined && { lte: metrics.sjr.max }),
+                    ...(query.sjrMin !== undefined && { gte: query.sjrMin }),
+                    ...(query.sjrMax !== undefined && { lte: query.sjrMax }),
                 };
             }
 
-            if (metrics.citeScore) {
+            if (query.citeScoreMin !== undefined || query.citeScoreMax !== undefined) {
                 metricFilters.citescore = {
-                ...(metrics.citeScore.min !== undefined && { gte: metrics.citeScore.min }),
-                ...(metrics.citeScore.max !== undefined && { lte: metrics.citeScore.max }),
+                    ...(query.citeScoreMin !== undefined && { gte: query.citeScoreMin }),
+                    ...(query.citeScoreMax !== undefined && { lte: query.citeScoreMax }),
                 };
             }
 
-            where.yearlyMetrics = { some: metricFilters };
+            if (Object.keys(metricFilters).length) {
+                where.yearlyMetrics = { some: metricFilters };
             }
 
-            // 6. Editorial Speed & Acceptance Rate (Convert UI Weeks -> DB Days)
-            if (editorialSpeed) {
+            // 1f. Editorial Speed (Convert UI Weeks -> DB Days)
             const speedFilters: Prisma.PublicationEditorialStatWhereInput = {};
 
-            if (editorialSpeed.firstDecisionWeeks) {
+            if (query.firstDecisionWeeksMin !== undefined || query.firstDecisionWeeksMax !== undefined) {
                 speedFilters.submissionToFirstDecision = {
-                ...(editorialSpeed.firstDecisionWeeks.min !== undefined && { gte: editorialSpeed.firstDecisionWeeks.min * 7 }),
-                ...(editorialSpeed.firstDecisionWeeks.max !== undefined && { lte: editorialSpeed.firstDecisionWeeks.max * 7 }),
+                    ...(query.firstDecisionWeeksMin !== undefined && { gte: query.firstDecisionWeeksMin * 7 }),
+                    ...(query.firstDecisionWeeksMax !== undefined && { lte: query.firstDecisionWeeksMax * 7 }),
                 };
             }
 
-            if (editorialSpeed.submissionToAcceptanceWeeks) {
+            if (query.submissionToAcceptanceWeeksMin !== undefined || query.submissionToAcceptanceWeeksMax !== undefined) {
                 speedFilters.submissionToAcceptance = {
-                ...(editorialSpeed.submissionToAcceptanceWeeks.min !== undefined && { gte: editorialSpeed.submissionToAcceptanceWeeks.min * 7 }),
-                ...(editorialSpeed.submissionToAcceptanceWeeks.max !== undefined && { lte: editorialSpeed.submissionToAcceptanceWeeks.max * 7 }),
+                    ...(query.submissionToAcceptanceWeeksMin !== undefined && { gte: query.submissionToAcceptanceWeeksMin * 7 }),
+                    ...(query.submissionToAcceptanceWeeksMax !== undefined && { lte: query.submissionToAcceptanceWeeksMax * 7 }),
                 };
             }
 
-            // if (editorialSpeed.acceptanceRatePercent) {
-            //     speedFilters.acceptanceRate = {
-            //     ...(editorialSpeed.acceptanceRatePercent.min !== undefined && { gte: editorialSpeed.acceptanceRatePercent.min }),
-            //     ...(editorialSpeed.acceptanceRatePercent.max !== undefined && { lte: editorialSpeed.acceptanceRatePercent.max }),
-            //     };
-            // }
-
-            where.editorialStats = { some: speedFilters };
+            if (Object.keys(speedFilters).length) {
+                where.editorialStats = { some: speedFilters };
             }
 
-            // Execute query and total count in parallel
+            // 2. Optional full-text search against the search_vector column
+            if (query.q && query.q.trim()) {
+                const matched = await db.$queryRaw<{ id: number }[]>(Prisma.sql`
+                    SELECT id
+                    FROM "academicPublications"
+                    WHERE "search_vector" @@ plainto_tsquery('english', ${query.q})
+                `);
+                const ids = matched.map((row) => row.id);
+                where.id = ids.length ? { in: ids } : { in: [] };
+            }
+
+            // 3. Execute paginated query + total count in parallel
             const [total, publications] = await Promise.all([
-            db.academicPublication.count({ where }),
-            db.academicPublication.findMany({
-                where,
-                include: {
-                yearlyMetrics: {
-                    take: 1,
-                    orderBy: { metricYear: 'desc' },
-                },
-                subCategory: {
+                db.academicPublication.count({ where }),
+                db.academicPublication.findMany({
+                    where,
+                    skip: pagination.offset,
+                    take: pagination.limit,
+                    orderBy: { [pagination.sortBy]: pagination.sortOrder },
                     include: {
-                    domain: true,
+                        yearlyMetrics: {
+                            take: 1,
+                            orderBy: { metricYear: "desc" },
+                        },
+                        subCategory: {
+                            include: {
+                                domain: true,
+                            },
+                        },
+                        pricings: true,
+                        editorialStats: true,
                     },
-                },
-                pricings: true,
-                editorialStats: true,
-                },
-            }),
+                }),
             ]);
 
-            console.log("Found publications count:", total);
-
-            return {
-                publications: publications || [],
-            };
+            return buildPaginatedResponse(publications, total, pagination.page, pagination.limit);
         } catch (error) {
             if (error) throw error;
         }
     },
 
-    
     async getFilterRanges() {
         try {
             // Run aggregates on both tables in parallel
@@ -331,7 +323,7 @@ const publicationService = {
                         }
                     }
                 })
-                console.log("publications:", allPublication);
+                // console.log("publications:", allPublication);
                 return allPublication || [];
         } catch (error) {
             if (error) throw error;
@@ -709,7 +701,6 @@ const publicationService = {
             }
         }
     },
-
 };
 
 export default publicationService;
