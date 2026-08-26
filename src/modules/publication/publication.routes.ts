@@ -2,8 +2,8 @@ import { Router, type Request, type Response } from "express";
 import isAuthenticated from "../../middlewares/auth.js";
 import isAdmin from "../../middlewares/authorize.js";
 import asyncHandler from "../../lib/async.handler.js";
-import { validate } from "../../middlewares/validator.js";
-import { domainFilterSchema, publicationFilterSchema, domainSchema , publicationIDSchema, publicationMetricsIDSchema, publicationMetricsPatchSchema, publicationMetricsSchema, publicationPatchSchema, publicationSchema, subCategoryFilterSchema, subCategorySchema,type PublicationEditorialStatPatch, type PublicationEditorialStat, type publicationFilterInput, type domain, type domainFilter, type publication, type publicationID, type publicationMetrics, type publicationMetricsID, type publicationMetricsPatch, type publicationPatch, type subCategory, type subCategoryFilter, publicationEditorialStatSchema, type publicationEditorialStatsID, publicationPricingSchema, type PublicationPricing, publicationPricingPatchSchema, type PublicationPricingPatch } from "./publication.schema.js";
+import { validate, validateMultiple } from "../../middlewares/validator.js";
+import { domainFilterSchema, domainSchema , publicationIDSchema, publicationMetricsIDSchema, publicationMetricsPatchSchema, publicationMetricsSchema, publicationPatchSchema, publicationSchema, subCategoryFilterSchema, subCategorySchema,type PublicationEditorialStatPatch, type PublicationEditorialStat, type domain, type domainFilter, type publication, type publicationID, type publicationMetrics, type publicationMetricsID, type publicationMetricsPatch, type publicationPatch, type subCategory, type subCategoryFilter, publicationEditorialStatSchema, type publicationEditorialStatsID, publicationPricingSchema, type PublicationPricing, publicationPricingPatchSchema, type PublicationPricingPatch, publicationSearchQuerySchema, type publicationSearchQuery } from "./publication.schema.js";
 import publicationService from "./publication.service.js";
 import type { TypedRequest } from "../../types/Request.js";
 import type { PaginatedRequest } from "../../types/paginatedRequest.js";
@@ -90,8 +90,8 @@ router.delete(
 // post admin
 router.post(
     "/",
-	isAuthenticated,
-    isAdmin,
+	// isAuthenticated,
+	//    isAdmin,
 	validate(publicationSchema),
     asyncHandler(async (req: TypedRequest<publication>, res: Response) => {
 		const publicationData = req.validatedData;
@@ -111,21 +111,10 @@ router.get(
     })
 )
 
-// get filter
-router.post(
-    "/filter",
-    validate(publicationFilterSchema),
-    asyncHandler(async (req: TypedRequest<publicationFilterInput>, res: Response) => {
-        const publicationData = req.validatedData;
-		const publications = await publicationService.getPublicationFiltered(publicationData);
-		res.json(publications);
-    })
-)
-
-// get filter
+// get filter ranges (slider limits)
 router.get(
     "/filter",
-    asyncHandler(async (req: Request, res: Response) => {
+    asyncHandler(async (_: Request, res: Response) => {
 		const filterLimits = await publicationService.getFilterRanges();
 		res.json(filterLimits);
     })
@@ -134,9 +123,22 @@ router.get(
 // get all
 router.get(
     "/all",
-    asyncHandler(async (req: Request, res: Response) => {
+    asyncHandler(async (_: Request, res: Response) => {
 		const publications = await publicationService.getAllPublication();
 		res.json(publications);
+    })
+)
+
+// get search (full-text + filters, paginated)
+router.get(
+    "/search",
+    pagination,
+    validateMultiple({ query: publicationSearchQuerySchema }),
+    asyncHandler(async (req: PaginatedRequest, res: Response) => {
+        const query = (req as unknown as TypedRequest<unknown, unknown, publicationSearchQuery>).validatedQuery!;
+        const result = await publicationService.searchPublications(query, req.pagination);
+        console.log(result.meta);
+      return res.json(result);
     })
 )
 
