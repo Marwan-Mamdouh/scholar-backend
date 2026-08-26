@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "postgres": {
+      "type": "local",
+      "command": [
+        "docker", "exec", "-i",
+        "opencode-postgres-mcp",
+        "postgres-mcp",
+        "--access-mode=restricted"
+      ],
+      "enabled": true
+    },
+    "better-auth": {
+      "type": "remote",
+      "url": "https://mcp.better-auth.com/mcp",
+      "enabled": true
+    }
+  }
+}
