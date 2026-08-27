@@ -4,6 +4,33 @@ import type { PaginationMeta } from "../../utils/pagination.util.js";
 import { buildPaginatedResponse } from "../../utils/pagination.util.js";
 import type { domainSchema, publicationEditorialStatsID, publicationSearchQuery, domain, domainFilter, subCategory, subCategoryFilter, publication, publicationID, publicationPatch, publicationMetrics, publicationMetricsID, publicationMetricsPatch, PublicationEditorialStat, PublicationEditorialStatPatch, PublicationPricing, PublicationPricingPatch } from "./publication.schema.js";
 
+function buildRangeFilter(
+  min: number | undefined,
+  max: number | undefined,
+): { gte: number; lte: number } | undefined {
+  if (min === undefined && max === undefined) return undefined;
+  return {
+    ...(min !== undefined && { gte: min }),
+    ...(max !== undefined && { lte: max }),
+  };
+}
+
+function buildInFilter<T>(values: T[] | undefined): { in: T[] } | undefined {
+  return values?.length ? { in: values } : undefined;
+}
+
+function buildNestedRange(
+  min: number | undefined,
+  max: number | undefined,
+  multiplier: number = 1,
+): { gte: number; lte: number } | undefined {
+  if (min === undefined && max === undefined) return undefined;
+  return {
+    ...(min !== undefined && { gte: min * multiplier }),
+    ...(max !== undefined && { lte: max * multiplier }),
+  };
+}
+
 const publicationService = {
     async addDomain( domainData: domain ){
         try {
@@ -130,25 +157,17 @@ const publicationService = {
     
     async searchPublications( query: publicationSearchQuery, pagination: PaginationMeta ){
         try {
-            // 1. Build the Prisma where input from the flattened query params
             const where: Prisma.AcademicPublicationWhereInput = {};
 
-            // 1a. SubCategory / Category IDs
-            if (query.categoryIds?.length) {
-                where.subCategoryId = { in: query.categoryIds };
-            }
+            const categoryFilter = buildInFilter(query.categoryIds);
+            if (categoryFilter) where.subCategoryId = categoryFilter;
 
-            // 1b. Open Access / Publishing Model
-            if (query.publishingModel?.length) {
-                where.openAccessType = { in: query.publishingModel };
-            }
+            const accessFilter = buildInFilter(query.publishingModel);
+            if (accessFilter) where.openAccessType = accessFilter;
 
-            // 1c. License Type
-            if (query.licensing?.length) {
-                where.licenseType = { in: query.licensing };
-            }
+            const licenseFilter = buildInFilter(query.licensing);
+            if (licenseFilter) where.licenseType = licenseFilter;
 
-            // 1d. Max Article Fee (APC) + Currency
             if (query.maxCost !== undefined || query.currency) {
                 where.pricings = {
                     some: {
@@ -158,69 +177,42 @@ const publicationService = {
                 };
             }
 
-            // 1e. Yearly Metrics (Impact Factor, SJR, CiteScore, Quartile)
-            const metricFilters: Prisma.PublicationYearlyMetricWhereInput = {};
+            const quartileFilter = buildInFilter(query.quartiles);
+            const impactFilter = buildRangeFilter(query.impactFactorMin, query.impactFactorMax);
+            const sjrFilter = buildRangeFilter(query.sjrMin, query.sjrMax);
+            const citeFilter = buildRangeFilter(query.citeScoreMin, query.citeScoreMax);
 
-            if (query.quartiles?.length) metricFilters.quartile = { in: query.quartiles };
-
-            if (query.impactFactorMin !== undefined || query.impactFactorMax !== undefined) {
-                metricFilters.impactFactor = {
-                    ...(query.impactFactorMin !== undefined && { gte: query.impactFactorMin }),
-                    ...(query.impactFactorMax !== undefined && { lte: query.impactFactorMax }),
-                };
-            }
-
-            if (query.sjrMin !== undefined || query.sjrMax !== undefined) {
-                metricFilters.sjr = {
-                    ...(query.sjrMin !== undefined && { gte: query.sjrMin }),
-                    ...(query.sjrMax !== undefined && { lte: query.sjrMax }),
-                };
-            }
-
-            if (query.citeScoreMin !== undefined || query.citeScoreMax !== undefined) {
-                metricFilters.citescore = {
-                    ...(query.citeScoreMin !== undefined && { gte: query.citeScoreMin }),
-                    ...(query.citeScoreMax !== undefined && { lte: query.citeScoreMax }),
-                };
-            }
-
+            const metricFilters: Prisma.PublicationYearlyMetricWhereInput = {
+                ...(quartileFilter && { quartile: quartileFilter }),
+                ...(impactFilter && { impactFactor: impactFilter }),
+                ...(sjrFilter && { sjr: sjrFilter }),
+                ...(citeFilter && { citescore: citeFilter }),
+            };
             if (Object.keys(metricFilters).length) {
                 where.yearlyMetrics = { some: metricFilters };
             }
 
-            // 1f. Editorial Speed (Convert UI Weeks -> DB Days)
-            const speedFilters: Prisma.PublicationEditorialStatWhereInput = {};
+            const firstDecisionFilter = buildNestedRange(query.firstDecisionWeeksMin, query.firstDecisionWeeksMax, 7);
+            const acceptanceFilter = buildNestedRange(query.submissionToAcceptanceWeeksMin, query.submissionToAcceptanceWeeksMax, 7);
 
-            if (query.firstDecisionWeeksMin !== undefined || query.firstDecisionWeeksMax !== undefined) {
-                speedFilters.submissionToFirstDecision = {
-                    ...(query.firstDecisionWeeksMin !== undefined && { gte: query.firstDecisionWeeksMin * 7 }),
-                    ...(query.firstDecisionWeeksMax !== undefined && { lte: query.firstDecisionWeeksMax * 7 }),
-                };
-            }
-
-            if (query.submissionToAcceptanceWeeksMin !== undefined || query.submissionToAcceptanceWeeksMax !== undefined) {
-                speedFilters.submissionToAcceptance = {
-                    ...(query.submissionToAcceptanceWeeksMin !== undefined && { gte: query.submissionToAcceptanceWeeksMin * 7 }),
-                    ...(query.submissionToAcceptanceWeeksMax !== undefined && { lte: query.submissionToAcceptanceWeeksMax * 7 }),
-                };
-            }
-
+            const speedFilters: Prisma.PublicationEditorialStatWhereInput = {
+                ...(firstDecisionFilter && { submissionToFirstDecision: firstDecisionFilter }),
+                ...(acceptanceFilter && { submissionToAcceptance: acceptanceFilter }),
+            };
             if (Object.keys(speedFilters).length) {
                 where.editorialStats = { some: speedFilters };
             }
 
-            // 2. Optional full-text search against the search_vector column
-            if (query.q && query.q.trim()) {
+            if (query.q?.trim()) {
                 const matched = await db.$queryRaw<{ id: number }[]>(Prisma.sql`
-                    SELECT id
-                    FROM "academicPublications"
-                    WHERE "search_vector" @@ plainto_tsquery('english', ${query.q})
+                    SELECT id FROM "academicPublications"
+                    WHERE "search_vector" @@ websearch_to_tsquery('english', ${query.q})
                 `);
-                const ids = matched.map((row) => row.id);
-                where.id = ids.length ? { in: ids } : { in: [] };
+                where.id = matched.length
+                    ? { in: matched.map((r) => r.id) }
+                    : { in: [] };
             }
 
-            // 3. Execute paginated query + total count in parallel
             const [total, publications] = await Promise.all([
                 db.academicPublication.count({ where }),
                 db.academicPublication.findMany({
@@ -229,15 +221,8 @@ const publicationService = {
                     take: pagination.limit,
                     orderBy: { [pagination.sortBy]: pagination.sortOrder },
                     include: {
-                        yearlyMetrics: {
-                            take: 1,
-                            orderBy: { metricYear: "desc" },
-                        },
-                        subCategory: {
-                            include: {
-                                domain: true,
-                            },
-                        },
+                        yearlyMetrics: { take: 1, orderBy: { metricYear: "desc" } },
+                        subCategory: { include: { domain: true } },
                         pricings: true,
                         editorialStats: true,
                     },
