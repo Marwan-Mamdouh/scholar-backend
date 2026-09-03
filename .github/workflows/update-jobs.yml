@@ -28,7 +28,6 @@ jobs:
       - name: Run Job Scraper
         env:
           POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
-          SEED_MODE: "1" # Ensures Telegram sending logic is skipped
         run: |
           cd scripts/bot
           python main.py
