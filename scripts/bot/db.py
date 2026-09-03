@@ -1,5 +1,5 @@
 """
-PostgreSQL persistence layer for the Telegram jobs bot.
+PostgreSQL persistence layer for the job scraper.
 """
 
 from __future__ import annotations
@@ -45,7 +45,6 @@ class StoredJob:
     is_remote: bool
     original_source: str
     content_hash: str
-    send_status: str
     first_seen_at: str
     last_seen_at: str
 
@@ -111,31 +110,12 @@ def init_db(conn: connection) -> None:
                 is_remote INTEGER DEFAULT 0,
                 original_source TEXT DEFAULT '',
                 content_hash TEXT NOT NULL UNIQUE,
-                send_status TEXT NOT NULL DEFAULT 'pending',
                 first_seen_at TEXT NOT NULL,
                 last_seen_at TEXT NOT NULL
             );
 
-            CREATE INDEX IF NOT EXISTS idx_jobs_send_status
-                ON jobs(send_status, last_seen_at);
-
             CREATE INDEX IF NOT EXISTS idx_jobs_source
                 ON jobs(source, last_seen_at);
-
-            CREATE TABLE IF NOT EXISTS job_sends (
-                id SERIAL PRIMARY KEY,
-                job_id INTEGER NOT NULL,
-                topic_key TEXT NOT NULL,
-                status TEXT NOT NULL,
-                sent_at TEXT,
-                error TEXT DEFAULT '',
-                updated_at TEXT NOT NULL,
-                UNIQUE(job_id, topic_key),
-                FOREIGN KEY(job_id) REFERENCES jobs(id) ON DELETE CASCADE
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_job_sends_status
-                ON job_sends(status, updated_at);
 
             CREATE TABLE IF NOT EXISTS source_runs (
                 source TEXT PRIMARY KEY,
@@ -145,10 +125,10 @@ def init_db(conn: connection) -> None:
                 updated_at TEXT NOT NULL
             );
         """)
-        
+
         cur.execute(
             """
-            INSERT INTO metadata (key, value) 
+            INSERT INTO metadata (key, value)
             VALUES (%s, %s)
             ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
             """,
@@ -243,9 +223,9 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
             INSERT INTO jobs (
                 source, source_job_id, title, company, location, url, canonical_url,
                 salary, job_type, tags_json, is_remote, original_source,
-                content_hash, send_status, first_seen_at, last_seen_at
+                content_hash, first_seen_at, last_seen_at
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
             (
@@ -254,7 +234,8 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
                 1 if job.is_remote else 0, job.original_source or "", content_hash, ts, ts
             )
         )
-        return cur.fetchone()[0], True
+        row = cur.fetchone()
+        return (row[0] if row else 0), True
 
 
 def upsert_jobs(conn: connection, jobs: list[Job]) -> tuple[int, int]:
@@ -267,53 +248,6 @@ def upsert_jobs(conn: connection, jobs: list[Job]) -> tuple[int, int]:
         else:
             refreshed += 1
     return inserted, refreshed
-
-
-def get_jobs_for_sending(conn: connection, limit: int = 100) -> list[StoredJob]:
-    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute(
-            """
-            SELECT * FROM jobs
-            WHERE send_status IN ('pending', 'retry', 'partial')
-            ORDER BY first_seen_at ASC, id ASC
-            LIMIT %s
-            """,
-            (limit,)
-        )
-        return [_row_to_stored_job(row) for row in cur.fetchall()]
-
-
-def record_topic_send(conn: connection, job_id: int, topic_key: str, success: bool, error: str = "") -> None:
-    ts = now_utc()
-    status = "sent" if success else "failed"
-    sent_at = ts if success else None
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO job_sends(job_id, topic_key, status, sent_at, error, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT(job_id, topic_key) DO UPDATE SET
-                status = EXCLUDED.status,
-                sent_at = EXCLUDED.sent_at,
-                error = EXCLUDED.error,
-                updated_at = EXCLUDED.updated_at
-            """,
-            (job_id, topic_key, status, sent_at, error or "", ts)
-        )
-
-
-def get_sent_topic_keys(conn: connection, job_id: int) -> set[str]:
-    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT topic_key FROM job_sends WHERE job_id = %s AND status = 'sent'", (job_id,))
-        return {str(row["topic_key"]) for row in cur.fetchall()}
-
-
-def set_job_send_status(conn: connection, job_id: int, status: str) -> None:
-    allowed = {"pending", "sent", "retry", "partial", "skipped"}
-    if status not in allowed:
-        raise ValueError(f"Invalid send status: {status}")
-    with conn.cursor() as cur:
-        cur.execute("UPDATE jobs SET send_status = %s WHERE id = %s", (status, job_id))
 
 
 def update_source_run(conn: connection, source: str, status: str, error: str = "", last_run_at: Optional[str] = None) -> None:
@@ -343,7 +277,8 @@ def get_source_last_run(conn: connection, source: str) -> Optional[str]:
 def count_jobs(conn: connection) -> int:
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         cur.execute("SELECT COUNT(*) AS c FROM jobs")
-        return int(cur.fetchone()["c"])
+        row = cur.fetchone()
+        return int(row["c"]) if row else 0
 
 
 def _row_to_stored_job(row: dict) -> StoredJob:
@@ -369,7 +304,6 @@ def _row_to_stored_job(row: dict) -> StoredJob:
         is_remote=bool(row["is_remote"]),
         original_source=row["original_source"] or "",
         content_hash=row["content_hash"],
-        send_status=row["send_status"],
         first_seen_at=row["first_seen_at"],
         last_seen_at=row["last_seen_at"],
     )
