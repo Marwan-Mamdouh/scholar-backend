@@ -64,16 +64,12 @@ def fetch_all_jobs(conn, fetchers: Iterable[Fetcher]) -> list[Job]:
 def should_keep_job(job: Job) -> bool:
     """Runtime quality filter.
 
-    WUZZUF and normal category jobs use keyword + geo rules.
-    Fresh LinkedIn jobs are allowed through even without category keyword
-    matches, so they can be persisted for the frontend to display.
+    All sources — WUZZUF and LinkedIn alike — must pass both the
+    keyword filter (is_programming_job) and geo filter. This keeps
+    the database focused on programming roles only.
     """
     if not job.title or not job.url:
         return False
-
-    source = (job.source or "").strip().lower()
-    if source == "linkedin":
-        return passes_geo_filter(job)
 
     return is_programming_job(job) and passes_geo_filter(job)
 
