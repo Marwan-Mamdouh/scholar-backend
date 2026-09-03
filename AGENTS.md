@@ -53,11 +53,13 @@ npm run vercel:prod-on   # npm run build && vercel deploy --prod
 ## Environment Variables
 
 Required (validated in `src/config/env.ts`):
+
 - `SUPABASE_URL`, `SUPABASE_KEY` - Supabase connection
 - `JWT_SECRET` - Auth tokens
 - `DATABASE_URL` - PostgreSQL for Prisma
 
 Optional:
+
 - `S2_API_KEY` - Semantic Scholar API
 - `SERPER_API_KEY` - Google search proxy
 - `SMTP_*` - Email configuration
