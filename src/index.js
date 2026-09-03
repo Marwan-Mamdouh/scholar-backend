@@ -25,7 +25,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.join(process.cwd());
-const JWT_SECRET = process.env.JWT_SECRET || "nexus-super-secret-key-2024";
 import cookieParser from "cookie-parser";
 import fs from "node:fs";
 import os from "node:os";
