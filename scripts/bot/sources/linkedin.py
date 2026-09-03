@@ -11,6 +11,7 @@ from __future__ import annotations
 import html
 import logging
 import os
+import random
 import re
 import time
 from typing import Callable
@@ -140,7 +141,8 @@ def fetch_linkedin(
         raise ValueError("request_delay must be >= 0")
 
     getter = http_getter or get_text
-    selected_searches = searches or LINKEDIN_SEARCHES
+    selected_searches = list(searches or LINKEDIN_SEARCHES)
+    random.shuffle(selected_searches)
     jobs: list[Job] = []
     seen_urls: set[str] = set()
     pages_requested = 0
