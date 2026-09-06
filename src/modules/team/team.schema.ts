@@ -5,7 +5,7 @@ import z from "zod";
 export const createTeamMemberSchema = z.object({
 	name: z.string().min(1),
 	role: z.string().min(1),
-	linkedinUrl: z.url().optional(),
+	linkedinUrl: z.url().max(500).optional(),
 	team: z.enum(["web", "industry", "academia"]),
 });
 
