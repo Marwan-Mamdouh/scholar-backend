@@ -44,7 +44,7 @@ router.delete(
     asyncHandler(async (req: TypedRequest<domainFilter>, res: Response) => {
 		const domainFilter = req.validatedData;
 		await publicationService.removeDomain(domainFilter);
-		res.status(204);
+		res.sendStatus(204);
     })
 )
 
@@ -81,7 +81,7 @@ router.delete(
     asyncHandler(async (req: TypedRequest<subCategoryFilter>, res: Response) => {
 		const subCategoryFilter = req.validatedData;
 		await publicationService.removesubCategory(subCategoryFilter);
-		res.status(204);
+		res.sendStatus(204);
     })
 )
 
@@ -164,7 +164,7 @@ router.delete(
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
 		const publicationFilter = req.validatedData;
 		await publicationService.removePublication(publicationFilter);
-		res.status(204);
+		res.sendStatus(204);
     })
 )
 
@@ -217,7 +217,7 @@ router.delete(
     asyncHandler(async (req: TypedRequest<publicationMetricsID>, res: Response) => {
 		const publicationMetricsFilter = req.validatedData;
 		await publicationService.removeMetrics(publicationMetricsFilter);
-		res.status(204);
+		res.sendStatus(204);
     })
 )
 
@@ -270,7 +270,7 @@ router.delete(
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
 		const editorialStatFilter = req.validatedData;
 		await publicationService.removeEditorialStat(editorialStatFilter);
-		res.status(204);
+		res.sendStatus(204);
     })
 )
 // ? pricing
@@ -322,7 +322,7 @@ router.delete(
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
 		const pricingFilter = req.validatedData;
 		await publicationService.removePricing(pricingFilter);
-		res.status(204);
+		res.sendStatus(204);
     })
 )
 
