@@ -3,6 +3,7 @@ import asyncHandler from "../../lib/async.handler.js";
 import researchersService from "./researchers.service.js";
 import { paginationMiddleware } from "../../middlewares/pagination.js";
 import { type PaginatedRequest } from "../../types/paginatedRequest.js";
+import isAuthenticated from "../../middlewares/auth.js";
 import isAdmin from "../../middlewares/authorize.js";
 import { uploadExcel } from "../../middlewares/uploads.js";
 import { validate } from "../../middlewares/validator.js";
@@ -55,6 +56,7 @@ router.get(
 // 3. Upload Researchers (Admin Only)
 router.post(
 	"/admin/upload-researchers",
+	isAuthenticated,
 	isAdmin,
 	uploadExcel.single("file"),
 	validate(UploadOptionsSchema),

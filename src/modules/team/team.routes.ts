@@ -1,4 +1,6 @@
 import { Router, type Request, type Response } from "express";
+import isAuthenticated from "../../middlewares/auth.js";
+import isAdmin from "../../middlewares/authorize.js";
 import asyncHandler from "../../lib/async.handler.js";
 import { validate } from "../../middlewares/validator.js";
 import teamService from "./team.service.js";
@@ -35,6 +37,8 @@ router.get(
 // POST / -> create a member: { data: {...} }
 router.post(
 	"/",
+	isAuthenticated,
+	isAdmin,
 	validate(createTeamMemberSchema),
 	asyncHandler(async (req: TypedRequest<CreateTeamMember>, res: Response) => {
 		const data = await teamService.create(req.validatedData);
@@ -45,6 +49,8 @@ router.post(
 // PATCH /:id -> update a member: { data: {...} } (404 if missing)
 router.patch(
 	"/:id",
+	isAuthenticated,
+	isAdmin,
 	validate(updateTeamMemberSchema),
 	asyncHandler(async (req: TypedRequest<UpdateTeamMember>, res: Response) => {
 		const { id } = teamIdSchema.parse(req.params);
@@ -56,6 +62,8 @@ router.patch(
 // DELETE /:id -> 204 No Content (404 if missing)
 router.delete(
 	"/:id",
+	isAuthenticated,
+	isAdmin,
 	asyncHandler(async (req: Request, res: Response) => {
 		const { id } = teamIdSchema.parse(req.params);
 		await teamService.remove(id);

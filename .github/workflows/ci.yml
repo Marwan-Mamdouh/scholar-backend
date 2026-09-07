@@ -25,7 +25,9 @@ jobs:
       - name: Security Audit
         run: npm audit --audit-level=high
 
-      - name: Install Dependencies
+      - name: Install dependencies
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm ci
 
       - name: Build TypeScript
