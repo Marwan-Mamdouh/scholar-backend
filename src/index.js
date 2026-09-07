@@ -34,6 +34,7 @@ import logger from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/error.js";
 import feedbackRouter from "./modules/feedback/feedback.routes.js";
 import researchersRouter from "./modules/researchers/researchers.routes.js";
+import healthRouter from "./modules/health/health.routes.js";
 import teamRouter from "./modules/team/team.routes.js";
 import publicationsRouter from "./modules/publication/publication.routes.js";
 import { extractTopField, extractData } from "./utils/extractors.js";
@@ -57,6 +58,7 @@ app.use(cookieParser());
 app.use("/api", researchersRouter);
 app.use("/api/publication", publicationsRouter);
 app.use("/api/team", teamRouter);
+app.use('/health', healthRouter);
 app.use("/api/feedback", feedbackRouter);
 
 // ================================================================
