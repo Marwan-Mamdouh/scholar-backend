@@ -1,0 +1,598 @@
+{
+  "success": true,
+  "data": {
+    "personal_information": {
+      "full_name": "Abdulrahman Elsadiq",
+      "emails": [
+        "abdelrhmanelsadiq53@gmail.com"
+      ],
+      "phone_numbers": [
+        "+20 122 157 2683"
+      ],
+      "location": {
+        "city": "Cairo",
+        "state": null,
+        "country": "Egypt"
+      }
+    },
+    "summary": "AI hardware researcher ranked 2nd in class and first author of two IEEE papers. Built a 96.6%-accurate FPGA neural-network accelerator with 2.395 µs latency and 14 to 49× speedup, and developed efficient SNN models for video-based traffic-accident classification. Experience covers model training, quantization, fixed-point conversion, custom RTL, FPGA implementation, hardware validation, and AI-assisted verification. Current research interests are FPGA and heterogeneous AI acceleration, edge AI, and neuromorphic computing.",
+    "education": [
+      {
+        "id": "edu_001",
+        "institution": "Zagazig University",
+        "faculty": null,
+        "department": null,
+        "degree": "B.Sc.",
+        "field_of_study": "Electronics and Communication Engineering",
+        "start_date": "2020-10",
+        "end_date": "2025-08",
+        "graduation_year": 2025,
+        "gpa": 3.81,
+        "gpa_scale": 4.0,
+        "class_rank": "2nd in class",
+        "honors": [
+          "overall grade: Excellent"
+        ],
+        "description": null,
+        "location": {
+          "city": "Zagazig",
+          "state": null,
+          "country": "Egypt"
+        }
+      }
+    ],
+    "work_experience": [
+      {
+        "id": "work_001",
+        "company": "Alpinum Systems Ltd",
+        "position": "Machine Learning Engineer",
+        "location": {
+          "city": null,
+          "state": null,
+          "country": "UK"
+        },
+        "start_date": "2026-03",
+        "end_date": null,
+        "currently_working": true,
+        "description": "Developed AlpinumDV, an agentic AI platform that converts a design specification and RTL interface into a verification plan and compiled, simulated UVM testbench using self-correcting LLM loops. Built automated root-cause analysis, multi-simulator execution, coverage reporting, and benchmarking across RTL designs and on-chip communication interfaces.",
+        "responsibilities": [],
+        "achievements": [],
+        "technologies": [],
+        "domains": [
+          "machine learning",
+          "verification"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "id": "internship_001",
+        "company": "STMicroelectronics",
+        "position": "Machine Learning Intern",
+        "location": {
+          "city": "Cairo",
+          "state": null,
+          "country": "Egypt"
+        },
+        "start_date": "2025-11",
+        "end_date": "2026-03",
+        "description": "Developed six convolutional SNN variants for video-based traffic-accident classification. Consolidated two public datasets into 9,190 video clips and implemented preprocessing and evaluation pipelines.",
+        "technologies": [],
+        "domains": [
+          "machine learning",
+          "video classification"
+        ],
+        "supervisor": null
+      },
+      {
+        "id": "internship_002",
+        "company": "Analog Devices",
+        "position": "Digital IC Design Intern",
+        "location": {
+          "city": "Cairo",
+          "state": null,
+          "country": "Egypt"
+        },
+        "start_date": "2024-09",
+        "end_date": "2024-10",
+        "description": "Worked on FPGA and DSP workflows involving FIR filters, digital predistortion, and CORDIC; verified designs using SystemVerilog testbenches.",
+        "technologies": [
+          "SystemVerilog"
+        ],
+        "domains": [
+          "digital IC design",
+          "FPGA",
+          "DSP"
+        ],
+        "supervisor": null
+      },
+      {
+        "id": "internship_003",
+        "company": "Information Technology Institute (ITI)",
+        "position": "Digital IC Design Intern",
+        "location": null,
+        "start_date": "2024-07",
+        "end_date": "2024-08",
+        "description": "RTL design, Python/TCL automation, CDC, STA, DFT, and exposure to Synopsys design tools.",
+        "technologies": [
+          "Python",
+          "TCL"
+        ],
+        "domains": [
+          "digital IC design"
+        ],
+        "supervisor": null
+      },
+      {
+        "id": "internship_004",
+        "company": "Digital Egypt Pioneers Initiative",
+        "position": "Generative AI Intern",
+        "location": null,
+        "start_date": "2024-04",
+        "end_date": "2024-10",
+        "description": "Deep-learning and NLP systems, attention models, GANs, Hugging Face, and MLflow.",
+        "technologies": [
+          "Hugging Face",
+          "MLflow"
+        ],
+        "domains": [
+          "generative AI",
+          "natural language processing"
+        ],
+        "supervisor": null
+      }
+    ],
+    "research_experience": [
+      {
+        "id": "research_001",
+        "institution": "Prof. Lobna A. Said’s Research Team",
+        "position": "Research Intern",
+        "research_group": null,
+        "supervisor": "Prof. Lobna A. Said",
+        "start_date": "2023-12",
+        "end_date": "2025-09",
+        "currently_active": false,
+        "research_topics": [
+          "handwritten digit recognition",
+          "FPGA acceleration",
+          "fixed-point deployment"
+        ],
+        "description": "Developed and trained one neural network to classify both Arabic and English handwritten digits. Quantized model parameters for fixed-point deployment and co-developed the Verilog accelerator on Xilinx KCU-105.",
+        "technologies": [
+          "Verilog",
+          "Xilinx KCU-105"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "id": "project_001",
+        "title": "FPGA Neural Network for Handwritten Digit Recognition",
+        "project_type": "research_project",
+        "organization": null,
+        "start_date": null,
+        "end_date": null,
+        "description": "Co-developed an FPGA neural-network accelerator for Arabic and English handwritten digits with quantized parameters, custom RTL compute units, and hardware/software accuracy validation.",
+        "achievements": [
+          "Achieved 96.6% accuracy, 14 to 49× speedup, 1.67 W power, and 2.395 µs latency on Xilinx KCU-105"
+        ],
+        "technologies": [
+          "Verilog",
+          "Fixed-Point",
+          "Vivado"
+        ],
+        "domains": [
+          "FPGA",
+          "machine learning"
+        ],
+        "github_url": null,
+        "project_url": null,
+        "supervisors": [],
+        "sponsors": [],
+        "team_size": null
+      },
+      {
+        "id": "project_002",
+        "title": "Software/ML Pipeline for FPGA Chest X-Ray Accelerator: Graduation Project",
+        "project_type": "graduation_project",
+        "organization": null,
+        "start_date": null,
+        "end_date": null,
+        "description": "Led the software and ML workstream for a 15-class chest X-ray classifier, prepared and balanced the dataset, trained and evaluated MobileNetV3-Small, developed the inference pipeline, implemented 8-bit post-training quantization, and automated conversion of trained weights into fixed-point COE/MEM files.",
+        "achievements": [
+          "Integrated the software and hardware workflow on PYNQ-Z2 and validated hardware outputs against the floating-point model, maintaining accuracy within 1% of the baseline"
+        ],
+        "technologies": [
+          "PyTorch",
+          "MobileNetV3",
+          "PYNQ-Z2"
+        ],
+        "domains": [
+          "computer vision",
+          "FPGA"
+        ],
+        "github_url": null,
+        "project_url": null,
+        "supervisors": [],
+        "sponsors": [
+          "Analog Devices"
+        ],
+        "team_size": null
+      },
+      {
+        "id": "project_003",
+        "title": "Spiking Neural Networks for Traffic Accident Detection",
+        "project_type": "research_project",
+        "organization": null,
+        "start_date": null,
+        "end_date": null,
+        "description": "Built six SNN variants using LIF neurons, temporal rate readout, focal loss, strided stems, and spike-sparsity regularization to study accuracy and efficiency trade-offs.",
+        "achievements": [
+          "Prepared 9,190 accident-video clips and showed that the high-capacity SNN exceeded two CNN baselines while using 48.9% fewer parameters than dense MoViNet models"
+        ],
+        "technologies": [
+          "PyTorch",
+          "snnTorch"
+        ],
+        "domains": [
+          "video ML",
+          "neuromorphic computing"
+        ],
+        "github_url": null,
+        "project_url": null,
+        "supervisors": [],
+        "sponsors": [],
+        "team_size": null
+      },
+      {
+        "id": "project_004",
+        "title": "RISC-V Processor with Custom Memory Hierarchy",
+        "project_type": "academic_project",
+        "organization": null,
+        "start_date": null,
+        "end_date": null,
+        "description": "Implemented a single-cycle RISC-V processor with a custom cache hierarchy.",
+        "achievements": [],
+        "technologies": [
+          "Verilog"
+        ],
+        "domains": [
+          "computer architecture"
+        ],
+        "github_url": null,
+        "project_url": null,
+        "supervisors": [],
+        "sponsors": [],
+        "team_size": null
+      },
+      {
+        "id": "project_005",
+        "title": "Object Detection and Segmentation System",
+        "project_type": "academic_project",
+        "organization": null,
+        "start_date": null,
+        "end_date": null,
+        "description": "Trained CNN-based object-detection and semantic-segmentation models and built preprocessing, augmentation, evaluation, and visualization pipelines.",
+        "achievements": [],
+        "technologies": [
+          "PyTorch"
+        ],
+        "domains": [
+          "computer vision"
+        ],
+        "github_url": null,
+        "project_url": null,
+        "supervisors": [],
+        "sponsors": [],
+        "team_size": null
+      },
+      {
+        "id": "project_006",
+        "title": "LLM Fine-Tuning and Retrieval Systems",
+        "project_type": "academic_project",
+        "organization": null,
+        "start_date": null,
+        "end_date": null,
+        "description": "Fine-tuned Qwen2.5 and FLAN-T5 models using LoRA/QLoRA and built a hybrid RAG pipeline using BM25, semantic search, reciprocal-rank fusion, metadata filtering, Weaviate, and query routing.",
+        "achievements": [],
+        "technologies": [
+          "Transformers",
+          "PEFT",
+          "Weaviate"
+        ],
+        "domains": [
+          "natural language processing",
+          "retrieval"
+        ],
+        "github_url": null,
+        "project_url": null,
+        "supervisors": [],
+        "sponsors": [],
+        "team_size": null
+      }
+    ],
+    "publications": [
+      {
+        "id": "publication_001",
+        "title": "Spiking Neural Networks for Traffic Accident Detection",
+        "authors": [
+          "A. Elsadiq",
+          "S. Hosny",
+          "M. W. El-Kharashi",
+          "A. T. Abdel-Hamid",
+          "A. Tawfik"
+        ],
+        "venue": "SEEDA-CECNSM 2026",
+        "publisher": "IEEE",
+        "publication_type": null,
+        "year": 2026,
+        "status": "accepted",
+        "doi": null,
+        "url": null
+      },
+      {
+        "id": "publication_002",
+        "title": "FPGA-Based Neural Network for Arabic and English Handwritten Digit Recognition",
+        "authors": [
+          "A. Elsadiq",
+          "H. M. Elrefai",
+          "L. A. Said"
+        ],
+        "venue": "IEEE SMACD 2025",
+        "publisher": "IEEE",
+        "publication_type": null,
+        "year": 2025,
+        "status": "published",
+        "doi": null,
+        "url": null
+      }
+    ],
+    "patents": [],
+    "awards": [],
+    "scholarships": [],
+    "certifications": [],
+    "courses": [],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language"
+      },
+      {
+        "name": "C/C++",
+        "category": "programming_language"
+      },
+      {
+        "name": "MATLAB",
+        "category": "programming_language"
+      },
+      {
+        "name": "Bash",
+        "category": "programming_language"
+      },
+      {
+        "name": "TCL",
+        "category": "programming_language"
+      },
+      {
+        "name": "Verilog",
+        "category": "hdl"
+      },
+      {
+        "name": "SystemVerilog",
+        "category": "hdl"
+      },
+      {
+        "name": "UVM",
+        "category": "verification"
+      },
+      {
+        "name": "SVA",
+        "category": "verification"
+      },
+      {
+        "name": "Vivado",
+        "category": "eda_tool"
+      },
+      {
+        "name": "QuestaSim",
+        "category": "eda_tool"
+      },
+      {
+        "name": "VCS",
+        "category": "eda_tool"
+      },
+      {
+        "name": "RAG",
+        "category": "machine_learning"
+      },
+      {
+        "name": "PyTorch",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "TensorFlow/Keras",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "scikit-learn",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "snnTorch",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "Tonic",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "hls4ml",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "Transformers",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "PEFT",
+        "category": "machine_learning_framework"
+      },
+      {
+        "name": "Weaviate",
+        "category": "database"
+      },
+      {
+        "name": "Linux",
+        "category": "operating_system"
+      },
+      {
+        "name": "Git",
+        "category": "other"
+      },
+      {
+        "name": "GitHub",
+        "category": "other"
+      },
+      {
+        "name": "LaTeX",
+        "category": "other"
+      },
+      {
+        "name": "ONNX",
+        "category": "other"
+      }
+    ],
+    "research_interests": [
+      "FPGA and heterogeneous AI acceleration",
+      "edge AI",
+      "neuromorphic computing"
+    ],
+    "languages": [],
+    "volunteering": [],
+    "teaching_experience": [],
+    "professional_memberships": [],
+    "online_profiles": {
+      "linkedin": "linkedin.com/in/elsadiq",
+      "github": "github.com/elsadiq7",
+      "google_scholar": null,
+      "orcid": null,
+      "personal_website": null,
+      "portfolio": null,
+      "other": []
+    },
+    "references": [],
+    "other_sections": [],
+    "extraction_metadata": {
+      "facts": [
+        {
+          "path": "/personal_information/full_name",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "header",
+            "text": "Abdulrahman Elsadiq"
+          }
+        },
+        {
+          "path": "/education/0/institution",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Education",
+            "text": "Zagazig University Oct 2020 to Aug 2025"
+          }
+        },
+        {
+          "path": "/education/0/gpa",
+          "confidence": 0.98,
+          "source": {
+            "page": 1,
+            "section": "Education",
+            "text": "GPA: 3.81/4.00 (92.37%); ranked 2nd in class; overall grade: Excellent."
+          }
+        },
+        {
+          "path": "/education/0/class_rank",
+          "confidence": 0.98,
+          "source": {
+            "page": 1,
+            "section": "Education",
+            "text": "GPA: 3.81/4.00 (92.37%); ranked 2nd in class; overall grade: Excellent."
+          }
+        },
+        {
+          "path": "/education/0/end_date",
+          "confidence": 0.95,
+          "source": {
+            "page": 1,
+            "section": "Education",
+            "text": "Zagazig University Oct 2020 to Aug 2025"
+          }
+        },
+        {
+          "path": "/publications/0/title",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Publications",
+            "text": "“Spiking Neural Networks for Traffic Accident Detection,” SEEDA-CECNSM 2026, IEEE, accepted."
+          }
+        },
+        {
+          "path": "/publications/1/title",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Publications",
+            "text": "“FPGA-Based Neural Network for Arabic and English Handwritten Digit Recognition,” IEEE SMACD 2025, published."
+          }
+        },
+        {
+          "path": "/work_experience/0/company",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Research and Professional Experience",
+            "text": "Alpinum Systems Ltd Mar 2026 to Present"
+          }
+        },
+        {
+          "path": "/work_experience/0/position",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Research and Professional Experience",
+            "text": "Machine Learning Engineer UK, Remote"
+          }
+        },
+        {
+          "path": "/internships/0/company",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Research and Professional Experience",
+            "text": "STMicroelectronics Nov 2025 to Mar 2026"
+          }
+        },
+        {
+          "path": "/internships/1/company",
+          "confidence": 0.99,
+          "source": {
+            "page": 1,
+            "section": "Research and Professional Experience",
+            "text": "Analog Devices Sep 2024 to Oct 2024"
+          }
+        },
+        {
+          "path": "/research_experience/0/institution",
+          "confidence": 0.98,
+          "source": {
+            "page": 1,
+            "section": "Research and Professional Experience",
+            "text": "Prof. Lobna A. Said’s Research Team Dec 2023 to Sep 2025"
+          }
+        }
+      ]
+    }
+  }
+}
