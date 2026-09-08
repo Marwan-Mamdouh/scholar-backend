@@ -39,6 +39,8 @@ import publicationsRouter from "./modules/publication/publication.routes.js";
 import { extractTopField, extractData } from "./utils/extractors.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/authentication/auth.js";
+import universitiesRouter from "./modules/universities/universities.routes.js";
+import staffRouter from "./modules/staff/staff.routes.js";
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -58,6 +60,8 @@ app.use("/api", researchersRouter);
 app.use("/api/publication", publicationsRouter);
 app.use("/api/team", teamRouter);
 app.use("/api/feedback", feedbackRouter);
+app.use("/api/universities", universitiesRouter);
+app.use("/api/staff", staffRouter);
 
 // ================================================================
 //  SECTION: ACADEMIC SCANNER API (Researcher Analysis)
