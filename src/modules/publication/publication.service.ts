@@ -239,7 +239,7 @@ const publicationService = {
         try {
             // Run aggregates on both tables in parallel
             const [metricStats, editorialStats] = await Promise.all([
-            db.publicationYearlyMetric.aggregate({
+           db.publicationEditorialStat.aggregate({
                 _min: {
                 impactFactor: true,
                 sjr: true,
@@ -518,7 +518,7 @@ const publicationService = {
     async getEditorialStats( editorialStatsData:publicationEditorialStatsID ){
         try {
             const metrics = await db
-                .publicationYearlyMetric
+                .publicationEditorialStat
                 .findUnique({
                     where:{id:editorialStatsData.id},
                     include:{
