@@ -28,7 +28,6 @@ const __dirname = path.join(process.cwd());
 import cookieParser from "cookie-parser";
 import fs from "node:fs";
 import os from "node:os";
-import xlsx from "xlsx";
 import * as cheerio from "cheerio";
 import logger from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/error.js";
