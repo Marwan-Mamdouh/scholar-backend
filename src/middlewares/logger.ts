@@ -21,18 +21,23 @@ const getLevel = (status: number): keyof typeof statusColorMap =>
 	status >= 500 ? "error" : status >= 400 ? "warn" : "info";
 
 // sanitize sensitive fields (extend later if needed)
-const sanitizeBody = (body: any) => {
-	if (!body) return undefined;
-
-	const clone = { ...body };
-	const sensitiveKeys = ["password", "token", "accessToken"];
-
-	sensitiveKeys.forEach((key) => {
-		if (key in clone) clone[key] = "***";
-	});
-
-	return clone;
-};
+function sanitizeBody(obj: any, sensitiveKeys = ['password', 'token', 'secret']): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeBody(item, sensitiveKeys));
+  }
+  const sanitized: Record<string, any> = {};
+  for (const key of Object.keys(obj)) {
+    if (sensitiveKeys.includes(key.toLowerCase())) {
+      sanitized[key] = 'MASKED';
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      sanitized[key] = sanitizeBody(obj[key], sensitiveKeys);
+    } else {
+      sanitized[key] = obj[key];
+    }
+  }
+  return sanitized;
+}
 
 const logger = (req: Request, res: Response, next: NextFunction) => {
 	const start = process.hrtime.bigint();
