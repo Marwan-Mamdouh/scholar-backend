@@ -67,7 +67,6 @@ From `package.json`, the main dependencies currently are:
 /
 ├─ index.js
 ├─ package.json
-├─ nexus.db
 ├─ vercel.json
 └─ public/
    ├─ *.html
@@ -317,7 +316,6 @@ This means the repo currently behaves as a plain Node/Express app with client-si
 /
 ├─ index.js                        # Entire Express backend and page routing
 ├─ package.json                    # Runtime dependencies
-├─ nexus.db                        # Legacy/local DB artifact in repo root
 ├─ vercel.json                     # Present but effectively empty in inspected raw file
 └─ public/
    ├─ *.html                       # Standalone pages with lots of inline CSS/JS
@@ -518,6 +516,17 @@ Most pages also contain a large inline `<style>` block inside the HTML file itse
 - Supabase for database + file storage.
 - Clearbit logo URLs and UI Avatars fallback images in frontend rendering.
 - Leaflet for maps, Chart.js for charts, SweetAlert2 for modal/toast UX on several admin/data pages.
+
+## Data files and seeding
+
+- **`publications.xlsx`**: Raw publications dataset imported into PostgreSQL using `prisma/seed-publications.ts`. This file is gitignored to avoid checking large/binary datasets into git history.
+  ```bash
+  # Import publications from an XLSX file (e.g. IEEE, Springer, ACM, Wiley, etc.)
+  npx tsx prisma/seed-publications.ts <path-to-xlsx> <publisher> [--dry-run]
+  ```
+- **`scholar_team.csv`**: Team contributor roster parsed by `src/utils/parse.contributors.csv.ts`. Tracked in repository root until database models and CRUD endpoints for team members are fully implemented.
+- **`nexus.db`**: Legacy local SQLite database; untracked and excluded from git tracking via `.gitignore`.
+- **`.local_backups/`**: Gitignored local backup directory for local data file snapshots.
 
 ## Notable implementation findings
 
