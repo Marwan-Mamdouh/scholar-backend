@@ -1,7 +1,602 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
 }
 
-generator client {
-  provider = "prisma-client-js"
+// ================= Enums =================
+
+enum ApplicationStatus {
+  pending
+  reviewed
+  accepted
+  rejected
+}
+
+enum FeedbackCategory {
+  bug
+  feature
+  data
+  other
+}
+
+enum JobType {
+  fullTime
+  partTime
+  internship
+}
+
+enum LicenseType {
+  CC
+  CC_BY       @map("CC BY")
+  CC_BY_SA    @map("CC BY-SA")
+  CC_BY_NC    @map("CC BY-NC")
+  CC_BY_ND    @map("CC BY-ND")
+  CC_BY_NC_ND @map("CC BY-NC-ND")
+}
+
+enum PresenceStatus {
+  active
+  inactive
+}
+
+enum PublicationAccessType {
+  Hybrid
+  Full_Open_Access        @map("Full Open Access")
+  Golden_Open_Access      @map("Golden Open Access")
+  Diamond_Open_Access     @map("Diamond Open Access")
+  Green_Open_Access       @map("Green Open Access")
+  Bronze_Open_Access      @map("Bronze Open Access")
+  Subscriber_Based_Access @map("Subscriber Based Access")
+}
+
+enum PublicationIndex {
+  SCIE
+  ESCI
+  SSCI
+}
+
+enum PublicationType {
+  Transaction
+  Magazine
+  Journal
+  Letter
+}
+
+enum Publisher {
+  IEEE
+  APS
+  RoyalSociety   @map("Royal Society")
+  ACS
+  ACM
+  TaylorAFrancis @map("Taylor & Francis")
+  Oxford
+  ElSevier
+  Springer
+  Sage
+  MDPI
+}
+
+enum Quartile {
+  Q1
+  Q2
+  Q3
+  Q4
+}
+
+enum SeniorityLevel {
+  junior
+  mid
+  senior
+  lead
+}
+
+enum SubBucket {
+  CoreHybridProprietaryEnglish @map("Core Hybrid Proprietary English")
+  CoreHybridSocietyEnglish     @map("Core Hybrid Society English")
+  CoreGold                     @map("Core Gold")
+  CellPressGold                @map("Cell Press Gold")
+  CellPressHybridProprietary   @map("Cell Press Hybrid Proprietary")
+  CellPressHybridSociety       @map("Cell Press Hybrid Society")
+  CoreHybridLocalLanguage      @map("Core Hybrid Local Language")
+  TLSubscription               @map("TL Subscription")
+  TheLancetGold                @map("The Lancet Gold")
+}
+
+enum TeamCategory {
+  web
+  industry
+  academia
+}
+
+enum UserRole {
+  student
+  graduate
+  admin
+}
+
+enum Workflow {
+  standard
+  non_standard @map("non-standard")
+}
+
+// ================= Models =================
+
+model AcademicPublication {
+  id                 Int                      @id @default(autoincrement())
+  subCategoryId      Int
+  acronym            String?                  @db.VarChar(100)
+  publisher          Publisher
+  publicationType    PublicationType
+  title              String
+  issn               String?                  @unique @db.Char(8)
+  eissn              String?                  @unique @db.Char(8)
+  issnCdrom          String?                  @unique @db.Char(8)
+  URL                String?                  @db.VarChar(500)
+  yearLunched        Int?
+  openAccessType     PublicationAccessType
+  specificFocusScope String?                  @db.VarChar(500)
+  workflow           Workflow
+  licenseType        LicenseType?
+  journalScope       String?                  @db.Text
+  searchVector       Unsupported("tsvector")? @map("search_vector")
+  imprint            String?
+  subBucket          SubBucket?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+
+  // Relations
+  subCategory    PublicationSubCategory     @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  yearlyMetrics  PublicationYearlyMetric[]
+  editorialStats PublicationEditorialStat[]
+  pricings       PublicationPricing[]
+
+  @@index([subCategoryId])
+  @@index([title])
+  @@index([acronym])
+  @@index([openAccessType])
+  @@index([licenseType])
+  @@index([specificFocusScope])
+  @@map("academicPublications")
+}
+
+model AcademicResearcher {
+  id              Int      @id @default(autoincrement())
+  firstName       String
+  lastName        String
+  institutionName String
+  department      String?
+  affiliation     String?
+  mainTopic       String?
+  subtopics       Json?
+  scholarId       String?
+  linkedinUrl     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("academicResearchers")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Company {
+  id                  Int      @id @default(autoincrement())
+  name                String   @unique
+  industry            String?
+  size                String?
+  website             String?
+  linkedin            String?
+  glassdoor           String?
+  headquartersCountry String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  branches           CompanyBranch[]
+  jobs               Job[]
+  graduationProjects GraduationProject[]
+
+  @@map("companies")
+}
+
+model CompanyBranch {
+  id        Int             @id @default(autoincrement())
+  companyId Int
+  region    String?
+  country   String?
+  state     String?
+  city      String?
+  presence  PresenceStatus?
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobs    Job[]
+
+  @@map("companyBranches")
+}
+
+model Department {
+  id Int @id @default(autoincrement())
+
+  name        String
+  shortName   String?
+  website     String?
+  description String?
+
+  facultyId Int
+  faculty   Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  staff UniversityStaff[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, facultyId])
+  @@index([facultyId])
+  @@index([name])
+  @@map("departments")
+}
+
+model Faculty {
+  id Int @id @default(autoincrement())
+
+  name        String
+  shortName   String?
+  website     String?
+  description String?
+
+  universityId Int
+  university   University        @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  departments  Department[]
+  staff        UniversityStaff[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, universityId])
+  @@index([universityId])
+  @@index([name])
+  @@map("faculties")
+}
+
+model Feedback {
+  id          Int               @id @default(autoincrement())
+  userId      String?
+  firstName   String?
+  lastName    String?
+  email       String?
+  category    FeedbackCategory?
+  message     String            @db.Text
+  submittedAt DateTime          @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("feedbacks")
+}
+
+model GraduationProjectApplication {
+  id                 Int               @id @default(autoincrement())
+  projectId          Int
+  applicantUserId    String
+  teamMembers        Json?
+  proposalSummaryUrl String?
+  status             ApplicationStatus @default(pending)
+  submittedAt        DateTime          @default(now())
+
+  // Relations
+  project   GraduationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  applicant User              @relation(fields: [applicantUserId], references: [id], onDelete: Cascade)
+
+  @@map("graduationProjectApplications")
+}
+
+model GraduationProject {
+  id                Int      @id @default(autoincrement())
+  isSponsored       Boolean
+  sponsorCompanyId  Int?
+  university        String?
+  faculty           String?
+  industry          String?
+  domains           Json?
+  supervisor        String?
+  coSupervisor      String?
+  projectTitle      String
+  noOfStudents      Int?
+  documentationLink String?
+  postedAt          DateTime @default(now())
+
+  // Relations
+  sponsorCompany Company?                       @relation(fields: [sponsorCompanyId], references: [id], onDelete: SetNull)
+  applications   GraduationProjectApplication[]
+
+  @@map("graduationProjects")
+}
+
+model JobApplication {
+  id              Int               @id @default(autoincrement())
+  jobId           Int
+  applicantUserId String
+  cvPath          String?
+  status          ApplicationStatus @default(pending)
+  submittedAt     DateTime          @default(now())
+
+  // Relations
+  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant User @relation(fields: [applicantUserId], references: [id], onDelete: Cascade)
+
+  @@map("jobApplications")
+}
+
+model Job {
+  id           Int             @id @default(autoincrement())
+  companyId    Int
+  branchId     Int
+  title        String
+  industry     String?
+  domains      Json?
+  type         JobType?
+  seniority    SeniorityLevel?
+  description  String?         @db.Text
+  requirements String?         @db.Text
+  salary       String?
+  applyLink    String?
+  postedAt     DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch       CompanyBranch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+
+  @@map("jobs")
+}
+
+model Profile {
+  userId         String  @id
+  firstName      String
+  lastName       String
+  gender         String?
+  country        String?
+  governorate    String?
+  university     String?
+  faculty        String?
+  department     String?
+  graduationYear Int?
+  linkedinUrl    String?
+  githubUrl      String?
+  scholarUrl     String?
+  skills         Json?
+  experience     Json?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model PublicationDomain {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(255)
+
+  // Relations
+  subCategories PublicationSubCategory[]
+
+  @@map("publicationDomains")
+}
+
+model PublicationEditorialStat {
+  id                         Int      @id @default(autoincrement())
+  publicationId              Int
+  submissionToFirstDecision  Decimal? @db.Decimal(10, 2)
+  submissionToReviewDecision Decimal? @db.Decimal(10, 2)
+  submissionToAcceptance     Decimal? @db.Decimal(10, 2)
+  acceptanceToPublication    Decimal? @db.Decimal(10, 2)
+  acceptanceRate             Decimal? @db.Decimal(10, 2)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  publication AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([submissionToFirstDecision(sort: Asc)])
+  @@index([submissionToAcceptance(sort: Asc)])
+  @@index([acceptanceRate(sort: Desc)])
+}
+
+model PublicationPricing {
+  id             Int      @id @default(autoincrement())
+  publicationId  Int
+  pricingYear    Int
+  currency       String   @db.VarChar(3)
+  cost           Decimal  @db.Decimal(10, 2)
+  isSubscription Boolean? @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  publication AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@unique([publicationId, pricingYear, currency])
+  @@index([currency, cost])
+}
+
+model PublicationSubCategory {
+  id       Int    @id @default(autoincrement())
+  domainId Int
+  name     String @db.VarChar(255)
+
+  // Relations
+  domain       PublicationDomain     @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  publications AcademicPublication[]
+
+  @@index([domainId])
+  @@map("publicationSubcategories")
+}
+
+model PublicationYearlyMetric {
+  id                    Int               @id @default(autoincrement())
+  publicationId         Int
+  metricYear            Int
+  indexingService       PublicationIndex?
+  impactFactor          Decimal?          @db.Decimal(10, 4)
+  impactFactor5yr       Decimal?          @db.Decimal(10, 4)
+  quartile              Quartile?
+  jci                   Decimal?          @db.Decimal(10, 4)
+  sjr                   Decimal?          @db.Decimal(10, 4)
+  h5Index               Decimal?          @db.Decimal(10, 4)
+  eigenfactor           Decimal?          @db.Decimal(10, 6)
+  articleInfluenceScore Decimal?          @db.Decimal(10, 4)
+  citescore             Decimal?          @db.Decimal(10, 4)
+  totalCitations        Int
+  articleDownloads      Int
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  // Relations
+  publication AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  // Composite UK with pub_id and metric_year
+  @@unique([publicationId, metricYear, indexingService])
+  @@index([metricYear, citescore(sort: Desc)])
+  @@index([metricYear, impactFactor(sort: Desc)])
+  @@index([metricYear, quartile])
+  @@index([metricYear, sjr(sort: Desc)])
+  @@map("publicationYearlyMetrics")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model TeamMember {
+  id          Int          @id @default(autoincrement())
+  name        String
+  role        String
+  linkedinUrl String?      @map("linkedin_url")
+  team        TeamCategory
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("team_members")
+}
+
+model University {
+  id        Int               @id @default(autoincrement())
+  name      String            @unique
+  shortName String?           @unique
+  website   String?
+  country   String?
+  city      String?
+  staff     UniversityStaff[]
+  faculties Faculty[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@map("universities")
+}
+
+model UniversityStaff {
+  id               Int      @id @default(autoincrement())
+  name             String
+  email            String   @unique
+  alternativeEmail String?
+  mobile           String?
+  title            String?
+  degree           String?
+  facultyId        Int?
+  faculty          Faculty? @relation(fields: [facultyId], references: [id], onDelete: SetNull)
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  universityId          Int
+  university            University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  universityProfileLink String?
+  cvLink                String?
+  researchGateLink      String?
+  googleScholarLink     String?
+  academiaLink          String?
+  linkedInLink          String?
+  youtubeLink           String?
+  orcidLink             String?
+  scopusLink            String?
+  titleProfile          String?
+  facultyProfile        String?
+  citations             Int?
+  researchInterests     String[]
+  bio                   String?
+  otherUrl              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([universityId])
+  @@index([facultyId])
+  @@index([departmentId])
+  @@map("universityStaff")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  role          UserRole? @default(student)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  //Better Auth Relations
+  sessions Session[]
+  accounts Account[]
+
+  // Relations
+  profile             Profile?
+  jobApplications     JobApplication[]
+  feedbacks           Feedback[]
+  projectApplications GraduationProjectApplication[]
+
+  //the Table will be named "users" in the postgresql 
+  @@map("users")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }
