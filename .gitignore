@@ -11,3 +11,9 @@ coverage/
 # Python
 __pycache__/
 *.pyc
+
+
+# Database & Data files
+*.db
+*.xlsx
+*.csv
