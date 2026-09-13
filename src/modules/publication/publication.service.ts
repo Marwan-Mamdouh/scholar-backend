@@ -239,7 +239,7 @@ const publicationService = {
         try {
             // Run aggregates on both tables in parallel
             const [metricStats, editorialStats] = await Promise.all([
-           db.publicationEditorialStat.aggregate({
+            db.publicationYearlyMetric.aggregate({
                 _min: {
                 impactFactor: true,
                 sjr: true,
@@ -533,7 +533,7 @@ const publicationService = {
                         }
                     }
                 })
-                console.log("publication metrics:", metrics);
+                console.log("publication editorial stats:", metrics);
                 return metrics || {};
         } catch (error) {
             if (error) throw error;

@@ -2,23 +2,23 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import publicationService from "../publication.service.js";
 
 const { mockCount, mockFindMany, mockQueryRaw, mockEditorialFindUnique } = vi.hoisted(() => ({
-    mockCount: vi.fn(),
-    mockFindMany: vi.fn(),
-    mockQueryRaw: vi.fn(),
-    mockEditorialFindUnique: vi.fn(),
+	mockCount: vi.fn(),
+	mockFindMany: vi.fn(),
+	mockQueryRaw: vi.fn(),
+	mockEditorialFindUnique: vi.fn(),
 }));
 
 vi.mock("../../../db/db_config.js", () => ({
-    db: {
-        academicPublication: {
-            count: (...args: any[]) => mockCount(...args),
-            findMany: (...args: any[]) => mockFindMany(...args),
-        },
-        publicationEditorialStat: {
-            findUnique: (...args: any[]) => mockEditorialFindUnique(...args),
-        },
-        $queryRaw: (...args: any[]) => mockQueryRaw(...args),
-    },
+	db: {
+		academicPublication: {
+			count: (...args: any[]) => mockCount(...args),
+			findMany: (...args: any[]) => mockFindMany(...args),
+		},
+		publicationEditorialStat: {
+			findUnique: (...args: any[]) => mockEditorialFindUnique(...args),
+		},
+		$queryRaw: (...args: any[]) => mockQueryRaw(...args),
+	},
 }));
 
 const basePagination = {
@@ -140,21 +140,43 @@ describe("publicationService.searchPublications", () => {
 });
 
 describe("publicationService.getEditorialStats", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-    it("fetches editorial stats from publicationEditorialStat by id", async () => {
-        const mockData = { id: 1, acceptanceRate: 25.5 };
-        mockEditorialFindUnique.mockResolvedValue(mockData);
+	it("fetches editorial stats from publicationEditorialStat by id", async () => {
+		const mockData = { id: 1, acceptanceRate: 25.5 };
+		mockEditorialFindUnique.mockResolvedValue(mockData);
 
-        const result = await publicationService.getEditorialStats({ id: 1 } as any);
+		const result = await publicationService.getEditorialStats({ id: 1 } as any);
 
-        expect(mockEditorialFindUnique).toHaveBeenCalledWith(
-            expect.objectContaining({
-                where: { id: 1 },
-            })
-        );
-        expect(result).toEqual(mockData);
-    });
+		expect(mockEditorialFindUnique).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: { id: 1 },
+				include: expect.objectContaining({
+					publication: expect.anything(),
+				}),
+			})
+		);
+		expect(result).toEqual(mockData);
+	});
+
+	it("returns an empty object when the editorial stat is not found", async () => {
+		mockEditorialFindUnique.mockResolvedValue(null);
+
+		const result = await publicationService.getEditorialStats({ id: 999 } as any);
+
+		expect(mockEditorialFindUnique).toHaveBeenCalledWith(
+			expect.objectContaining({ where: { id: 999 } })
+		);
+		expect(result).toEqual({});
+	});
+
+	it("propagates database errors", async () => {
+		mockEditorialFindUnique.mockRejectedValue(new Error("db failure"));
+
+		await expect(
+			publicationService.getEditorialStats({ id: 1 } as any)
+		).rejects.toThrow("db failure");
+	});
 });
