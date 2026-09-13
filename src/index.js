@@ -58,7 +58,7 @@ app.use(cookieParser());
 app.use("/api", researchersRouter);
 app.use("/api/publication", publicationsRouter);
 app.use("/api/team", teamRouter);
-app.use('/health', healthRouter);
+app.use('/api/health', healthRouter);
 app.use("/api/feedback", feedbackRouter);
 
 // ================================================================
