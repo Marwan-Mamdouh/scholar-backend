@@ -17,10 +17,11 @@ const usersService = {
         const tempDir = path.join(__dirname, 'temp');
         
         // 2. Generate file name and full path inside the temp folder
-        const tempFileName = `temp_${crypto.randomBytes(6).toString('hex')}_${name}`;
+        const safeName = path.basename(name);
+        const tempFileName = `temp_${crypto.randomBytes(6).toString('hex')}_${safeName}`;
         const tempFilePath = path.join(tempDir, tempFileName);
         const pythonProjectDir = path.join(__dirname, 'cv_parser');
-        const pythonExecutable = path.join('.venv', 'Scripts', 'python');
+        const pythonExecutable = process.platform === 'win32' ? path.join('.venv', 'Scripts', 'python') : path.join('.venv', 'bin', 'python');
 
         try {
             // 1. Define the 'temp' directory path
