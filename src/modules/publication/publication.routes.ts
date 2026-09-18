@@ -3,7 +3,7 @@ import isAuthenticated from "../../middlewares/auth.js";
 import isAdmin from "../../middlewares/authorize.js";
 import asyncHandler from "../../lib/async.handler.js";
 import { validate, validateMultiple } from "../../middlewares/validator.js";
-import { domainFilterSchema, domainSchema , publicationIDSchema, publicationMetricsIDSchema, publicationMetricsPatchSchema, publicationMetricsSchema, publicationPatchSchema, publicationSchema, subCategoryFilterSchema, subCategorySchema,type PublicationEditorialStatPatch, type PublicationEditorialStat, type domain, type domainFilter, type publication, type publicationID, type publicationMetrics, type publicationMetricsID, type publicationMetricsPatch, type publicationPatch, type subCategory, type subCategoryFilter, publicationEditorialStatSchema, type publicationEditorialStatsID, publicationPricingSchema, type PublicationPricing, publicationPricingPatchSchema, type PublicationPricingPatch, publicationSearchQuerySchema, type publicationSearchQuery } from "./publication.schema.js";
+import { domainFilterSchema, domainSchema , publicationIDSchema, publicationMetricsIDSchema, publicationMetricsPatchSchema, publicationMetricsSchema, publicationPatchSchema, publicationSchema, subCategoryFilterSchema, subCategorySchema,type PublicationEditorialStatPatch, type PublicationEditorialStat, type domain, type domainFilter, type publication, type publicationID, type publicationMetrics, type publicationMetricsID, type publicationMetricsPatch, type publicationPatch, type subCategory, type subCategoryFilter, publicationEditorialStatSchema, publicationEditorialStatPatchSchema, type publicationEditorialStatsID, publicationPricingSchema, type PublicationPricing, publicationPricingPatchSchema, type PublicationPricingPatch, publicationSearchQuerySchema, type publicationSearchQuery } from "./publication.schema.js";
 import publicationService from "./publication.service.js";
 import type { TypedRequest } from "../../types/Request.js";
 import type { PaginatedRequest } from "../../types/paginatedRequest.js";
@@ -90,8 +90,8 @@ router.delete(
 // post admin
 router.post(
     "/",
-	// isAuthenticated,
-	//    isAdmin,
+	isAuthenticated,
+    isAdmin,
 	validate(publicationSchema),
     asyncHandler(async (req: TypedRequest<publication>, res: Response) => {
 		const publicationData = req.validatedData;
@@ -253,7 +253,7 @@ router.patch(
     "/editorial_stats",
 	isAuthenticated,
     isAdmin,
-	validate(publicationMetricsPatchSchema),
+	validate(publicationEditorialStatPatchSchema),
     asyncHandler(async (req: TypedRequest<PublicationEditorialStatPatch>, res: Response) => {
 		const editorialStatData = req.validatedData;
 		const patchedEditorialStat = await publicationService.patchEditorialStat(editorialStatData);

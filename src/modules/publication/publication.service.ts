@@ -7,21 +7,6 @@ import type { domainSchema, publicationEditorialStatsID, publicationSearchQuery,
 function buildRangeFilter(
   min: number | undefined,
   max: number | undefined,
-): { gte: number; lte: number } | undefined {
-  if (min === undefined && max === undefined) return undefined;
-  return {
-    ...(min !== undefined && { gte: min }),
-    ...(max !== undefined && { lte: max }),
-  };
-}
-
-function buildInFilter<T>(values: T[] | undefined): { in: T[] } | undefined {
-  return values?.length ? { in: values } : undefined;
-}
-
-function buildNestedRange(
-  min: number | undefined,
-  max: number | undefined,
   multiplier: number = 1,
 ): { gte: number; lte: number } | undefined {
   if (min === undefined && max === undefined) return undefined;
@@ -29,6 +14,12 @@ function buildNestedRange(
     ...(min !== undefined && { gte: min * multiplier }),
     ...(max !== undefined && { lte: max * multiplier }),
   };
+}
+
+const ALLOWED_PUBLICATION_SORT_FIELDS = new Set(["id", "title", "createdAt", "updatedAt"]);
+
+function buildInFilter<T>(values: T[] | undefined): { in: T[] } | undefined {
+  return values?.length ? { in: values } : undefined;
 }
 
 const publicationService = {
@@ -192,8 +183,8 @@ const publicationService = {
                 where.yearlyMetrics = { some: metricFilters };
             }
 
-            const firstDecisionFilter = buildNestedRange(query.firstDecisionWeeksMin, query.firstDecisionWeeksMax, 7);
-            const acceptanceFilter = buildNestedRange(query.submissionToAcceptanceWeeksMin, query.submissionToAcceptanceWeeksMax, 7);
+            const firstDecisionFilter = buildRangeFilter(query.firstDecisionWeeksMin, query.firstDecisionWeeksMax, 7);
+            const acceptanceFilter = buildRangeFilter(query.submissionToAcceptanceWeeksMin, query.submissionToAcceptanceWeeksMax, 7);
 
             const speedFilters: Prisma.PublicationEditorialStatWhereInput = {
                 ...(firstDecisionFilter && { submissionToFirstDecision: firstDecisionFilter }),
@@ -219,7 +210,7 @@ const publicationService = {
                     where,
                     skip: pagination.offset,
                     take: pagination.limit,
-                    orderBy: { [pagination.sortBy]: pagination.sortOrder },
+                    orderBy: { [ALLOWED_PUBLICATION_SORT_FIELDS.has(pagination.sortBy) ? pagination.sortBy : "createdAt"]: pagination.sortOrder },
                     include: {
                         yearlyMetrics: { take: 1, orderBy: { metricYear: "desc" } },
                         subCategory: { include: { domain: true } },
