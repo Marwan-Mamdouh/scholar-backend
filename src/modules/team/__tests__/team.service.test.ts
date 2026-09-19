@@ -3,17 +3,19 @@ import teamService from "../team.service.js";
 import { db } from "../../../db/db_config.js";
 import { NotFoundError } from "../../../lib/error/index.js";
 
-vi.mock("../../../db/db_config.js", () => ({
-	default: {
-		teamMember: {
-			findMany: vi.fn(),
-			findUnique: vi.fn(),
-			create: vi.fn(),
-			update: vi.fn(),
-			delete: vi.fn(),
-		},
-	},
-}));
+vi.mock("../../../db/db_config.js", () => {
+	const teamMember = {
+		findMany: vi.fn(),
+		findUnique: vi.fn(),
+		create: vi.fn(),
+		update: vi.fn(),
+		delete: vi.fn(),
+	};
+	return {
+		db: { teamMember },
+		default: { teamMember },
+	};
+});
 
 const member = (overrides: Partial<Record<string, unknown>> = {}) => ({
 	id: 1,
