@@ -49,6 +49,7 @@ npm run vercel:prod-on   # npm run build && vercel deploy --prod
 - **Typed requests:** `TypedRequest<T>` from `src/types/Request.ts` provides `req.validatedData`
 - **Error handling:** Extend `BaseError` from `src/lib/error/BaseError.ts` for custom errors
 - **Async routes:** Wrap with `asyncHandler` from `src/lib/async.handler.ts`
+- **Git workflow:** Prefer `git switch` over `git checkout` (safer when switching/creating branches)
 
 ## Environment Variables
 
