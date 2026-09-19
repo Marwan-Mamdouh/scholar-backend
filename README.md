@@ -37,7 +37,7 @@ The current repository exposes functionality across these main areas:
 - **Database and storage:** Supabase
 - **Auth:** JWT + cookies, with some frontend state also mirrored in `localStorage`
 - **File upload handling:** Multer
-- **Spreadsheet import/export related parsing:** `xlsx`
+- **Spreadsheet import/export related parsing:** `exceljs`
 - **External academic data:** Semantic Scholar
 - **External job discovery:** Serper / Google and LinkedIn scraping
 
@@ -55,7 +55,7 @@ From `package.json`, the main dependencies currently are:
 - `cookie-parser`
 - `multer`
 - `sqlite3`
-- `xlsx`
+- `exceljs`
 - `cheerio`
 - `dotenv`
 - `cors`
@@ -303,7 +303,7 @@ From `package.json`, the main runtime dependencies are:
 - cookie-parser
 - multer
 - sqlite3
-- xlsx
+- exceljs
 - cheerio
 - dotenv
 - CORS

@@ -10,6 +10,40 @@ import {
 } from "../../utils/extractors.js";
 import type { FilterQuery, UploadOptions } from "./researchers.schema.js";
 
+function extractCellText(cell: ExcelJS.Cell): string {
+    const val = cell.value;
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object") {
+        if ("richText" in val && Array.isArray((val as any).richText)) {
+            return (val as any).richText.map((item: any) => item.text ?? "").join("");
+        }
+        if ("result" in val) {
+            return val.result !== null && val.result !== undefined ? String(val.result) : "";
+        }
+        if ("text" in val) {
+            return String((val as any).text ?? "");
+        }
+    }
+    return String(val);
+}
+
+function extractCellLink(cell: ExcelJS.Cell): string {
+    const val = cell.value;
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object") {
+        if ("hyperlink" in val && (val as any).hyperlink) {
+            return String((val as any).hyperlink).trim();
+        }
+        if ("text" in val && (val as any).text) {
+            return String((val as any).text).trim();
+        }
+        if ("result" in val && (val as any).result) {
+            return String((val as any).result).trim();
+        }
+    }
+    return String(val).trim();
+}
+
 const researchersService = {
     async getMainTopics() {
         const { data, error } = await supabase
@@ -51,7 +85,7 @@ const researchersService = {
     async uploadResearchers(buffer: Buffer, options: UploadOptions) {
         const { clear_db, main_topic } = options;
         const workbook = new ExcelJS.Workbook();
-		await workbook.xlsx.load(buffer as any);
+        await workbook.xlsx.load(buffer as any);
         if (clear_db) {
             const { error: deleteError } = await supabase
                 .from("academic_researchers")
@@ -68,24 +102,13 @@ const researchersService = {
             worksheet.eachRow((row, rowNumber) => {
                 if (rowNumber === 1) return; // Skip header row
 
-                const values = row.values;
-                const cols: any[] = Array.isArray(values) ? values.slice(1) : [];
-                if (!cols || cols.length === 0) return;
-
-                const getCellText = (val: any) => {
-                    if (val === null || val === undefined) return "";
-                    if (typeof val === "object" && "text" in val) return String(val.text);
-                    return String(val);
-                };
-
-                const name = getCellText(cols[0]);
-                const affil = getCellText(cols[1]);
-                const subtopics = getCellText(cols[2]);
-                const link = getCellText(cols[3]);
+                const name = extractCellText(row.getCell(1)).trim();
+                const affil = extractCellText(row.getCell(2)).trim();
+                const subtopics = extractCellText(row.getCell(3)).trim();
+                const link = extractCellLink(row.getCell(4));
 
                 if (
                     !name ||
-                    name.trim() === "" ||
                     name.toLowerCase().includes("name")
                 ) {
                     return;
@@ -98,10 +121,10 @@ const researchersService = {
                         : main_topic || "Uncategorized";
 
                 researchersToInsert.push({
-                    name: name.trim(),
-                    affiliation: affil.trim(),
+                    name,
+                    affiliation: affil,
                     main_topic: topicToSave,
-                    subtopics: subtopics.trim(),
+                    subtopics,
                     scholar_id,
                 });
             });
