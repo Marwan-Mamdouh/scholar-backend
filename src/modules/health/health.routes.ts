@@ -1,5 +1,5 @@
 import { Router, type Response } from "express";
-import supabase from "../../lib/db.js";
+import { isSupabaseConfigured } from "../../lib/db.js";
 import env from "../../config/env.js";
 
 const router = Router();
@@ -9,7 +9,7 @@ router.get("/", (_, res: Response) => {
 	res.json({
 		ok: true,
 		supabaseConfigured: !!(env.SUPABASE_URL && keyPresent),
-		clientReady: !!supabase,
+		clientReady: isSupabaseConfigured,
 		vercel: !!env.VERCEL,
 		node: process.version,
 	});
