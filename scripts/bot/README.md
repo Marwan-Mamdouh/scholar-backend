@@ -79,9 +79,9 @@ Workflow: `.github/workflows/update-jobs.yml`
 
 The scraper creates/manages these tables in Postgres:
 
-- **`jobs`** — deduplicated job listings (content-hash unique constraint)
-- **`source_runs`** — fetch health tracking per source
-- **`metadata`** — schema version tracking
+- **`scraped_jobs`** — deduplicated job listings (content-hash unique constraint, separate from Prisma-owned `jobs`)
+- **`scraper_source_runs`** — fetch health tracking per source
+- **`scraper_metadata`** — schema version tracking
 
 ## Filtering
 

@@ -87,15 +87,17 @@ def connect(db_path: str = "") -> Iterator[connection]:
 
 
 def init_db(conn: connection) -> None:
-    """Create or migrate the database schema in PostgreSQL."""
+    """Create the scraper's own tables (separate from Prisma-owned tables)."""
     with conn.cursor() as cur:
         cur.execute("""
-            CREATE TABLE IF NOT EXISTS metadata (
+            CREATE TABLE IF NOT EXISTS scraper_metadata (
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
             );
+        """)
 
-            CREATE TABLE IF NOT EXISTS jobs (
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS scraped_jobs (
                 id SERIAL PRIMARY KEY,
                 source TEXT NOT NULL,
                 source_job_id TEXT DEFAULT '',
@@ -113,11 +115,15 @@ def init_db(conn: connection) -> None:
                 first_seen_at TEXT NOT NULL,
                 last_seen_at TEXT NOT NULL
             );
+        """)
 
-            CREATE INDEX IF NOT EXISTS idx_jobs_source
-                ON jobs(source, last_seen_at);
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_scraped_jobs_source
+                ON scraped_jobs(source, last_seen_at);
+        """)
 
-            CREATE TABLE IF NOT EXISTS source_runs (
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS scraper_source_runs (
                 source TEXT PRIMARY KEY,
                 last_run_at TEXT,
                 status TEXT NOT NULL DEFAULT 'never',
@@ -128,7 +134,7 @@ def init_db(conn: connection) -> None:
 
         cur.execute(
             """
-            INSERT INTO metadata (key, value)
+            INSERT INTO scraper_metadata (key, value)
             VALUES (%s, %s)
             ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
             """,
@@ -197,14 +203,14 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
     tags_json = json.dumps(job.tags or [], ensure_ascii=False, sort_keys=True)
 
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT id FROM jobs WHERE content_hash = %s", (content_hash,))
+        cur.execute("SELECT id FROM scraped_jobs WHERE content_hash = %s", (content_hash,))
         existing = cur.fetchone()
 
         if existing:
             job_id = existing["id"]
             cur.execute(
                 """
-                UPDATE jobs
+                UPDATE scraped_jobs
                 SET source = %s, source_job_id = %s, title = %s, company = %s, location = %s,
                     url = %s, canonical_url = %s, salary = %s, job_type = %s, tags_json = %s,
                     is_remote = %s, original_source = %s, last_seen_at = %s
@@ -220,7 +226,7 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
 
         cur.execute(
             """
-            INSERT INTO jobs (
+            INSERT INTO scraped_jobs (
                 source, source_job_id, title, company, location, url, canonical_url,
                 salary, job_type, tags_json, is_remote, original_source,
                 content_hash, first_seen_at, last_seen_at
@@ -255,7 +261,7 @@ def update_source_run(conn: connection, source: str, status: str, error: str = "
     with conn.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO source_runs(source, last_run_at, status, error, updated_at)
+            INSERT INTO scraper_source_runs(source, last_run_at, status, error, updated_at)
             VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT(source) DO UPDATE SET
                 last_run_at = EXCLUDED.last_run_at,
@@ -269,14 +275,14 @@ def update_source_run(conn: connection, source: str, status: str, error: str = "
 
 def get_source_last_run(conn: connection, source: str) -> Optional[str]:
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT last_run_at FROM source_runs WHERE source = %s", (source,))
+        cur.execute("SELECT last_run_at FROM scraper_source_runs WHERE source = %s", (source,))
         row = cur.fetchone()
         return str(row["last_run_at"]) if row and row["last_run_at"] else None
 
 
 def count_jobs(conn: connection) -> int:
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT COUNT(*) AS c FROM jobs")
+        cur.execute("SELECT COUNT(*) AS c FROM scraped_jobs")
         row = cur.fetchone()
         return int(row["c"]) if row else 0
 
