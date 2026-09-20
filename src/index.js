@@ -37,6 +37,7 @@ import healthRouter from "./modules/health/health.routes.js";
 import teamRouter from "./modules/team/team.routes.js";
 import publicationsRouter from "./modules/publication/publication.routes.js";
 import usersRouter from "./modules/users/users.routes.ts";
+import gradProjectsRouter from "./modules/grad-projects/grad-projects.routes.js";
 import { extractTopField, extractData } from "./utils/extractors.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/authentication/auth.js";
@@ -61,6 +62,7 @@ app.use("/api/team", teamRouter);
 app.use('/api/health', healthRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/grad-projects", gradProjectsRouter);
 
 // ================================================================
 //  SECTION: ACADEMIC SCANNER API (Researcher Analysis)
