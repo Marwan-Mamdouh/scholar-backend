@@ -1,15 +1,21 @@
 model GraduationProject {
   id                Int       @id @default(autoincrement())
-  isSponsored       Boolean
+  isSponsored       Boolean?
   sponsorCompanyId  Int?
+  companyName       String?
   university        String?
   faculty           String?
+  graduationYear    Int?
   industry          String?
   domains           Json?
   supervisor        String?
+  supervisorEmail   String?
   coSupervisor      String?
+  coSupervisorEmail String?
   projectTitle      String
+  projectSummary    String?   @db.Text
   noOfStudents      Int?
+  companyMentorName String?   @db.Text
   documentationLink String?
   postedAt          DateTime  @default(now())
 
@@ -17,5 +23,8 @@ model GraduationProject {
   sponsorCompany   Company?  @relation(fields: [sponsorCompanyId], references: [id], onDelete: SetNull)
   applications     GraduationProjectApplication[]
 
+  @@index([university])
+  @@index([graduationYear])
+  @@index([companyName])
   @@map("graduationProjects")
 }
