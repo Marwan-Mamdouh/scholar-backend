@@ -1,4 +1,4 @@
-import { db } from "../../db/db_config.js"
+/*import { db } from "../../db/db_config.js"
 import { Prisma } from "@prisma/client";
 import type { PaginationMeta } from "../../utils/pagination.util.js";
 import { buildPaginatedResponse } from "../../utils/pagination.util.js";
@@ -680,3 +680,5 @@ const publicationService = {
 };
 
 export default publicationService;
+
+*/

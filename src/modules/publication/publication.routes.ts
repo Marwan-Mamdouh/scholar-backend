@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from "express";
+/*import { Router, type Request, type Response } from "express";
 import isAuthenticated from "../../middlewares/auth.js";
 import isAdmin from "../../middlewares/authorize.js";
 import asyncHandler from "../../lib/async.handler.js";
@@ -18,11 +18,11 @@ router.post(
     "/domain",
     isAuthenticated,
     isAdmin,
-	validate(domainSchema),
+    validate(domainSchema),
     asyncHandler(async (req: TypedRequest<domain>, res: Response) => {
-		const domainData = req.validatedData;
-		const addedDomain = await publicationService.addDomain(domainData);
-		res.status(201).json({ success: true, message: "publication domain added.", data: addedDomain });
+        const domainData = req.validatedData;
+        const addedDomain = await publicationService.addDomain(domainData);
+        res.status(201).json({ success: true, message: "publication domain added.", data: addedDomain });
     })
 )
 
@@ -31,20 +31,20 @@ router.post(
 router.get(
     "/domain",
     asyncHandler(async (req: Request, res: Response) => {
-		const domains = await publicationService.getAllDomains();
-		res.json(domains);
+        const domains = await publicationService.getAllDomains();
+        res.json(domains);
     })
 )
 // delete admin
 router.delete(
     "/domain",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(domainFilterSchema),
+    validate(domainFilterSchema),
     asyncHandler(async (req: TypedRequest<domainFilter>, res: Response) => {
-		const domainFilter = req.validatedData;
-		await publicationService.removeDomain(domainFilter);
-		res.sendStatus(204);
+        const domainFilter = req.validatedData;
+        await publicationService.removeDomain(domainFilter);
+        res.sendStatus(204);
     })
 )
 
@@ -53,13 +53,13 @@ router.delete(
 // post admin
 router.post(
     "/subCategory",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(subCategorySchema),
+    validate(subCategorySchema),
     asyncHandler(async (req: TypedRequest<subCategory>, res: Response) => {
-		const subCategoryData = req.validatedData;
-		const addedSubCategory = await publicationService.addSubCategory(subCategoryData);
-		res.status(201).json({ success: true, message: "publication subCategory added.", data: addedSubCategory });
+        const subCategoryData = req.validatedData;
+        const addedSubCategory = await publicationService.addSubCategory(subCategoryData);
+        res.status(201).json({ success: true, message: "publication subCategory added.", data: addedSubCategory });
     })
 )
 
@@ -67,21 +67,21 @@ router.post(
 router.get(
     "/subCategory",
     asyncHandler(async (req: Request, res: Response) => {
-		const subcategories = await publicationService.getAllSubcategories();
-		res.json(subcategories);
+        const subcategories = await publicationService.getAllSubcategories();
+        res.json(subcategories);
     })
 )
 
 // delete admin
 router.delete(
     "/subCategory",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(subCategoryFilterSchema),
+    validate(subCategoryFilterSchema),
     asyncHandler(async (req: TypedRequest<subCategoryFilter>, res: Response) => {
-		const subCategoryFilter = req.validatedData;
-		await publicationService.removesubCategory(subCategoryFilter);
-		res.sendStatus(204);
+        const subCategoryFilter = req.validatedData;
+        await publicationService.removesubCategory(subCategoryFilter);
+        res.sendStatus(204);
     })
 )
 
@@ -90,13 +90,13 @@ router.delete(
 // post admin
 router.post(
     "/",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationSchema),
+    validate(publicationSchema),
     asyncHandler(async (req: TypedRequest<publication>, res: Response) => {
-		const publicationData = req.validatedData;
-		const addedPublication = await publicationService.addPublication(publicationData);
-		res.status(201).json({ success: true, message: "publication added.", data: addedPublication });
+        const publicationData = req.validatedData;
+        const addedPublication = await publicationService.addPublication(publicationData);
+        res.status(201).json({ success: true, message: "publication added.", data: addedPublication });
     })
 )
 
@@ -106,8 +106,8 @@ router.get(
     validate(publicationIDSchema,"query"),
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
         const publicationData = req.validatedData;
-		const publications = await publicationService.getPublication(publicationData);
-		res.json(publications);
+        const publications = await publicationService.getPublication(publicationData);
+        res.json(publications);
     })
 )
 
@@ -115,8 +115,8 @@ router.get(
 router.get(
     "/filter",
     asyncHandler(async (_: Request, res: Response) => {
-		const filterLimits = await publicationService.getFilterRanges();
-		res.json(filterLimits);
+        const filterLimits = await publicationService.getFilterRanges();
+        res.json(filterLimits);
     })
 )
 
@@ -124,8 +124,8 @@ router.get(
 router.get(
     "/all",
     asyncHandler(async (_: Request, res: Response) => {
-		const publications = await publicationService.getAllPublication();
-		res.json(publications);
+        const publications = await publicationService.getAllPublication();
+        res.json(publications);
     })
 )
 
@@ -145,26 +145,26 @@ router.get(
 // patch admin
 router.patch(
     "/",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationPatchSchema),
+    validate(publicationPatchSchema),
     asyncHandler(async (req: TypedRequest<publicationPatch>, res: Response) => {
-		const publicationData = req.validatedData;
-		const patchedPublication = await publicationService.patchPublication(publicationData);
-		res.status(201).json({ success: true, message: "publication patched.", data: patchedPublication });
+        const publicationData = req.validatedData;
+        const patchedPublication = await publicationService.patchPublication(publicationData);
+        res.status(201).json({ success: true, message: "publication patched.", data: patchedPublication });
     })
 )
 
 // delete admin
 router.delete(
     "/",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationIDSchema),
+    validate(publicationIDSchema),
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
-		const publicationFilter = req.validatedData;
-		await publicationService.removePublication(publicationFilter);
-		res.sendStatus(204);
+        const publicationFilter = req.validatedData;
+        await publicationService.removePublication(publicationFilter);
+        res.sendStatus(204);
     })
 )
 
@@ -173,13 +173,13 @@ router.delete(
 // post admin
 router.post(
     "/metrics",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationMetricsSchema),
+    validate(publicationMetricsSchema),
     asyncHandler(async (req: TypedRequest<publicationMetrics>, res: Response) => {
-		const metricsData = req.validatedData;
-		const addedMetrics = await publicationService.addMetrics(metricsData);
-		res.status(201).json({ success: true, message: "metrics added.", data: addedMetrics });
+        const metricsData = req.validatedData;
+        const addedMetrics = await publicationService.addMetrics(metricsData);
+        res.status(201).json({ success: true, message: "metrics added.", data: addedMetrics });
     })
 )
 
@@ -189,8 +189,8 @@ router.get(
     validate(publicationMetricsIDSchema,"query"),
     asyncHandler(async (req: TypedRequest<publicationMetricsID>, res: Response) => {
         const metricsData = req.validatedData;
-		const metrics = await publicationService.getMetrics(metricsData);
-		res.json(metrics);
+        const metrics = await publicationService.getMetrics(metricsData);
+        res.json(metrics);
     })
 )
 
@@ -198,26 +198,26 @@ router.get(
 // patch admin
 router.patch(
     "/metrics",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationMetricsPatchSchema),
+    validate(publicationMetricsPatchSchema),
     asyncHandler(async (req: TypedRequest<publicationMetricsPatch>, res: Response) => {
-		const metricsData = req.validatedData;
-		const patchedMetrics = await publicationService.patchMetrics(metricsData);
-		res.status(201).json({ success: true, message: "publication metrics patched.", data: patchedMetrics });
+        const metricsData = req.validatedData;
+        const patchedMetrics = await publicationService.patchMetrics(metricsData);
+        res.status(201).json({ success: true, message: "publication metrics patched.", data: patchedMetrics });
     })
 )
 
 // delete admin
 router.delete(
     "/metrics",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationMetricsIDSchema),
+    validate(publicationMetricsIDSchema),
     asyncHandler(async (req: TypedRequest<publicationMetricsID>, res: Response) => {
-		const publicationMetricsFilter = req.validatedData;
-		await publicationService.removeMetrics(publicationMetricsFilter);
-		res.sendStatus(204);
+        const publicationMetricsFilter = req.validatedData;
+        await publicationService.removeMetrics(publicationMetricsFilter);
+        res.sendStatus(204);
     })
 )
 
@@ -226,13 +226,13 @@ router.delete(
 // post admin
 router.post(
     "/editorial_stats",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationEditorialStatSchema),
+    validate(publicationEditorialStatSchema),
     asyncHandler(async (req: TypedRequest<PublicationEditorialStat>, res: Response) => {
-		const editorialStatsData = req.validatedData;
-		const addedeEitorialStats = await publicationService.addEditorialStats(editorialStatsData);
-		res.status(201).json({ success: true, message: "Eitorial Stats added.", data: addedeEitorialStats });
+        const editorialStatsData = req.validatedData;
+        const addedeEitorialStats = await publicationService.addEditorialStats(editorialStatsData);
+        res.status(201).json({ success: true, message: "Eitorial Stats added.", data: addedeEitorialStats });
     })
 )
 
@@ -242,8 +242,8 @@ router.get(
     validate(publicationIDSchema,"query"),
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
         const editorialStatsData = req.validatedData;
-		const editorialStats = await publicationService.getEditorialStats(editorialStatsData);
-		res.json(editorialStats);
+        const editorialStats = await publicationService.getEditorialStats(editorialStatsData);
+        res.json(editorialStats);
     })
 )
 
@@ -251,26 +251,26 @@ router.get(
 // patch admin
 router.patch(
     "/editorial_stats",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationEditorialStatPatchSchema),
+    validate(publicationEditorialStatPatchSchema),
     asyncHandler(async (req: TypedRequest<PublicationEditorialStatPatch>, res: Response) => {
-		const editorialStatData = req.validatedData;
-		const patchedEditorialStat = await publicationService.patchEditorialStat(editorialStatData);
-		res.status(201).json({ success: true, message: "publication EditorialStat patched.", data: patchedEditorialStat });
+        const editorialStatData = req.validatedData;
+        const patchedEditorialStat = await publicationService.patchEditorialStat(editorialStatData);
+        res.status(201).json({ success: true, message: "publication EditorialStat patched.", data: patchedEditorialStat });
     })
 )
 
 // delete admin
 router.delete(
     "/editorial_stats",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationIDSchema),
+    validate(publicationIDSchema),
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
-		const editorialStatFilter = req.validatedData;
-		await publicationService.removeEditorialStat(editorialStatFilter);
-		res.sendStatus(204);
+        const editorialStatFilter = req.validatedData;
+        await publicationService.removeEditorialStat(editorialStatFilter);
+        res.sendStatus(204);
     })
 )
 // ? pricing
@@ -278,13 +278,13 @@ router.delete(
 // post admin
 router.post(
     "/pricing",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationPricingSchema),
+    validate(publicationPricingSchema),
     asyncHandler(async (req: TypedRequest<PublicationPricing>, res: Response) => {
-		const pricingData = req.validatedData;
-		const addedePricing = await publicationService.addPricing(pricingData);
-		res.status(201).json({ success: true, message: "Pricing added.", data: addedePricing });
+        const pricingData = req.validatedData;
+        const addedePricing = await publicationService.addPricing(pricingData);
+        res.status(201).json({ success: true, message: "Pricing added.", data: addedePricing });
     })
 )
 
@@ -294,8 +294,8 @@ router.get(
     validate(publicationIDSchema,"query"),
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
         const pricingData = req.validatedData;
-		const pricing = await publicationService.getPricing(pricingData);
-		res.json(pricing);
+        const pricing = await publicationService.getPricing(pricingData);
+        res.json(pricing);
     })
 )
 
@@ -303,27 +303,31 @@ router.get(
 // patch admin
 router.patch(
     "/pricing",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationPricingPatchSchema),
+    validate(publicationPricingPatchSchema),
     asyncHandler(async (req: TypedRequest<PublicationPricingPatch>, res: Response) => {
-		const pricingData = req.validatedData;
-		const patchedPricing = await publicationService.patchPricing(pricingData);
-		res.status(201).json({ success: true, message: "publication pricing patched.", data: patchedPricing });
+        const pricingData = req.validatedData;
+        const patchedPricing = await publicationService.patchPricing(pricingData);
+        res.status(201).json({ success: true, message: "publication pricing patched.", data: patchedPricing });
     })
 )
 
 // delete admin
 router.delete(
     "/pricing",
-	isAuthenticated,
+    isAuthenticated,
     isAdmin,
-	validate(publicationIDSchema),
+    validate(publicationIDSchema),
     asyncHandler(async (req: TypedRequest<publicationID>, res: Response) => {
-		const pricingFilter = req.validatedData;
-		await publicationService.removePricing(pricingFilter);
-		res.sendStatus(204);
+        const pricingFilter = req.validatedData;
+        await publicationService.removePricing(pricingFilter);
+        res.sendStatus(204);
     })
 )
 
 export default router;
+
+
+
+*/

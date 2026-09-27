@@ -1,4 +1,5 @@
-import supabase from "../../lib/db.js";
+/*import { db } from "../../db/db_config.js"
+import { Prisma } from "@prisma/client";
 import type { PaginationQuery } from "../../middlewares/pagination.js";
 import ExcelJS from "exceljs";
 import axios from "axios";
@@ -226,3 +227,6 @@ const researchersService = {
 };
 
 export default researchersService;
+
+
+*/

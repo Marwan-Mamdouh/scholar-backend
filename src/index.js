@@ -31,19 +31,17 @@ import os from "node:os";
 import * as cheerio from "cheerio";
 import logger from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/error.js";
-import feedbackRouter from "./modules/feedback/feedback.routes.js";
-import researchersRouter from "./modules/researchers/researchers.routes.js";
-import healthRouter from "./modules/health/health.routes.js";
-import teamRouter from "./modules/team/team.routes.js";
-import publicationsRouter from "./modules/publication/publication.routes.js";
-import usersRouter from "./modules/users/users.routes.ts";
 import { extractTopField, extractData } from "./utils/extractors.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/authentication/auth.js";
 
+import researchersRouter from "./routers/researchers/researchersRouter.ts"
+
+
+
 // --- APP CONFIGURATION ---
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // Middleware
 // Authentication Routes (SHOULD BE ABOVE THE JSON PARSING)
@@ -55,12 +53,18 @@ app.use(logger); // Custom logging middleware to log all requests with timestamp
 app.use(cookieParser());
 // app.use(errorHandler);
 
-app.use("/api", researchersRouter);
-app.use("/api/publication", publicationsRouter);
+app.use("/api/researchers", researchersRouter);
+
+/*
+////////////////app.use("/api/papers", papersRouter);
+app.use("/api/publications", publicationsRouter);
+////////////////app.use("/api/projects", projectsRouter);
 app.use("/api/team", teamRouter);
 app.use('/api/health', healthRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/users", usersRouter);
+*/
+
 
 // ================================================================
 //  SECTION: ACADEMIC SCANNER API (Researcher Analysis)

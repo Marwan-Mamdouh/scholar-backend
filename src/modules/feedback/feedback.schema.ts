@@ -1,4 +1,4 @@
-import z from "zod";
+/*import z from "zod";
 
 export const feedbackSchema = z.object({
 	name: z.string().trim().max(100),
@@ -8,3 +8,4 @@ export const feedbackSchema = z.object({
 });
 
 export type Feedback = z.infer<typeof feedbackSchema>;
+*/

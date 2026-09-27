@@ -1,4 +1,4 @@
-import supabase from "../../lib/db.js";
+/*import supabase from "../../lib/db.js";
 const BUCKET = "uploads";
 
 const storageService = {
@@ -26,3 +26,6 @@ const storageService = {
 };
 
 export default storageService;
+
+
+*/

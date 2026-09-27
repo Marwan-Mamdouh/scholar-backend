@@ -1,4 +1,4 @@
-import { Router, type Response } from "express";
+/*import { Router, type Response } from "express";
 import supabase from "../../lib/db.js";
 import env from "../../config/env.js";
 
@@ -16,3 +16,7 @@ router.get("/", (_, res: Response) => {
 });
 
 export default router;
+
+
+
+*/

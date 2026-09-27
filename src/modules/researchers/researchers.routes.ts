@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from "express";
+/*import { Router, type Request, type Response } from "express";
 import asyncHandler from "../../lib/async.handler.js";
 import researchersService from "./researchers.service.js";
 import { paginationMiddleware } from "../../middlewares/pagination.js";
@@ -17,6 +17,15 @@ import {
 import type { TypedRequest } from "../../types/Request.js";
 
 const router = Router();
+
+
+router.get("/" , async(req , res , next )={
+	const 
+})
+
+
+
+
 
 // 1. Fetch distinct Main Topics
 router.get(
@@ -93,3 +102,5 @@ router.post(
 );
 
 export default router;
+
+*/

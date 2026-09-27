@@ -1,4 +1,4 @@
-import { Router, type Response } from "express";
+/*import { Router, type Response } from "express";
 import isAuthenticated from "../../middlewares/auth.js";
 import isAdmin from "../../middlewares/authorize.js";
 import asyncHandler from "../../lib/async.handler.js";
@@ -33,3 +33,4 @@ router.post(
 );
 
 export default router;
+*/

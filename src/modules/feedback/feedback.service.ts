@@ -1,4 +1,4 @@
-import supabase from "../../lib/db.js";
+/*import supabase from "../../lib/db.js";
 import type { PaginationQuery } from "../../middlewares/pagination.js";
 import { buildPaginatedResponse } from "../../utils/pagination.util.js";
 import type { Feedback } from "./feedback.schema.js";
@@ -39,3 +39,6 @@ const feedbackService = {
 };
 
 export default feedbackService;
+
+
+*/
