@@ -21,18 +21,28 @@ const getLevel = (status: number): keyof typeof statusColorMap =>
 	status >= 500 ? "error" : status >= 400 ? "warn" : "info";
 
 // sanitize sensitive fields (extend later if needed)
-const sanitizeBody = (body: any) => {
+export function sanitizeBody(
+	body: any,
+	sensitiveKeys = ["password", "token", "accesstoken", "secret"],
+): any {
 	if (!body) return undefined;
 
-	const clone = { ...body };
-	const sensitiveKeys = ["password", "token", "accessToken"];
+	const keysToMask = new Set(sensitiveKeys.map((k) => k.toLowerCase()));
 
-	sensitiveKeys.forEach((key) => {
-		if (key in clone) clone[key] = "***";
-	});
-
-	return clone;
-};
+	try {
+		return JSON.parse(
+			JSON.stringify(body, (key, value) => {
+				if (key && keysToMask.has(key.toLowerCase())) {
+					return "MASKED";
+				}
+				return value;
+			}),
+		);
+	} catch {
+		// Fallback in case of circular references or serialization error
+		return body;
+	}
+}
 
 const logger = (req: Request, res: Response, next: NextFunction) => {
 	const start = process.hrtime.bigint();

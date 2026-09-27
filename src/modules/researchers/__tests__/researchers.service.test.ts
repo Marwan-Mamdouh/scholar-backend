@@ -130,4 +130,97 @@ describe("researchersService", () => {
 			expect(result.collaborators[0].name).toBe("Jane Smith");
 		});
 	});
+
+	describe("uploadResearchers", () => {
+		it("should parse researchers and insert them into database", async () => {
+			const ExcelJS = (await import("exceljs")).default;
+			const wb = new ExcelJS.Workbook();
+			const ws = wb.addWorksheet("Computer Science");
+
+			ws.addRow(["Name", "Affiliation", "Subtopics", "Scholar Link"]);
+			ws.addRow([
+				"Dr. Alice Smith",
+				"MIT",
+				"Deep Learning",
+				{
+					text: "Google Scholar Profile",
+					hyperlink: "https://scholar.google.com/citations?user=alice123",
+				},
+			]);
+			ws.addRow([
+				"Bob Jones",
+				"Stanford",
+				"NLP",
+				"https://www.semanticscholar.org/author/bob/98765",
+			]);
+
+			const buffer = await wb.xlsx.writeBuffer();
+
+			let insertedRows: any[] = [];
+			(supabase.from as any).mockReturnValue({
+				delete: vi.fn(() => ({
+					neq: vi.fn(() => Promise.resolve({ error: null })),
+				})),
+				insert: vi.fn((data) => {
+					insertedRows = data;
+					return Promise.resolve({ error: null });
+				}),
+			});
+
+			const count = await researchersService.uploadResearchers(
+				Buffer.from(buffer),
+				{
+					clear_db: true,
+					main_topic: "Fallback Topic",
+				},
+			);
+
+			expect(count).toBe(2);
+			expect(insertedRows).toHaveLength(2);
+			expect(insertedRows[0]).toEqual({
+				name: "Dr. Alice Smith",
+				affiliation: "MIT",
+				main_topic: "Computer Science",
+				subtopics: "Deep Learning",
+				scholar_id: "alice123",
+			});
+			expect(insertedRows[1]).toEqual({
+				name: "Bob Jones",
+				affiliation: "Stanford",
+				main_topic: "Computer Science",
+				subtopics: "NLP",
+				scholar_id: "98765",
+			});
+		});
+
+		it("should fallback to main_topic when sheet name is Sheet1", async () => {
+			const ExcelJS = (await import("exceljs")).default;
+			const wb = new ExcelJS.Workbook();
+			const ws = wb.addWorksheet("Sheet1");
+
+			ws.addRow(["Name", "Affiliation", "Subtopics", "Scholar Link"]);
+			ws.addRow(["Carol", "Oxford", "AI", ""]);
+
+			const buffer = await wb.xlsx.writeBuffer();
+			let insertedRows: any[] = [];
+			(supabase.from as any).mockReturnValue({
+				insert: vi.fn((data) => {
+					insertedRows = data;
+					return Promise.resolve({ error: null });
+				}),
+			});
+
+			const count = await researchersService.uploadResearchers(
+				Buffer.from(buffer),
+				{
+					clear_db: false,
+					main_topic: "Biology",
+				},
+			);
+
+			expect(count).toBe(1);
+			expect(insertedRows[0].main_topic).toBe("Biology");
+		});
+	});
 });
+

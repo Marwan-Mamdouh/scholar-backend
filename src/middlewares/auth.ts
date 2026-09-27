@@ -1,24 +1,26 @@
-import jwt from "jsonwebtoken";
-import { authConfig } from "../config/index.js";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth } from "../lib/authentication/auth.js";
 import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../types/AuthRequest.js";
 
-// Middleware to extract user from token (Reuse your isAdmin logic or make a generic one)
-const isAuthenticated = (
+const isAuthenticated = async (
 	req: AuthRequest,
 	res: Response,
 	next: NextFunction,
 ) => {
-	const token = req.cookies.auth_token;
-	if (!token)
-		return res.status(401).json({ error: "Access Denied. No token provided." });
 	try {
-		const decoded = jwt.verify(token, authConfig.jwtSecret) as jwt.JwtPayload;
-		req.user = decoded;
+		const session = await auth.api.getSession({
+			headers: fromNodeHeaders(req.headers),
+		});
+		if (!session) {
+			return res.status(401).json({ error: "Access Denied. No session." });
+		}
+		req.user = session.user;
+		req.session = session.session;
 		next();
 	} catch (ex) {
-		console.error("Token verification failed:", ex);
-		res.status(400).json({ error: "Invalid token." });
+		console.error("Session verification failed:", ex);
+		res.status(401).json({ error: "Invalid session." });
 	}
 };
 

@@ -1,5 +1,5 @@
 import { TeamCategory, type TeamMember } from "@prisma/client";
-import db from "../../db/db_config.js";
+import {db} from "../../db/db_config.js";
 import { NotFoundError } from "../../lib/error/index.js";
 import type { CreateTeamMember, UpdateTeamMember } from "./team.schema.js";
 

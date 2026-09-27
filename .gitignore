@@ -7,3 +7,16 @@
 # Testing
 coverage/
 *.lcov
+
+# Python
+__pycache__/
+*.pyc
+
+# Backups
+.local_backups/
+
+# Database & Data files
+/nexus.db
+/publications.xlsx
+*.db
+*.xlsx
