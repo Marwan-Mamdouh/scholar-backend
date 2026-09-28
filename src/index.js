@@ -36,7 +36,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/authentication/auth.js";
 
 import researchersRouter from "./routers/researchers/researchersRouter.ts"
-
+import papersRouter from "./routers/papers/papersRouter.ts"
 
 
 // --- APP CONFIGURATION ---
@@ -54,6 +54,8 @@ app.use(cookieParser());
 // app.use(errorHandler);
 
 app.use("/api/researchers", researchersRouter);
+app.use("/api/papers", papersRouter);
+
 
 /*
 ////////////////app.use("/api/papers", papersRouter);
