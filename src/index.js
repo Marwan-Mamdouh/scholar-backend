@@ -45,15 +45,9 @@ import projectsRouter from "./routers/projects/projectsRouter.ts"
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
+
 // Authentication Routes (SHOULD BE ABOVE THE JSON PARSING)
 app.all("/api/auth/*path", toNodeHandler(auth));
-app.use(express.json());
-app.use(cors());
-
-app.use(logger); // Custom logging middleware to log all requests with timestamps and details
-app.use(cookieParser());
-// app.use(errorHandler);
 
 app.use("/api/researchers", researchersRouter);
 app.use("/api/papers", papersRouter);
@@ -68,6 +62,16 @@ app.use('/api/health', healthRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/users", usersRouter);
 */
+
+
+
+app.use(express.json());
+app.use(cors());
+
+app.use(logger); // Custom logging middleware to log all requests with timestamps and details
+app.use(cookieParser());
+// app.use(errorHandler);
+
 
 
 // ================================================================
