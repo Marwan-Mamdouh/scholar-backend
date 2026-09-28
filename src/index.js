@@ -37,7 +37,7 @@ import { auth } from "./lib/authentication/auth.js";
 
 import researchersRouter from "./routers/researchers/researchersRouter.ts"
 import papersRouter from "./routers/papers/papersRouter.ts"
-
+import publicationsRouter from "./routers/publications/publicationsRouter.ts"
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -55,6 +55,7 @@ app.use(cookieParser());
 
 app.use("/api/researchers", researchersRouter);
 app.use("/api/papers", papersRouter);
+app.use("/api/publications", publicationsRouter);
 
 
 /*
