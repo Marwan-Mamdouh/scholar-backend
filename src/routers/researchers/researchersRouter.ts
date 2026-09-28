@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { getAllResearchersController, getResearchersByQueryController } from "../../controllers/researchers/researchersControllers.ts";
+import { getResearchersController } from "../../controllers/researchers/researchersControllers.ts";
 const router = Router();
 
 
-router.get("/", getAllResearchersController);
+router.get("/", getResearchersController);
 
-router.get("/search", getResearchersByQueryController);
 
 
 
