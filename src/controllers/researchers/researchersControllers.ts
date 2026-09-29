@@ -133,3 +133,211 @@ export const getResearchersController = async (req, res) => {
         });
     }
 };
+
+
+
+export const getResearcherByIdController = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const researcherId = parseInt(id as string, 10);
+
+        if (isNaN(researcherId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid researcher ID provided",
+            });
+        }
+
+        const researcher = await db.academicResearcher.findUnique({
+            where: { id: researcherId },
+        });
+
+        if (!researcher) {
+            return res.status(404).json({
+                success: false,
+                message: "Researcher not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: researcher,
+            message: "Researcher retrieved successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching researcher by ID:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+
+export const createResearcherController = async (req, res) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            mainTopic,
+            institutionName,
+            scholarId,
+            department,
+        } = req.body;
+
+        if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "First name is required",
+            });
+        }
+
+        if (!lastName || typeof lastName !== "string" || !lastName.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Last name is required",
+            });
+        }
+
+        const newResearcher = await db.academicResearcher.create({
+            data: {
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                mainTopic: mainTopic ? String(mainTopic).trim() : null,
+                institutionName: institutionName
+                    ? String(institutionName).trim()
+                    : null,
+                scholarId: scholarId ? String(scholarId).trim() : null,
+                department: department ? String(department).trim() : null,
+            },
+        });
+
+        return res.status(201).json({
+            success: true,
+            data: newResearcher,
+            message: "Researcher created successfully",
+        });
+    } catch (error) {
+        console.error("Error creating researcher:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+export const updateResearcherController = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const researcherId = parseInt(id as string, 10);
+
+        if (isNaN(researcherId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid researcher ID provided",
+            });
+        }
+
+        const existingResearcher = await db.academicResearcher.findUnique({
+            where: { id: researcherId },
+        });
+
+        if (!existingResearcher) {
+            return res.status(404).json({
+                success: false,
+                message: "Researcher not found",
+            });
+        }
+
+        const {
+            firstName,
+            lastName,
+            mainTopic,
+            institutionName,
+            scholarId,
+            department,
+        } = req.body;
+
+        const updatedResearcher = await db.academicResearcher.update({
+            where: { id: researcherId },
+            data: {
+                ...(firstName !== undefined && {
+                    firstName: firstName ? String(firstName).trim() : null,
+                }),
+                ...(lastName !== undefined && {
+                    lastName: lastName ? String(lastName).trim() : null,
+                }),
+                ...(mainTopic !== undefined && {
+                    mainTopic: mainTopic ? String(mainTopic).trim() : null,
+                }),
+                ...(institutionName !== undefined && {
+                    institutionName: institutionName
+                        ? String(institutionName).trim()
+                        : null,
+                }),
+                ...(scholarId !== undefined && {
+                    scholarId: scholarId ? String(scholarId).trim() : null,
+                }),
+                ...(department !== undefined && {
+                    department: department ? String(department).trim() : null,
+                }),
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: updatedResearcher,
+            message: "Researcher updated successfully",
+        });
+    } catch (error) {
+        console.error("Error updating researcher:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+export const deleteResearcherController = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const researcherId = parseInt(id as string, 10);
+
+        if (isNaN(researcherId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid researcher ID provided",
+            });
+        }
+
+        const existingResearcher = await db.academicResearcher.findUnique({
+            where: { id: researcherId },
+        });
+
+        if (!existingResearcher) {
+            return res.status(404).json({
+                success: false,
+                message: "Researcher not found",
+            });
+        }
+
+        await db.academicResearcher.delete({
+            where: { id: researcherId },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Researcher deleted successfully",
+        });
+    } catch (error) {
+        console.error("Error deleting researcher:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
