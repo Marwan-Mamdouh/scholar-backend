@@ -37,34 +37,17 @@ import { auth } from "./lib/authentication/auth.js";
 
 import researchersRouter from "./routers/researchers/researchersRouter.ts"
 import papersRouter from "./routers/papers/papersRouter.ts"
-import publicationsRouter from "./routers/publications/publicationsRouter.ts"
-import projectsRouter from "./routers/projects/projectsRouter.ts"
+import profileRouter from "./routers/profilePage/profileRouter.ts"; 
+
 
 
 // --- APP CONFIGURATION ---
 const app = express();
 const port = process.env.PORT || 5000;
 
-
+// Middleware
 // Authentication Routes (SHOULD BE ABOVE THE JSON PARSING)
 app.all("/api/auth/*path", toNodeHandler(auth));
-
-app.use("/api/researchers", researchersRouter);
-app.use("/api/papers", papersRouter);
-app.use("/api/publications", publicationsRouter);
-app.use("/api/projects", projectsRouter);
-
-
-
-/*
-app.use("/api/team", teamRouter);
-app.use('/api/health', healthRouter);
-app.use("/api/feedback", feedbackRouter);
-app.use("/api/users", usersRouter);
-*/
-
-
-
 app.use(express.json());
 app.use(cors());
 
@@ -72,6 +55,19 @@ app.use(logger); // Custom logging middleware to log all requests with timestamp
 app.use(cookieParser());
 // app.use(errorHandler);
 
+app.use("/api/researchers", researchersRouter);
+app.use("/api/papers", papersRouter);
+app.use("/api/profile", profileRouter);
+
+/*
+////////////////app.use("/api/papers", papersRouter);
+app.use("/api/publications", publicationsRouter);
+////////////////app.use("/api/projects", projectsRouter);
+app.use("/api/team", teamRouter);
+app.use('/api/health', healthRouter);
+app.use("/api/feedback", feedbackRouter);
+app.use("/api/users", usersRouter);
+*/
 
 
 // ================================================================
