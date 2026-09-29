@@ -41,7 +41,7 @@ import profileRouter from "./routers/profilePage/profileRouter.ts";
 import projectsRouter from "./routers/projects/projectsRouter.ts";
 import publicationsRouter from "./routers/publications/publicationsRouter.ts"
 import companiesRouter from "./routers/companies/companiesRouter.ts"
-
+import jobsRouter from "./routers/jobs/jobsRouter.ts"
 
 // --- APP CONFIGURATION ---
 const app = express();
@@ -63,10 +63,10 @@ app.use("/api/profile", profileRouter);
 app.use("/api/publications", publicationsRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/companies", companiesRouter);
-
+app.use("/api/jobs", jobsRouter);
 
 /*
-////////////////app.use("/api/papers", papersRouter);
+////////////////
 ////////////////
 app.use("/api/team", teamRouter);
 app.use('/api/health', healthRouter);
