@@ -2,7 +2,7 @@ import { db } from "../../db/db_config.js";
 
 export const createProfileController = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user.id;
         const {
             firstName,
             lastName,
@@ -64,7 +64,7 @@ export const createProfileController = async (req, res) => {
 //  Update 
 export const updateProfileController = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user.id;
         const {
             firstName,
             lastName,
@@ -108,7 +108,7 @@ export const updateProfileController = async (req, res) => {
             data: updatedProfile,
         });
     } catch (error) {
-        
+
         if (error.code === "P2025") {
             return res.status(404).json({
                 success: false,
@@ -119,6 +119,39 @@ export const updateProfileController = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Failed to update profile",
+            error: error.message,
+        });
+    }
+};
+
+
+export const getProfileController = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const profile = await db.profile.findUnique({
+            where: { userId },
+        });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile fetched successfully",
+            data: profile,
+        });
+
+    } catch (error) {
+        console.error("getProfileController error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch profile",
             error: error.message,
         });
     }
