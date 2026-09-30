@@ -16,17 +16,85 @@ type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
 export const getPublicationsController = async (req, res) => {
     try {
         const {
+            search = "",
             page = "1",
             limit = "10",
             sortBy = "id",
             sortOrder = "asc",
         } = req.query;
 
-        const pageNumber = Math.max(1, parseInt(String(page), 10) || 1);
+        const pageNumber = Math.max(
+            1,
+            parseInt(String(page), 10) || 1
+        );
+
         const limitNumber = Math.min(
             100,
             Math.max(1, parseInt(String(limit), 10) || 10)
         );
+
+        const searchTerm = String(search).trim();
+
+        const where = {
+            ...(searchTerm && {
+                OR: [
+                    {
+                        title: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        acronym: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        URL: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        imprint: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        specificFocusScope: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        journalScope: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        issn: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        eissn: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        issnCdrom: {
+                            contains: searchTerm,
+                            mode: "insensitive",
+                        },
+                    },
+                ],
+            }),
+        };
 
         const sortField: SortField = ALLOWED_SORT_FIELDS.includes(
             sortBy as SortField
@@ -35,10 +103,13 @@ export const getPublicationsController = async (req, res) => {
             : "id";
 
         const order: "asc" | "desc" =
-            String(sortOrder).toLowerCase() === "desc" ? "desc" : "asc";
+            String(sortOrder).toLowerCase() === "desc"
+                ? "desc"
+                : "asc";
 
         const [publications, total] = await Promise.all([
             db.academicPublication.findMany({
+                where,
                 take: limitNumber,
                 skip: (pageNumber - 1) * limitNumber,
                 orderBy: {
@@ -48,10 +119,13 @@ export const getPublicationsController = async (req, res) => {
                     subCategory: true,
                 },
             }),
-            db.academicPublication.count(),
+
+            db.academicPublication.count({
+                where,
+            }),
         ]);
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: publications,
             pagination: {
@@ -63,7 +137,8 @@ export const getPublicationsController = async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching publications:", error);
-        res.status(500).json({
+
+        return res.status(500).json({
             success: false,
             message: "Internal server error",
         });
