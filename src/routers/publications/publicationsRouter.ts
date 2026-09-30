@@ -6,15 +6,16 @@ import {
     updatePublicationController,
     deletePublicationController
 } from "../../controllers/publications/publicationsController.ts";
+import isAuthenticated from "../../middlewares/auth.ts";
 
 const router = Router();
 
 
 router.get("/", getPublicationsController);
 router.get("/:id", getPublicationByIdController);
-router.post("/", createPublicationController);
-router.patch("/:id", updatePublicationController);
-router.delete("/:id", deletePublicationController);
+router.post("/", isAuthenticated, createPublicationController);
+router.patch("/:id", isAuthenticated, updatePublicationController);
+router.delete("/:id", isAuthenticated, deletePublicationController);
 
 
 export default router;

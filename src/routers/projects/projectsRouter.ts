@@ -6,14 +6,15 @@ import {
     updateProjectController,
     deleteProjectController,
 } from "../../controllers/projects/projectsController.ts";
+import isAuthenticated from "../../middlewares/auth.js";
 
 const router = Router();
 
 
 router.get("/", getProjectsController);
 router.get("/:id", getProjectsByIdController);
-router.post("/", createProjectController);
-router.patch("/:id", updateProjectController);
-router.delete("/:id", deleteProjectController);
+router.post("/", isAuthenticated, createProjectController);
+router.patch("/:id", isAuthenticated, updateProjectController);
+router.delete("/:id", isAuthenticated, deleteProjectController);
 
 export default router;

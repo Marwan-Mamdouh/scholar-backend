@@ -66,8 +66,6 @@ app.use("/api/companies", companiesRouter);
 app.use("/api/jobs", jobsRouter);
 
 /*
-////////////////
-////////////////
 app.use("/api/team", teamRouter);
 app.use('/api/health', healthRouter);
 app.use("/api/feedback", feedbackRouter);

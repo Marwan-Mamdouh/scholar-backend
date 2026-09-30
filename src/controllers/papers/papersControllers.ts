@@ -18,23 +18,63 @@ export const getPapersController = async (req, res) => {
             order = "desc",
         } = req.query;
 
-        const pageNum = Math.max(1, parseInt(page));
-        const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
+        const pageNum = Math.max(1, parseInt(page, 10) || 1);
+        const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
+
+        const yearNum = year ? parseInt(year, 10) : undefined;
+
+        if (year && (!Number.isInteger(yearNum) || yearNum < 1)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid publication year",
+            });
+        }
 
         const where = {
-            ...(search && {
+            ...(search.trim() && {
                 OR: [
-                    { title: { contains: search } },
-                    { subtitle: { contains: search } },
-                    { journalTitle: { contains: search } },
-                    { doi: { contains: search } },
-                    { sourceName: { contains: search } },
+                    {
+                        title: {
+                            contains: search.trim(),
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        subtitle: {
+                            contains: search.trim(),
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        journalTitle: {
+                            contains: search.trim(),
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        doi: {
+                            contains: search.trim(),
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        sourceName: {
+                            contains: search.trim(),
+                            mode: "insensitive",
+                        },
+                    },
                 ],
             }),
-            ...(year && { publicationYear: parseInt(year) }),
+            ...(yearNum && { publicationYear: yearNum }),
         };
 
-        const validSortFields = ["publicationYear", "createdAt", "title", "journalTitle"];
+        const validSortFields = [
+            "publicationYear",
+            "createdAt",
+            "title",
+            "journalTitle",
+        ];
+
         const orderBy = validSortFields.includes(sortBy)
             ? { [sortBy]: order === "asc" ? "asc" : "desc" }
             : { publicationYear: "desc" };
@@ -47,16 +87,23 @@ export const getPapersController = async (req, res) => {
                 take: limitNum,
                 include: {
                     staff: {
-                        select: { id: true, name: true },
+                        select: {
+                            id: true,
+                            name: true,
+                        },
                     },
                 },
             }),
+
             db.researchPaper.count({ where }),
         ]);
 
-        const serialized = papers.map(p => ({
-            ...p,
-            putCode: p.putCode !== null ? p.putCode.toString() : null,
+        const serialized = papers.map((paper) => ({
+            ...paper,
+            putCode:
+                paper.putCode !== null
+                    ? paper.putCode.toString()
+                    : null,
         }));
 
         return res.status(200).json({
@@ -71,6 +118,7 @@ export const getPapersController = async (req, res) => {
         });
     } catch (error) {
         console.error("getPapersController error:", error);
+
         return res.status(500).json({
             success: false,
             message: "Failed to fetch research papers",

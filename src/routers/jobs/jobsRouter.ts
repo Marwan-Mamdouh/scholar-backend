@@ -7,13 +7,15 @@ import {
     deleteJobController,
 } from "../../controllers/jobs/jobsController.js";
 
+import isAuthenticated from "../../middlewares/auth.js";
+
 const router = Router();
 
 
 router.get("/", getJobsController);
 router.get("/:id", getJobByIdController);
-router.post("/", createJobController);
-router.patch("/:id", updateJobController);
-router.delete("/:id", deleteJobController);
+router.post("/", isAuthenticated, createJobController);
+router.patch("/:id", isAuthenticated, updateJobController);
+router.delete("/:id", isAuthenticated, deleteJobController);
 
 export default router;

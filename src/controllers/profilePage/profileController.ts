@@ -156,3 +156,27 @@ export const getProfileController = async (req, res) => {
         });
     }
 };
+
+
+export const deleteProfileController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const profile = await db.profile.delete({
+            where: { userId: id },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile deleted successfully",
+        });
+
+    } catch (error) {
+        console.error("deleteProfileController error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete profile",
+            error: error.message,
+        });
+    }
+};
