@@ -35,14 +35,14 @@ import { extractTopField, extractData } from "./utils/extractors.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/authentication/auth.js";
 
-import researchersRouter from "./routers/researchers/researchersRouter.ts"
-import papersRouter from "./routers/papers/papersRouter.ts"
+import researchersRouter from "./routers/researchers/researchersRouter.ts";
+import papersRouter from "./routers/papers/papersRouter.ts";
 import profileRouter from "./routers/profilePage/profileRouter.ts";
 import projectsRouter from "./routers/projects/projectsRouter.ts";
-import publicationsRouter from "./routers/publications/publicationsRouter.ts"
-import companiesRouter from "./routers/companies/companiesRouter.ts"
-import jobsRouter from "./routers/jobs/jobsRouter.ts"
-
+import publicationsRouter from "./routers/publications/publicationsRouter.ts";
+import companiesRouter from "./routers/companies/companiesRouter.ts";
+import jobsRouter from "./routers/jobs/jobsRouter.ts";
+import aboutRouter from "./routers/About/aboutRouter.ts";
 // --- APP CONFIGURATION ---
 const app = express();
 const port = process.env.PORT || 5000;
@@ -57,6 +57,8 @@ app.use(logger); // Custom logging middleware to log all requests with timestamp
 app.use(cookieParser());
 // app.use(errorHandler);
 
+
+
 app.use("/api/researchers", researchersRouter);
 app.use("/api/papers", papersRouter);
 app.use("/api/profile", profileRouter);
@@ -64,7 +66,7 @@ app.use("/api/publications", publicationsRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/companies", companiesRouter);
 app.use("/api/jobs", jobsRouter);
-
+app.use("/api/about", aboutRouter);
 /*
 app.use("/api/team", teamRouter);
 app.use('/api/health', healthRouter);
