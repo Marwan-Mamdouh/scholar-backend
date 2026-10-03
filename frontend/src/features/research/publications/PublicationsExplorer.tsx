@@ -2,51 +2,40 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import notFoundAnimation from "@/src/components/assets/NotFound.json";
-import { apiGet } from "@/src/lib/api-client";
+import { Input } from "@/src/components/ui/InputField/Input";
+import type { Paginated } from "@/src/lib/api-client";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
-import PublicationFilterBar from "./PublicationFilterBar";
 import PublicationsTable from "./PublicationsTable";
-import { buildSearchParams } from "./publication.api";
-import { EMPTY_FILTERS } from "./publication.constants";
-import type {
-  Publication,
-  PublicationDomain,
-  PublicationFilterRanges,
-  PublicationFilterResponse,
-  PublicationFilterState,
-} from "./publication.type";
+import { fetchPublications } from "./publication.api";
+import type { Publication } from "./publication.type";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
+// The backend currently supports search + pagination only. The richer filter UI
+// (PublicationFilterBar) is kept for when GET /api/publications accepts filter params again.
+
 interface PublicationsExplorerProps {
-  domains: PublicationDomain[];
-  ranges: PublicationFilterRanges;
-  initialPublications: Publication[];
+  initialPage: Paginated<Publication>;
 }
 
 type Status = "idle" | "loading" | "error";
 
-const PublicationsExplorer = ({
-  domains,
-  ranges,
-  initialPublications,
-}: PublicationsExplorerProps) => {
-  const [filters, setFilters] = useState<PublicationFilterState>(EMPTY_FILTERS);
-  const [publications, setPublications] =
-    useState<Publication[]>(initialPublications);
+const PAGE_BUTTON =
+  "flex items-center gap-1 rounded-full border border-accent-400 px-4 py-1.5 text-sm text-accent-200 hover:bg-accent-400/10 cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent";
+
+const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [result, setResult] = useState(initialPage);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
 
-  const debouncedSearch = useDebouncedValue(filters.search, 300);
+  const debouncedSearch = useDebouncedValue(search, 300);
 
-  const queryKey = buildSearchParams(
-    { ...filters, search: debouncedSearch },
-    ranges,
-  ).toString();
-
+  const queryKey = `${debouncedSearch.trim()}|${page}`;
   const loadedKeyRef = useRef(queryKey);
 
   useEffect(() => {
@@ -56,12 +45,10 @@ const PublicationsExplorer = ({
     setStatus("loading");
     setError(null);
 
-    apiGet<PublicationFilterResponse>(`/publication/search?${queryKey}`, {
-      signal: controller.signal,
-    })
+    fetchPublications({ search: debouncedSearch, page }, controller.signal)
       .then((data) => {
         loadedKeyRef.current = queryKey;
-        setPublications(data.data ?? []);
+        setResult(data);
         setStatus("idle");
       })
       .catch((cause: unknown) => {
@@ -75,24 +62,29 @@ const PublicationsExplorer = ({
       });
 
     return () => controller.abort();
-  }, [queryKey, reloadToken]);
+  }, [queryKey, debouncedSearch, page, reloadToken]);
 
-  const visible = publications;
+  const publications = result.data ?? [];
+  const { total, totalPages } = result.pagination;
 
   return (
     <div className="flex flex-col gap-6">
-      <PublicationFilterBar
-        filters={filters}
-        onChange={setFilters}
-        domains={domains}
-        ranges={ranges}
-      />
+      <div className="w-full lg:w-75">
+        <Input
+          placeholder="Search by title, acronym or ISSN"
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
 
       <div className="flex items-center justify-between gap-4 min-h-6">
         <span className="text-sm text-neutral-300">
           {status === "loading"
             ? "Loading publications…"
-            : `${visible.length} publication${visible.length === 1 ? "" : "s"}`}
+            : `${total} publication${total === 1 ? "" : "s"}`}
         </span>
         {status === "loading" && (
           <Loader2
@@ -116,7 +108,7 @@ const PublicationsExplorer = ({
             Try again
           </button>
         </div>
-      ) : visible.length === 0 ? (
+      ) : publications.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2.5 pt-10.5 pb-16">
           <Lottie
             animationData={notFoundAnimation}
@@ -124,20 +116,46 @@ const PublicationsExplorer = ({
             className="w-64 mx-auto"
           />
           <h3 className="text-2xl font-semibold text-accent-300">
-            No Publications Match Your Filters
+            No Publications Found
           </h3>
           <p className="text-neutral-100">
-            Try widening a range or clearing a filter to see more results.
+            Try a different title, acronym or ISSN.
           </p>
         </div>
       ) : (
         <div
-          className={`transition-opacity duration-300 ${status === "loading" ? "opacity-60" : "opacity-100"}`}
+          className={`flex flex-col gap-4 transition-opacity duration-300 ${status === "loading" ? "opacity-60" : "opacity-100"}`}
         >
-          <PublicationsTable
-            publications={visible}
-            currency={filters.currency}
-          />
+          <PublicationsTable publications={publications} />
+
+          {totalPages > 1 && (
+            <nav
+              aria-label="Publications pages"
+              className="flex items-center justify-center gap-4"
+            >
+              <button
+                type="button"
+                className={PAGE_BUTTON}
+                disabled={page <= 1 || status === "loading"}
+                onClick={() => setPage((current) => current - 1)}
+              >
+                <ChevronLeft className="size-4" aria-hidden="true" />
+                Previous
+              </button>
+              <span className="text-sm text-neutral-300">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                type="button"
+                className={PAGE_BUTTON}
+                disabled={page >= totalPages || status === "loading"}
+                onClick={() => setPage((current) => current + 1)}
+              >
+                Next
+                <ChevronRight className="size-4" aria-hidden="true" />
+              </button>
+            </nav>
+          )}
         </div>
       )}
     </div>

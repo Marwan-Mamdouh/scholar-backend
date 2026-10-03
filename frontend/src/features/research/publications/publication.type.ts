@@ -108,19 +108,17 @@ export interface Publication {
   imprint: string | null;
   subBucket: string | null;
   subCategory: PublicationSubCategory;
-  yearlyMetrics: PublicationYearlyMetric[];
-  pricings: PublicationPricing[];
-  editorialStats: PublicationEditorialStat[];
+  // Not returned by GET /api/publications yet (it only includes subCategory)
+  yearlyMetrics?: PublicationYearlyMetric[];
+  pricings?: PublicationPricing[];
+  editorialStats?: PublicationEditorialStat[];
 }
 
-export interface PublicationFilterResponse {
-  data: Publication[];
-  page: number;
-  limit: number;
-  totalItems: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
+/** Query params supported by GET /api/publications */
+export interface PublicationQuery {
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface NumericRange {

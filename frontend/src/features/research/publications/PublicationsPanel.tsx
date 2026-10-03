@@ -1,29 +1,20 @@
+import { connection } from "next/server";
 import PublicationsExplorer from "./PublicationsExplorer";
-import { EMPTY_FILTERS } from "./publication.constants";
-import {
-  fetchDomains,
-  fetchFilterRanges,
-  fetchPublications,
-} from "./publication.api";
+import { fetchPublications } from "./publication.api";
 
 export const PANEL_SHELL =
   "w-full bg-transparent border-2 border-accent-200 rounded-b-2xl rounded-tr-2xl p-6 min-h-100 flex flex-col gap-6 relative -mt-px";
 
 const PublicationsPanel = async () => {
+  // Fetch on every request, not once at build time
+  await connection();
+
   try {
-    const [domains, ranges, publications] = await Promise.all([
-      fetchDomains(),
-      fetchFilterRanges(),
-      fetchPublications(EMPTY_FILTERS),
-    ]);
+    const initialPage = await fetchPublications({ page: 1 });
 
     return (
       <div className={PANEL_SHELL}>
-        <PublicationsExplorer
-          domains={domains}
-          ranges={ranges}
-          initialPublications={publications}
-        />
+        <PublicationsExplorer initialPage={initialPage} />
       </div>
     );
   } catch (cause) {

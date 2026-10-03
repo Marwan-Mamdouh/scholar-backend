@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Building2,
@@ -11,6 +11,7 @@ import {
 import AuthShell from "../../components/auth/AuthShell";
 import Button from "../../components/ui/Button/Button";
 import { Input } from "../../components/ui/InputField/Input";
+import { signUpWithEmail } from "@/src/features/auth/auth.api";
 
 type SignupStage = "student" | "graduate" | "industry";
 type SignupStep = "stage" | "profile" | "success";
@@ -49,19 +50,9 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const signupPayload = useMemo(
-    () => ({
-      stage: selectedStage,
-      fullName,
-      email,
-      password,
-      confirmPassword,
-    }),
-    [confirmPassword, email, fullName, password, selectedStage],
-  );
-
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
     if (!fullName.trim()) {
       setFormError("Your Full Name Is Required");
       return;
@@ -83,7 +74,18 @@ export default function SignupPage() {
     }
 
     setFormError("");
-    setCurrentStep("success");
+    setIsSubmitting(true);
+    try {
+      // TODO: send `selectedStage` once the backend accepts it on sign-up
+      await signUpWithEmail(fullName, email, password);
+      setCurrentStep("success");
+    } catch (cause) {
+      setFormError(
+        cause instanceof Error ? cause.message : "Sign up failed. Try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -238,8 +240,9 @@ export default function SignupPage() {
                 onClick={handleCreateAccount}
                 type="button"
                 variant="solid"
+                disabled={isSubmitting}
               >
-                Create My Account
+                {isSubmitting ? "Creating Account…" : "Create My Account"}
               </Button>
             </div>
           </div>

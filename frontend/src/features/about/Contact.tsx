@@ -9,6 +9,10 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { ContactData, ContactsList } from "./about.type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema } from "./contact.schema";
+import { sendContactMessage } from "./about.api";
+import { useState } from "react";
+
+type SubmitResult = { ok: boolean; message: string } | null;
 
 const contacts: ContactsList[] = [
   {
@@ -29,10 +33,12 @@ const contacts: ContactsList[] = [
 ];
 
 export default function Contact() {
+  const [result, setResult] = useState<SubmitResult>(null);
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<ContactData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -41,8 +47,19 @@ export default function Contact() {
       message: "",
     },
   });
-  const onSubmit: SubmitHandler<ContactData> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<ContactData> = async (data) => {
+    setResult(null);
+    try {
+      const message = await sendContactMessage(data);
+      setResult({ ok: true, message });
+      reset();
+    } catch (cause) {
+      setResult({
+        ok: false,
+        message:
+          cause instanceof Error ? cause.message : "Failed to send message",
+      });
+    }
   };
   return (
     <section>
@@ -131,8 +148,21 @@ export default function Contact() {
               />
             )}
           />
-          <Button size="2xl" className="w-full" type="submit">
-            Send Message
+          {result ? (
+            <p
+              role="status"
+              className={`text-center text-sm ${result.ok ? "text-accent-300" : "text-danger-300"}`}
+            >
+              {result.message}
+            </p>
+          ) : null}
+          <Button
+            size="2xl"
+            className="w-full"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Sending…" : "Send Message"}
           </Button>
         </form>
       </div>

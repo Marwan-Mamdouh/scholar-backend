@@ -1,38 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { CircleUserRound, Mail, Lock } from "lucide-react";
 import AuthShell from "../../components/auth/AuthShell";
 import Button from "../../components/ui/Button/Button";
 import { Input } from "../../components/ui/InputField/Input";
-
-const adminEmail = "admin@gmail.com";
-const adminPassword = "admin123";
+import {
+  signInWithEmail,
+  signInWithSocial,
+} from "@/src/features/auth/auth.api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isAdminCredentials = useMemo(
-    () =>
-      email.trim().toLowerCase() === adminEmail && password === adminPassword,
-    [email, password],
-  );
-
-  const handleLogin = () => {
-    if (isAdminCredentials) {
-      setErrorMessage("");
-      setShowSuccess(true);
+  const handleLogin = async () => {
+    if (!email.trim() || !password) {
+      setErrorMessage("Your Email And Password Are Required");
       return;
     }
 
-    setShowSuccess(false);
-    setErrorMessage(
-      "Use admin@gmail.com and admin123 to preview the success state.",
-    );
+    setErrorMessage("");
+    setIsSubmitting(true);
+    try {
+      await signInWithEmail(email, password);
+      setShowSuccess(true);
+    } catch (cause) {
+      setErrorMessage(
+        cause instanceof Error ? cause.message : "Login failed. Try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setErrorMessage("");
+    try {
+      await signInWithSocial("google");
+    } catch (cause) {
+      setErrorMessage(
+        cause instanceof Error ? cause.message : "Google sign-in failed.",
+      );
+    }
   };
 
   return (
@@ -96,8 +110,9 @@ export default function LoginPage() {
                   onClick={handleLogin}
                   type="button"
                   variant="solid"
+                  disabled={isSubmitting}
                 >
-                  Login
+                  {isSubmitting ? "Logging In…" : "Login"}
                 </Button>
               </div>
 
@@ -109,6 +124,7 @@ export default function LoginPage() {
 
               <button
                 type="button"
+                onClick={handleGoogle}
                 className="flex h-11 w-full items-center justify-center rounded-[0.7rem] bg-[#20a6a1] text-base font-semibold text-neutral-50 transition-colors hover:bg-[#28b4af]"
               >
                 Google

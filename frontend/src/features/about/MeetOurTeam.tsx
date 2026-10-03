@@ -6,14 +6,14 @@ import BookOutlineIcon from "@iconify-react/basil/book-outline";
 import IndustryIcon from "@iconify-react/cil/industry";
 import AccountGroupIcon from "@iconify-react/mdi/account-group";
 import TeamCard from "./TeamCard";
-import { MeetOurTeamProps } from "./about.type";
+import { MeetOurTeamProps, TeamKey } from "./about.type";
 import { ComponentType } from "react";
 
-const teamsIcon: ComponentType<{ className?: string }>[] = [
-  CodeIcon,
-  BookOutlineIcon,
-  IndustryIcon,
-];
+const teamIcons: Record<TeamKey, ComponentType<{ className?: string }>> = {
+  web: CodeIcon,
+  academia: BookOutlineIcon,
+  industry: IndustryIcon,
+};
 
 export default function MeetOurTeam({ teams }: MeetOurTeamProps) {
   return (
@@ -35,7 +35,7 @@ export default function MeetOurTeam({ teams }: MeetOurTeamProps) {
         <div className="text-center grid grid-cols-2 gap-5">
           <div className="border border-accent-300 rounded-xl p-2.5 bg-linear-to-b from-primary-300/30 to-accent-400/10">
             <p className="text-3xl sm:text-[32px] text-neutral-50 font-normal ">
-              {teams.meta.teamCount}
+              {teams?.stats.totalTeams ?? "—"}
             </p>
             <p className="text-xl sm:text-2xl text-accent-300 font-normal capitalize">
               Teams
@@ -43,7 +43,7 @@ export default function MeetOurTeam({ teams }: MeetOurTeamProps) {
           </div>
           <div className="border border-accent-300 rounded-xl p-2.5 bg-linear-to-b from-primary-300/30 to-accent-400/10">
             <p className="text-3xl sm:text-[32px] text-neutral-50 font-normal ">
-              {teams.meta.memberCount}
+              {teams?.stats.totalMembers ?? "—"}
             </p>
             <p className="text-xl sm:text-2xl text-accent-300 font-normal capitalize">
               Members
@@ -63,26 +63,33 @@ export default function MeetOurTeam({ teams }: MeetOurTeamProps) {
         </div>
       </div>
       {/* tabs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 ">
-        {teams.data.map((team, index) => {
-          const teamIcon = teamsIcon[index] ?? AccountGroupIcon;
-          return (
-            <Accordion
-              key={index}
-              title={team.title}
-              subtitle={`${team.count} members`}
-              icon={teamIcon}
-              defaultOpen={false}
-            >
-              <div className="space-y-4">
-                {team.members.map((member) => (
-                  <TeamCard key={member.id} {...member} />
-                ))}
-              </div>
-            </Accordion>
-          );
-        })}
-      </div>
+      {!teams ? (
+        <p className="text-center text-neutral-200">
+          We couldn&apos;t load the team list right now. Please try again
+          later.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 ">
+          {teams.teams.map((team) => {
+            const teamIcon = teamIcons[team.key] ?? AccountGroupIcon;
+            return (
+              <Accordion
+                key={team.key}
+                title={team.name}
+                subtitle={`${team.membersCount} members`}
+                icon={teamIcon}
+                defaultOpen={false}
+              >
+                <div className="space-y-4">
+                  {team.members.map((member) => (
+                    <TeamCard key={member.id} {...member} />
+                  ))}
+                </div>
+              </Accordion>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

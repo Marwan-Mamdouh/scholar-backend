@@ -1,11 +1,10 @@
-import { apiGet } from "@/src/lib/api-client";
+import { api, type Paginated } from "@/src/lib/api-client";
 import type {
   NumericRange,
   Publication,
-  PublicationDomain,
   PublicationFilterRanges,
-  PublicationFilterResponse,
   PublicationFilterState,
+  PublicationQuery,
   RangeValue,
 } from "./publication.type";
 
@@ -96,27 +95,15 @@ export function buildSearchParams(
   return params;
 }
 
+export const PUBLICATIONS_PAGE_SIZE = 10;
+
 export async function fetchPublications(
-  filters: PublicationFilterState,
-  ranges?: PublicationFilterRanges,
-  init?: RequestInit,
-): Promise<Publication[]> {
-  const params = buildSearchParams(filters, ranges);
-  const { data } = await apiGet<PublicationFilterResponse>(
-    `/publication/search?${params.toString()}`,
-    init,
-  );
-  return data ?? [];
-}
-
-export function fetchFilterRanges(): Promise<PublicationFilterRanges> {
-  return apiGet<PublicationFilterRanges>("/publication/filter", {
-    next: { revalidate: 300 },
+  { search, page = 1, limit = PUBLICATIONS_PAGE_SIZE }: PublicationQuery,
+  signal?: AbortSignal,
+): Promise<Paginated<Publication>> {
+  const { data } = await api.get<Paginated<Publication>>("/publications", {
+    params: { search: search?.trim() || undefined, page, limit },
+    signal,
   });
-}
-
-export function fetchDomains(): Promise<PublicationDomain[]> {
-  return apiGet<PublicationDomain[]>("/publication/domain", {
-    next: { revalidate: 300 },
-  });
+  return data;
 }

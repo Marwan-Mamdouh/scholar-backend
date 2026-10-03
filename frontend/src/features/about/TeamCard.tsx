@@ -4,7 +4,7 @@ import LinkedinIcon from "@iconify-react/mdi/linkedin";
 const formatLinkedIn = (url: string) =>
   /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
-export default function TeamCard({ name, role, linkedIn }: Member) {
+export default function TeamCard({ name, role, linkedinUrl }: Member) {
   return (
     <div className=" flex items-center justify-between  border-b-2 border-b-neutral-300 p-2.5">
       <div className="flex gap-2.5 items-center">
@@ -27,9 +27,9 @@ export default function TeamCard({ name, role, linkedIn }: Member) {
           ) : null}
         </div>
       </div>
-      {linkedIn ? (
+      {linkedinUrl ? (
         <a
-          href={formatLinkedIn(linkedIn)}
+          href={formatLinkedIn(linkedinUrl)}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${name} on LinkedIn`}
