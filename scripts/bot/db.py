@@ -281,7 +281,7 @@ def get_source_last_run(conn: connection, source: str) -> Optional[str]:
 
 def count_jobs(conn: connection) -> int:
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT COUNT(*) AS c FROM scraped_jobs")
+        cur.execute("SELECT COUNT(*) AS c FROM jobs")
         row = cur.fetchone()
         return int(row["c"]) if row else 0
 
