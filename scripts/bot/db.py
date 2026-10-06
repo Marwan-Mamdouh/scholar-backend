@@ -77,6 +77,7 @@ def connect(db_path: str = "") -> Iterator[connection]:
     conn = psycopg2.connect(get_postgres_url())
     try:
         init_db(conn)
+        conn.commit()
         yield conn
         conn.commit()
     except Exception:
@@ -203,23 +204,21 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
     tags_json = json.dumps(job.tags or [], ensure_ascii=False, sort_keys=True)
 
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT id FROM scraped_jobs WHERE content_hash = %s", (content_hash,))
+        cur.execute('SELECT id FROM jobs WHERE "contentHash" = %s', (content_hash,))
         existing = cur.fetchone()
 
         if existing:
             job_id = existing["id"]
             cur.execute(
-                """
-                UPDATE scraped_jobs
-                SET source = %s, source_job_id = %s, title = %s, company = %s, location = %s,
-                    url = %s, canonical_url = %s, salary = %s, job_type = %s, tags_json = %s,
-                    is_remote = %s, original_source = %s, last_seen_at = %s
+                '''
+                UPDATE jobs
+                SET source = %s, title = %s, "applyLink" = %s, "salary" = %s,
+                    "originalSource" = %s, "updatedAt" = %s
                 WHERE id = %s
-                """,
+                ''',
                 (
-                    job.source, source_job_id, job.title, job.company or "", job.location or "",
-                    job.url, canonical_url, job.salary or "", job.job_type or "", tags_json,
-                    1 if job.is_remote else 0, job.original_source or "", ts, job_id
+                    job.source, job.title, job.url, job.salary or "",
+                    job.original_source or "", ts, job_id
                 )
             )
             return job_id, False
