@@ -407,14 +407,8 @@ export async function getCompanyMonthlyStats(): Promise<CompanyMonthlyStat[]> {
   twelveMonthsAgo.setUTCMonth(twelveMonthsAgo.getUTCMonth() - 11);
   const cutoffYm = `${twelveMonthsAgo.getUTCFullYear()}-${String(twelveMonthsAgo.getUTCMonth() + 1).padStart(2, '0')}`;
 
-  // Self-healing: if sync is due, run it
-  try {
-    if (await isSyncDue()) {
-      await syncCompanyMonthlyStats();
-    }
-  } catch (syncErr) {
-    console.warn('Company monthly stats sync check warning:', syncErr);
-  }
+  // Removed inline sync check because it blocks page load and causes Vercel 500 timeout.
+  // We rely on the /api/cron/sync-company-stats cron job instead.
 
   if (isLocalJsonMode) {
     const statsPath = getStatsJsonDbPath();
