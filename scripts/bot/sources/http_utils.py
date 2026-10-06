@@ -8,7 +8,7 @@ from config import REQUEST_TIMEOUT
 
 log = logging.getLogger(__name__)
 
-_session = requests.Session()
+_session = requests.Session(impersonate="chrome")
 _session.headers.update({
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
