@@ -15,7 +15,7 @@ export default function Pillars() {
       <div className="space-y-4 lg:w-[60%]">
         <div className="text-center lg:text-start">
           <h2 className=" text-4xl lg:text-5xl capitalize font-semibold  leading-10 text-neutral-50 mb-2">
-            What We're <span className="text-accent-400">Building</span>
+            What We&apos;re <span className="text-accent-400">Building</span>
           </h2>
           <p className="text-neutral-100 text-lg ">
             The core pillars shaping a smarter connection between academia and
