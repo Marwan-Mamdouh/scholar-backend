@@ -32,6 +32,7 @@ const globalForPg = global as unknown as { pgPool?: Pool };
 function getPool(): Pool {
   if (!globalForPg.pgPool) {
     let connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+    if (!connectionString) throw new Error("Missing DATABASE_URL. Available env vars: " + Object.keys(process.env).filter(k => k.includes("URL") || k.includes("POSTGRES") || k.includes("DATA")).join(", "));
     if (connectionString && connectionString.includes('sslmode=require')) {
       connectionString = connectionString.replace('sslmode=require', 'sslmode=verify-full');
     }
