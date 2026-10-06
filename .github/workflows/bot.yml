@@ -1,6 +1,9 @@
 name: Python Job Scraper Bot
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Run every 6 hours
     - cron: '0 */6 * * *'
