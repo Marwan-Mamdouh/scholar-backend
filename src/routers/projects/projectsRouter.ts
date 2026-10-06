@@ -5,7 +5,7 @@ import {
     createProjectController,
     updateProjectController,
     deleteProjectController,
-} from "../../controllers/projects/projectsController.ts";
+} from "../../controllers/projects/projectsController.js";
 import isAuthenticated from "../../middlewares/auth.js";
 
 const router = Router();

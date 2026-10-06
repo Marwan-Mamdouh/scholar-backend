@@ -43,19 +43,19 @@ export const getProjectsController = async (req, res) => {
                     {
                         projectTitle: {
                             contains: search,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         supervisor: {
                             contains: search,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         coSupervisor: {
                             contains: search,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                 ],
@@ -64,7 +64,7 @@ export const getProjectsController = async (req, res) => {
             ...(university && {
                 university: {
                     contains: university,
-                    mode: "insensitive",
+                    mode: "insensitive" as const,
                 },
             }),
 

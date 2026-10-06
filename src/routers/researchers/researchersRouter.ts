@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
     getResearchersController, getResearcherByIdController, createResearcherController, updateResearcherController,
     deleteResearcherController,
-} from "../../controllers/researchers/researchersControllers.ts";
-import isAuthenticated from "../../middlewares/auth.ts";
+} from "../../controllers/researchers/researchersControllers.js";
+import isAuthenticated from "../../middlewares/auth.js";
 
 const router = Router();
 
