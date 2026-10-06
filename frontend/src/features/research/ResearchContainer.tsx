@@ -6,6 +6,7 @@ import {
   PublicationsPanel,
   PublicationsPanelSkeleton,
 } from "./publications";
+import { ResearchersPanel, ResearchersPanelSkeleton } from "./researchers";
 import { TabType } from "./Research.type";
 
 const RESEARCH_DATA: Record<TabType, ResearchInfoCardProps> = {
@@ -55,6 +56,10 @@ const ResearchContainer = ({ activeTab }: { activeTab: TabType }) => {
       {activeTab === "publications" ? (
         <Suspense fallback={<PublicationsPanelSkeleton />}>
           <PublicationsPanel />
+        </Suspense>
+      ) : activeTab === "researchers" ? (
+        <Suspense fallback={<ResearchersPanelSkeleton />}>
+          <ResearchersPanel />
         </Suspense>
       ) : (
         <ResearchContent activeTab={activeTab} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { Input } from "@/src/components/ui/InputField/Input";
 import dynamic from "next/dynamic";
 import notFoundAnimation from "@/src/components/assets/NotFound.json";
@@ -9,6 +9,8 @@ const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export interface ResearchContentProps {
   activeTab: string;
+  /** Results to show instead of the empty state */
+  children?: ReactNode;
 }
 
 const CONTENT_DATA: Record<
@@ -41,7 +43,7 @@ const CONTENT_DATA: Record<
   },
 };
 
-const ResearchContent: FC<ResearchContentProps> = ({ activeTab }) => {
+const ResearchContent: FC<ResearchContentProps> = ({ activeTab, children }) => {
   const currentContent = CONTENT_DATA[activeTab] || CONTENT_DATA.researchers;
 
   return (
@@ -65,20 +67,22 @@ const ResearchContent: FC<ResearchContentProps> = ({ activeTab }) => {
         </div>
       </div>
 
-      {/* Empty State */}
-      <div className="flex-1 flex flex-col items-center justify-center pt-10.5 pb-16 gap-2.5">
-        <div className="relative flex items-center justify-center">
-          <Lottie
-            animationData={notFoundAnimation}
-            loop={true}
-            className="w-64 mx-auto"
-          />
+      {/* Results, or the Empty State */}
+      {children ?? (
+        <div className="flex-1 flex flex-col items-center justify-center pt-10.5 pb-16 gap-2.5">
+          <div className="relative flex items-center justify-center">
+            <Lottie
+              animationData={notFoundAnimation}
+              loop={true}
+              className="w-64 mx-auto"
+            />
+          </div>
+          <h3 className="text-2xl font-semibold text-accent-300">
+            {currentContent.emptyTitle}
+          </h3>
+          <p className="text-neutral-100">{currentContent.emptyDesc}</p>
         </div>
-        <h3 className="text-2xl font-semibold text-accent-300">
-          {currentContent.emptyTitle}
-        </h3>
-        <p className="text-neutral-100">{currentContent.emptyDesc}</p>
-      </div>
+      )}
     </div>
   );
 };
