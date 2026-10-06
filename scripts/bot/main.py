@@ -52,10 +52,10 @@ def fetch_all_jobs(conn, fetchers: Iterable[Fetcher]) -> list[Job]:
             log.info(f"Fetching from {display_name}...")
             jobs = fetcher() or []
             all_jobs.extend(jobs)
-            update_source_run(conn, source_key, "ok")
+            # update_source_run(conn, source_key, "ok")
             log.info(f"  {display_name}: {len(jobs)} raw jobs")
         except Exception as exc:  # keep one failed source from killing the run
-            update_source_run(conn, source_key, "failed", str(exc))
+            # update_source_run(conn, source_key, "failed", str(exc))
             log.error(f"  {display_name} failed: {exc}")
 
     return all_jobs
