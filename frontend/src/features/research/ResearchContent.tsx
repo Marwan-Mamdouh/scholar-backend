@@ -47,13 +47,13 @@ const ResearchContent: FC<ResearchContentProps> = ({ activeTab }) => {
   return (
     <div className="w-full bg-transparent border-2 border-accent-200 rounded-b-2xl rounded-tr-2xl p-6 min-h-100 flex flex-col gap-12 relative -mt-px">
       {/* Top action bar */}
-      <div className="flex gap-4 items-center">
-        <div className="w-75">
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+        <div className="w-full sm:w-75">
           <Input placeholder={`Search ${currentContent.placeholder}`} />
         </div>
 
         {/* Dropdowns */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {currentContent.filters.map((filter) => (
             <button
               key={filter}
