@@ -41,55 +41,55 @@ export const getPublicationsController = async (req, res) => {
                     {
                         title: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         acronym: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         URL: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         imprint: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         specificFocusScope: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         journalScope: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         issn: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         eissn: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         issnCdrom: {
                             contains: searchTerm,
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                 ],

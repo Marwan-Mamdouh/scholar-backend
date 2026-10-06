@@ -5,8 +5,8 @@ import {
     createPublicationController,
     updatePublicationController,
     deletePublicationController
-} from "../../controllers/publications/publicationsController.ts";
-import isAuthenticated from "../../middlewares/auth.ts";
+} from "../../controllers/publications/publicationsController.js";
+import isAuthenticated from "../../middlewares/auth.js";
 
 const router = Router();
 

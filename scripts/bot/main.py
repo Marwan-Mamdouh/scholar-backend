@@ -52,10 +52,10 @@ def fetch_all_jobs(conn, fetchers: Iterable[Fetcher]) -> list[Job]:
             log.info(f"Fetching from {display_name}...")
             jobs = fetcher() or []
             all_jobs.extend(jobs)
-            update_source_run(conn, source_key, "ok")
+            # update_source_run(conn, source_key, "ok")
             log.info(f"  {display_name}: {len(jobs)} raw jobs")
         except Exception as exc:  # keep one failed source from killing the run
-            update_source_run(conn, source_key, "failed", str(exc))
+            # update_source_run(conn, source_key, "failed", str(exc))
             log.error(f"  {display_name} failed: {exc}")
 
     return all_jobs
@@ -99,11 +99,11 @@ def run_bot(
     log.info("Job Scraper — Starting run")
     log.info("=" * 60)
 
-    with connect(db_path) as conn:
-        all_jobs = fetch_all_jobs(conn, fetchers)
-        summary.raw_jobs = len(all_jobs)
-        log.info(f"Total raw jobs fetched: {summary.raw_jobs}")
+    all_jobs = fetch_all_jobs(None, fetchers)
+    summary.raw_jobs = len(all_jobs)
+    log.info(f"Total raw jobs fetched: {summary.raw_jobs}")
 
+    with connect(db_path) as conn:
         inserted, refreshed, filtered = persist_filtered_jobs(conn, all_jobs)
         summary.filtered_jobs = len(filtered)
         summary.inserted_jobs = inserted

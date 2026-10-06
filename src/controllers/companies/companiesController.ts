@@ -353,3 +353,35 @@ export const deleteCompanyController = async (req, res) => {
         });
     }
 };
+export const getCompanyMonthlyStatsController = async (req, res) => {
+    try {
+        const { getCompanyMonthlyStats } = await import("../../lib/jobsDb.js");
+        const stats = await getCompanyMonthlyStats();
+        return res.status(200).json(stats);
+    } catch (error) {
+        console.error("Error fetching company stats:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const syncCompanyStatsController = async (req, res) => {
+    try {
+        const { syncCompanyMonthlyStats } = await import("../../lib/jobsDb.js");
+        const result = await syncCompanyMonthlyStats();
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error("Error syncing company stats:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const purgeCompanyStatsController = async (req, res) => {
+    try {
+        const { purgeExpiredCompanyStats } = await import("../../lib/jobsDb.js");
+        const result = await purgeExpiredCompanyStats();
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error("Error purging company stats:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};

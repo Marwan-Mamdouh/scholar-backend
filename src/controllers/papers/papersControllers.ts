@@ -36,31 +36,31 @@ export const getPapersController = async (req, res) => {
                     {
                         title: {
                             contains: search.trim(),
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         subtitle: {
                             contains: search.trim(),
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         journalTitle: {
                             contains: search.trim(),
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         doi: {
                             contains: search.trim(),
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                     {
                         sourceName: {
                             contains: search.trim(),
-                            mode: "insensitive",
+                            mode: "insensitive" as const,
                         },
                     },
                 ],
@@ -77,7 +77,7 @@ export const getPapersController = async (req, res) => {
 
         const orderBy = validSortFields.includes(sortBy)
             ? { [sortBy]: order === "asc" ? "asc" : "desc" }
-            : { publicationYear: "desc" };
+            : { publicationYear: "desc" as const };
 
         const [papers, total] = await Promise.all([
             db.researchPaper.findMany({

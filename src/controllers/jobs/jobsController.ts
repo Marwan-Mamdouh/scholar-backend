@@ -402,3 +402,50 @@ export const deleteJobController = async (req, res) => {
         });
     }
 };
+export const recordJobVisitController = async (req, res) => {
+    try {
+        const { incrementJobVisits } = await import("../../lib/jobsDb.js");
+        const id = req.params?.id || req.body?.id;
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Job ID is required" });
+        }
+        const result = await incrementJobVisits(id);
+        if (result.notFound) {
+            return res.status(404).json({ success: false, message: "Job not found" });
+        }
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error("Error recording job visit:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const markJobTakenController = async (req, res) => {
+    try {
+        const { markJobAsTaken } = await import("../../lib/jobsDb.js");
+        const id = req.params?.id || req.body?.id;
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Job ID is required" });
+        }
+        const result = await markJobAsTaken(id);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error("Error marking job as taken:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const insertBatchJobsController = async (req, res) => {
+    try {
+        const { insertBatchJobs } = await import("../../lib/jobsDb.js");
+        const jobs = Array.isArray(req.body) ? req.body : req.body?.jobs;
+        if (!jobs || !Array.isArray(jobs)) {
+            return res.status(400).json({ success: false, message: "Expected an array of jobs" });
+        }
+        const result = await insertBatchJobs(jobs);
+        return res.status(201).json(result);
+    } catch (error) {
+        console.error("Error inserting batch jobs:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
