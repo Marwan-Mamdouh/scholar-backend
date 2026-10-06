@@ -29,10 +29,7 @@ export default function useCountUp(
   const frameRef = useRef<number>(null);
 
   useEffect(() => {
-    if (target === undefined) {
-      setDisplay(value ?? "-");
-      return;
-    }
+    if (target === undefined) return;
 
     const startTime = performance.now();
 
@@ -51,7 +48,8 @@ export default function useCountUp(
     return () => {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [prefix, target, suffix, value, duration]);
+  }, [prefix, target, suffix, duration]);
 
-  return display;
+  // Non-numeric values (e.g. "N/A") are shown as-is, no animation
+  return target === undefined ? (value ?? "-") : display;
 }

@@ -16,7 +16,7 @@ export default function AuthShell({ children }: { children: ReactNode }) {
             aria-label="NEXUS home"
             className="inline-flex items-center"
           >
-            <LogoIcon className="h-8 w-auto" />
+            <LogoIcon />
           </Link>
 
           <button

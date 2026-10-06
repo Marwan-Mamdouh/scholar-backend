@@ -38,7 +38,7 @@ export default function Header() {
           href="/"
           onClick={() => setIsMenuOpen(false)}
         >
-          <LogoIcon className="h-8 w-8" />
+          <LogoIcon />
         </Link>
 
         {/* Mobile controls (Theme + Hamburger) */}
