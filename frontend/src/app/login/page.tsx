@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CircleUserRound, Mail, Lock } from "lucide-react";
+import { CircleUserRound } from "lucide-react";
 import AuthShell from "../../components/auth/AuthShell";
 import Button from "../../components/ui/Button/Button";
 import { Input } from "../../components/ui/InputField/Input";
