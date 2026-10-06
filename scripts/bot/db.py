@@ -80,6 +80,7 @@ def connect(db_path: str = "") -> Iterator[connection]:
         conn.commit()
         yield conn
         conn.commit()
+        conn.commit()
     except Exception:
         conn.rollback()
         raise
