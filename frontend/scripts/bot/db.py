@@ -43,11 +43,11 @@ class StoredJob:
     job_type: str
     tags: list
     is_remote: bool
-    original_source: str
-    content_hash: str
-    send_status: str
-    first_seen_at: str
-    last_seen_at: str
+    "originalSource": str
+    "contentHash": str
+    "sendStatus": str
+    "postedAt": str
+    "updatedAt": str
     last_checked_at: str = ""
     number_visited: int = 0
 
@@ -62,7 +62,7 @@ class StoredJob:
             job_type=self.job_type,
             tags=self.tags,
             is_remote=self.is_remote,
-            original_source=self.original_source,
+            "originalSource"=self."originalSource",
             number_visited=self.number_visited,
         )
 
@@ -162,23 +162,23 @@ def init_db(conn: connection) -> None:
                 job_type TEXT DEFAULT '',
                 tags_json TEXT DEFAULT '[]',
                 is_remote INTEGER DEFAULT 0,
-                original_source TEXT DEFAULT '',
-                content_hash TEXT NOT NULL UNIQUE,
-                send_status TEXT NOT NULL DEFAULT 'pending',
-                first_seen_at TEXT NOT NULL,
-                last_seen_at TEXT NOT NULL,
-                is_taken BOOLEAN DEFAULT false,
+                "originalSource" TEXT DEFAULT '',
+                "contentHash" TEXT NOT NULL UNIQUE,
+                "sendStatus" TEXT NOT NULL DEFAULT 'pending',
+                "postedAt" TEXT NOT NULL,
+                "updatedAt" TEXT NOT NULL,
+                "isTaken" BOOLEAN DEFAULT false,
                 last_checked_at TEXT
             );
 
-            CREATE INDEX IF NOT EXISTS idx_jobs_send_status
-                ON jobs(send_status, last_seen_at);
+            CREATE INDEX IF NOT EXISTS idx_jobs_"sendStatus"
+                ON jobs("sendStatus", "updatedAt");
 
             CREATE INDEX IF NOT EXISTS idx_jobs_source
-                ON jobs(source, last_seen_at);
+                ON jobs(source, "updatedAt");
 
-            CREATE INDEX IF NOT EXISTS idx_jobs_is_taken
-                ON jobs(is_taken, first_seen_at);
+            CREATE INDEX IF NOT EXISTS idx_jobs_"isTaken"
+                ON jobs("isTaken", "postedAt");
 
             CREATE TABLE IF NOT EXISTS job_sends (
                 id SERIAL PRIMARY KEY,
@@ -203,7 +203,7 @@ def init_db(conn: connection) -> None:
                 updated_at TEXT NOT NULL
             );
             
-            ALTER TABLE jobs ADD COLUMN IF NOT EXISTS is_taken BOOLEAN DEFAULT false;
+            ALTER TABLE jobs ADD COLUMN IF NOT EXISTS "isTaken" BOOLEAN DEFAULT false;
             ALTER TABLE jobs ADD COLUMN IF NOT EXISTS last_checked_at TEXT;
             ALTER TABLE jobs ADD COLUMN IF NOT EXISTS number_visited INTEGER DEFAULT 0;
         """)
@@ -274,7 +274,7 @@ def canonicalize_url(url: str) -> str:
     return urlunsplit((scheme, netloc, path, query, ""))
 
 
-def job_content_hash(job: Job) -> str:
+def job_"contentHash"(job: Job) -> str:
     canonical_url = canonicalize_url(job.url)
     raw = "|".join([
         normalize_text(job.title),
@@ -291,10 +291,10 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
 
     ts = now_utc()
     canonical_url = canonicalize_url(job.url)
-    content_hash = job_content_hash(job)
+    "contentHash" = job_"contentHash"(job)
     source_job_id = str(getattr(job, "source_job_id", "") or "")
     tags_json = json.dumps(job.tags or [], ensure_ascii=False, sort_keys=True)
-    is_job_closed = bool(getattr(job, "is_taken", False))
+    is_job_closed = bool(getattr(job, ""isTaken"", False))
 
     if is_json_db_mode():
         filepath = get_json_db_filepath()
@@ -308,15 +308,15 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
 
         existing = None
         for item in jobs_data:
-            if item.get("content_hash") == content_hash:
+            if item.get(""contentHash"") == "contentHash":
                 existing = item
                 break
 
         if existing:
             job_id = existing["id"]
             if is_job_closed:
-                existing["is_taken"] = True
-                existing["last_seen_at"] = ts
+                existing[""isTaken""] = True
+                existing[""updatedAt""] = ts
             else:
                 existing.update({
                     "source": job.source,
@@ -330,8 +330,8 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
                     "job_type": job.job_type or "",
                     "tags_json": tags_json,
                     "is_remote": 1 if job.is_remote else 0,
-                    "original_source": job.original_source or "",
-                    "last_seen_at": ts,
+                    ""originalSource"": job."originalSource" or "",
+                    ""updatedAt"": ts,
                 })
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(jobs_data, f, indent=4, ensure_ascii=False)
@@ -357,12 +357,12 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
             "job_type": job.job_type or "",
             "tags_json": tags_json,
             "is_remote": 1 if job.is_remote else 0,
-            "original_source": job.original_source or "",
-            "content_hash": content_hash,
-            "send_status": "pending",
-            "first_seen_at": ts,
-            "last_seen_at": ts,
-            "is_taken": False,
+            ""originalSource"": job."originalSource" or "",
+            ""contentHash"": "contentHash",
+            ""sendStatus"": "pending",
+            ""postedAt"": ts,
+            ""updatedAt"": ts,
+            ""isTaken"": False,
             "number_visited": 0
         }
         jobs_data.insert(0, new_entry)
@@ -373,26 +373,24 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
         return job_id, True
 
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT id FROM jobs WHERE content_hash = %s", (content_hash,))
+        cur.execute("SELECT id FROM jobs WHERE "contentHash" = %s", ("contentHash",))
         existing = cur.fetchone()
 
         if existing:
             job_id = existing["id"]
             if is_job_closed:
-                cur.execute("UPDATE jobs SET is_taken = true, last_seen_at = %s WHERE id = %s", (ts, job_id))
+                cur.execute('UPDATE jobs SET "isTaken" = true, "updatedAt" = %s WHERE id = %s', (ts, job_id))
             else:
                 cur.execute(
-                    """
+                    '''
                     UPDATE jobs
-                    SET source = %s, source_job_id = %s, title = %s, company = %s, location = %s,
-                        url = %s, canonical_url = %s, salary = %s, job_type = %s, tags_json = %s,
-                        is_remote = %s, original_source = %s, last_seen_at = %s
+                    SET source = %s, title = %s, "applyLink" = %s, "salary" = %s,
+                        "originalSource" = %s, "updatedAt" = %s
                     WHERE id = %s
-                    """,
+                    ''',
                     (
-                        job.source, source_job_id, job.title, job.company or "", job.location or "",
-                        job.url, canonical_url, job.salary or "", job.job_type or "", tags_json,
-                        1 if job.is_remote else 0, job.original_source or "", ts, job_id
+                        job.source, job.title, job.url, job.salary or "",
+                        job."originalSource" or "", ts, job_id
                     )
                 )
             return job_id, False
@@ -400,20 +398,42 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
         if is_job_closed:
             return 0, False
 
+        # 1. Upsert Company
         cur.execute(
-            """
-            INSERT INTO jobs (
-                source, source_job_id, title, company, location, url, canonical_url,
-                salary, job_type, tags_json, is_remote, original_source,
-                content_hash, send_status, first_seen_at, last_seen_at, is_taken
+            'INSERT INTO companies (name, "updatedAt") VALUES (%s, NOW()) '
+            'ON CONFLICT (name) DO UPDATE SET "updatedAt" = NOW() RETURNING id',
+            (job.company or "Unknown",)
+        )
+        company_id = cur.fetchone()[0]
+
+        # 2. Upsert Branch
+        cur.execute(
+            'SELECT id FROM "companyBranches" WHERE "companyId" = %s LIMIT 1',
+            (company_id,)
+        )
+        branch_row = cur.fetchone()
+        if branch_row:
+            branch_id = branch_row[0]
+        else:
+            cur.execute(
+                'INSERT INTO "companyBranches" ("companyId", city, country) VALUES (%s, %s, %s) RETURNING id',
+                (company_id, job.location or "", "")
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, false)
+            branch_id = cur.fetchone()[0]
+
+        # 3. Insert Job
+        cur.execute(
+            '''
+            INSERT INTO jobs (
+                source, title, "companyId", "branchId", "applyLink",
+                "salary", "originalSource", "contentHash", "postedAt", "updatedAt", "isTaken"
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, false)
             RETURNING id
-            """,
+            ''',
             (
-                job.source, source_job_id, job.title, job.company or "", job.location or "",
-                job.url, canonical_url, job.salary or "", job.job_type or "", tags_json,
-                1 if job.is_remote else 0, job.original_source or "", content_hash, ts, ts
+                job.source, job.title, company_id, branch_id, job.url,
+                job.salary or "", job."originalSource" or "", "contentHash", ts, ts
             )
         )
         return cur.fetchone()[0], True
@@ -450,12 +470,12 @@ def get_jobs_due_for_weekly_check(conn: connection, min_age_days: int = 7, max_a
         for row in jobs_data:
             if row.get("source") != "linkedin":
                 continue
-            if row.get("is_taken"):
+            if row.get(""isTaken""):
                 continue
             # Only check jobs that have NEVER been checked before
             if row.get("last_checked_at"):
                 continue
-            last_seen = row.get("last_seen_at") or row.get("first_seen_at", "")
+            last_seen = row.get(""updatedAt"") or row.get(""postedAt"", "")
             if cutoff_max <= last_seen <= cutoff_min:
                 results.append(_row_to_stored_job(row))
                 if len(results) >= limit:
@@ -467,11 +487,11 @@ def get_jobs_due_for_weekly_check(conn: connection, min_age_days: int = 7, max_a
             """
             SELECT * FROM jobs
             WHERE source = 'linkedin'
-              AND (is_taken = false OR is_taken IS NULL)
+              AND ("isTaken" = false OR "isTaken" IS NULL)
               AND (last_checked_at IS NULL OR last_checked_at = '')
-              AND COALESCE(NULLIF(last_seen_at, ''), NULLIF(first_seen_at, ''))::timestamptz <= %s::timestamptz
-              AND COALESCE(NULLIF(last_seen_at, ''), NULLIF(first_seen_at, ''))::timestamptz >= %s::timestamptz
-            ORDER BY COALESCE(NULLIF(last_seen_at, ''), NULLIF(first_seen_at, ''))::timestamptz ASC
+              AND COALESCE(NULLIF("updatedAt", ''), NULLIF("postedAt", ''))::timestamptz <= %s::timestamptz
+              AND COALESCE(NULLIF("updatedAt", ''), NULLIF("postedAt", ''))::timestamptz >= %s::timestamptz
+            ORDER BY COALESCE(NULLIF("updatedAt", ''), NULLIF("postedAt", ''))::timestamptz ASC
             LIMIT %s
             """,
             (cutoff_min, cutoff_max, limit)
@@ -502,10 +522,10 @@ def get_linkedin_jobs_to_check(
                 return []
         candidates: list[StoredJob] = []
         for row in jobs_data:
-            if row.get("source") != "linkedin" or row.get("is_taken"):
+            if row.get("source") != "linkedin" or row.get(""isTaken""):
                 continue
 
-            first_seen = _parse_iso_timestamp(row.get("first_seen_at") or row.get("last_seen_at"))
+            first_seen = _parse_iso_timestamp(row.get(""postedAt"") or row.get(""updatedAt""))
             if first_seen is None or first_seen > min_age_cutoff or first_seen < max_age_cutoff:
                 continue
 
@@ -523,14 +543,14 @@ def get_linkedin_jobs_to_check(
             """
             SELECT * FROM jobs
             WHERE source = 'linkedin'
-              AND (is_taken = false OR is_taken IS NULL)
-              AND COALESCE(NULLIF(first_seen_at, ''), NULLIF(last_seen_at, ''))::timestamptz
+              AND ("isTaken" = false OR "isTaken" IS NULL)
+              AND COALESCE(NULLIF("postedAt", ''), NULLIF("updatedAt", ''))::timestamptz
                     <= NOW() - (%s * INTERVAL '1 hour')
-              AND COALESCE(NULLIF(first_seen_at, ''), NULLIF(last_seen_at, ''))::timestamptz
+              AND COALESCE(NULLIF("postedAt", ''), NULLIF("updatedAt", ''))::timestamptz
                     >= NOW() - (%s * INTERVAL '1 day')
               AND (last_checked_at IS NULL OR last_checked_at = '' OR NULLIF(last_checked_at, '')::timestamptz <= NOW() - (%s * INTERVAL '1 hour'))
             ORDER BY NULLIF(last_checked_at, '')::timestamptz ASC NULLS FIRST,
-                     COALESCE(NULLIF(first_seen_at, ''), NULLIF(last_seen_at, ''))::timestamptz ASC
+                     COALESCE(NULLIF("postedAt", ''), NULLIF("updatedAt", ''))::timestamptz ASC
             LIMIT %s
             """,
             (min_age_hours, max_age_days, min_age_hours, limit),
@@ -552,7 +572,7 @@ def mark_job_taken(conn: connection, job_id: int) -> None:
                 return
         for item in jobs_data:
             if str(item.get("id")) == str(job_id):
-                item["is_taken"] = True
+                item[""isTaken""] = True
                 item["last_checked_at"] = ts
                 break
         with open(filepath, "w", encoding="utf-8") as f:
@@ -560,7 +580,7 @@ def mark_job_taken(conn: connection, job_id: int) -> None:
         return
 
     with conn.cursor() as cur:
-        cur.execute("UPDATE jobs SET is_taken = true, last_checked_at = %s WHERE id = %s", (ts, job_id))
+        cur.execute("UPDATE jobs SET "isTaken" = true, last_checked_at = %s WHERE id = %s", (ts, job_id))
     conn.commit()
 
 
@@ -610,12 +630,12 @@ def mark_stale_linkedin_jobs_inactive(conn: connection, max_age_days: int = 30) 
                 return 0
         marked = 0
         for row in jobs_data:
-            if row.get("source") != "linkedin" or row.get("is_taken"):
+            if row.get("source") != "linkedin" or row.get(""isTaken""):
                 continue
-            seen_at = _parse_iso_timestamp(row.get("last_seen_at") or row.get("first_seen_at"))
+            seen_at = _parse_iso_timestamp(row.get(""updatedAt"") or row.get(""postedAt""))
             if seen_at is None or seen_at > cutoff:
                 continue
-            row["is_taken"] = True
+            row[""isTaken""] = True
             row["last_checked_at"] = ts
             marked += 1
         if marked:
@@ -627,10 +647,10 @@ def mark_stale_linkedin_jobs_inactive(conn: connection, max_age_days: int = 30) 
         cur.execute(
             """
             UPDATE jobs
-            SET is_taken = true, last_checked_at = %s
+            SET "isTaken" = true, last_checked_at = %s
             WHERE source = 'linkedin'
-              AND (is_taken = false OR is_taken IS NULL)
-              AND COALESCE(NULLIF(last_seen_at, ''), NULLIF(first_seen_at, ''))::timestamptz
+              AND ("isTaken" = false OR "isTaken" IS NULL)
+              AND COALESCE(NULLIF("updatedAt", ''), NULLIF("postedAt", ''))::timestamptz
                     <= NOW() - (%s * INTERVAL '1 day')
             """,
             (ts, max_age_days),
@@ -657,7 +677,7 @@ def purge_jobs_older_than_two_weeks(conn: connection, max_age_days: int = 30) ->
         original_count = len(jobs_data)
         retained_jobs = []
         for row in jobs_data:
-            last_seen = row.get("last_seen_at") or row.get("first_seen_at") or ""
+            last_seen = row.get(""updatedAt"") or row.get(""postedAt"") or ""
             is_stale_seen = bool(last_seen and str(last_seen) <= cutoff_30d)
 
             if not is_stale_seen:
@@ -673,7 +693,7 @@ def purge_jobs_older_than_two_weeks(conn: connection, max_age_days: int = 30) ->
         cur.execute(
             """
             DELETE FROM jobs
-            WHERE COALESCE(NULLIF(last_seen_at, ''), NULLIF(first_seen_at, ''))::timestamptz <= %s::timestamptz
+            WHERE COALESCE(NULLIF("updatedAt", ''), NULLIF("postedAt", ''))::timestamptz <= %s::timestamptz
             """,
             (cutoff_30d,)
         )
@@ -694,7 +714,7 @@ def get_jobs_for_sending(conn: connection, limit: int = 100) -> list[StoredJob]:
                 return []
         matching = [
             _row_to_stored_job(row) for row in jobs_data
-            if row.get("send_status") in ('pending', 'retry', 'partial') and not row.get("is_taken")
+            if row.get(""sendStatus"") in ('pending', 'retry', 'partial') and not row.get(""isTaken"")
         ]
         return matching[:limit]
 
@@ -702,9 +722,9 @@ def get_jobs_for_sending(conn: connection, limit: int = 100) -> list[StoredJob]:
         cur.execute(
             """
             SELECT * FROM jobs
-            WHERE send_status IN ('pending', 'retry', 'partial')
-              AND (is_taken = false OR is_taken IS NULL)
-            ORDER BY first_seen_at ASC, id ASC
+            WHERE "sendStatus" IN ('pending', 'retry', 'partial')
+              AND ("isTaken" = false OR "isTaken" IS NULL)
+            ORDER BY "postedAt" ASC, id ASC
             LIMIT %s
             """,
             (limit,)
@@ -741,7 +761,7 @@ def get_sent_topic_keys(conn: connection, job_id: int) -> set[str]:
         return {str(row["topic_key"]) for row in cur.fetchall()}
 
 
-def set_job_send_status(conn: connection, job_id: int, status: str) -> None:
+def set_job_"sendStatus"(conn: connection, job_id: int, status: str) -> None:
     allowed = {"pending", "sent", "retry", "partial", "skipped"}
     if status not in allowed:
         raise ValueError(f"Invalid send status: {status}")
@@ -756,14 +776,14 @@ def set_job_send_status(conn: connection, job_id: int, status: str) -> None:
                 return
         for item in jobs_data:
             if str(item.get("id")) == str(job_id):
-                item["send_status"] = status
+                item[""sendStatus""] = status
                 break
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(jobs_data, f, indent=4, ensure_ascii=False)
         return
 
     with conn.cursor() as cur:
-        cur.execute("UPDATE jobs SET send_status = %s WHERE id = %s", (status, job_id))
+        cur.execute("UPDATE jobs SET "sendStatus" = %s WHERE id = %s", (status, job_id))
 
 
 def update_source_run(conn: connection, source: str, status: str, error: str = "", last_run_at: Optional[str] = None) -> None:
@@ -806,7 +826,7 @@ def estimate_dynamic_limit(conn: connection, days: int = 14, runs_per_day: int =
             """
             SELECT count(*) 
             FROM jobs 
-            WHERE NULLIF(first_seen_at, '')::timestamptz >= %s::timestamptz
+            WHERE NULLIF("postedAt", '')::timestamptz >= %s::timestamptz
             """,
             (cutoff,)
         )
@@ -863,11 +883,11 @@ def _row_to_stored_job(row: dict) -> StoredJob:
         job_type=row.get("job_type") or "",
         tags=tags,
         is_remote=bool(row.get("is_remote", 0)),
-        original_source=row.get("original_source") or "",
-        content_hash=row.get("content_hash", ""),
-        send_status=row.get("send_status", "pending"),
-        first_seen_at=row.get("first_seen_at", ""),
-        last_seen_at=row.get("last_seen_at", ""),
+        "originalSource"=row.get(""originalSource"") or "",
+        "contentHash"=row.get(""contentHash"", ""),
+        "sendStatus"=row.get(""sendStatus"", "pending"),
+        "postedAt"=row.get(""postedAt"", ""),
+        "updatedAt"=row.get(""updatedAt"", ""),
         last_checked_at=row.get("last_checked_at") or "",
         number_visited=int(row.get("number_visited") or 0),
     )
