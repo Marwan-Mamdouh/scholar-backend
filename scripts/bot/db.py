@@ -224,20 +224,42 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
             )
             return job_id, False
 
+        # 1. Upsert Company
         cur.execute(
-            """
-            INSERT INTO scraped_jobs (
-                source, source_job_id, title, company, location, url, canonical_url,
-                salary, job_type, tags_json, is_remote, original_source,
-                content_hash, first_seen_at, last_seen_at
+            'INSERT INTO companies (name, "updatedAt") VALUES (%s, NOW()) '
+            'ON CONFLICT (name) DO UPDATE SET "updatedAt" = NOW() RETURNING id',
+            (job.company or "Unknown",)
+        )
+        company_id = cur.fetchone()[0]
+
+        # 2. Upsert Branch
+        cur.execute(
+            'SELECT id FROM "companyBranches" WHERE "companyId" = %s LIMIT 1',
+            (company_id,)
+        )
+        branch_row = cur.fetchone()
+        if branch_row:
+            branch_id = branch_row[0]
+        else:
+            cur.execute(
+                'INSERT INTO "companyBranches" ("companyId", city, country) VALUES (%s, %s, %s) RETURNING id',
+                (company_id, job.location or "", "")
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            branch_id = cur.fetchone()[0]
+
+        # 3. Insert Job
+        cur.execute(
+            '''
+            INSERT INTO jobs (
+                source, title, "companyId", "branchId", "applyLink",
+                "salary", "originalSource", "contentHash", "postedAt", "updatedAt", "isTaken"
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, false)
             RETURNING id
-            """,
+            ''',
             (
-                job.source, source_job_id, job.title, job.company or "", job.location or "",
-                job.url, canonical_url, job.salary or "", job.job_type or "", tags_json,
-                1 if job.is_remote else 0, job.original_source or "", content_hash, ts, ts
+                job.source, job.title, company_id, branch_id, job.url,
+                job.salary or "", job.original_source or "", content_hash, ts, ts
             )
         )
         row = cur.fetchone()
