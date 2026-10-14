@@ -1,0 +1,729 @@
+// ============================================================================
+//  Scholar — consolidated Prisma schema (single file)
+//
+//  This is a read-only snapshot of the project's multi-file Prisma schema.
+//  The source of truth is the directory `src/db/prisma/`:
+//
+//      src/db/prisma/schema.prisma     datasource + generator blocks
+//      src/db/prisma/enums/*.prisma    15 enums
+//      src/db/prisma/schemas/*.prisma  25 models
+//
+//  `prisma.config.ts` points Prisma at the directory (`schema: "./src/db/prisma"`),
+//  so every `.prisma` file inside it is loaded as part of one schema. This file is
+//  named `.txt` on purpose so Prisma does not try to parse it and the live
+//  multi-file schema stays untouched.
+//
+//  Contents below are copied verbatim. Regenerate by re-concatenating enums/
+//  and schemas/ — do not edit by hand.
+//
+//  ENUMS:  applicationStatus, feedbackCategory, jobType, licenseType,
+//          presenceStatus, publicationAccessType, publicationIndex, publicationType,
+//          Publisher, quartile, seniorityLevel, subBucket, teamCategory,
+//          userRole, workflow
+//  MODELS: academicPublications, academicResearchers, accounts, companies,
+//          companyBranches, departments, faculties, feedbacks,
+//          graduationProjectApplications, graduationProjects, jobApplications,
+//          jobs, profiles, publicationDomains, publicationEditoralStat,
+//          publicationPricing, publicationSubcategories, publicationYearlyMetrics,
+//          researchPapers, sessions, teamMembers, universities, universityStaff,
+//          users, verifications
+// ============================================================================
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+//  ENUMS (15)
+// ============================================================================
+
+// from: enums/applicationStatus.prisma
+enum ApplicationStatus {
+  pending
+  reviewed
+  accepted
+  rejected
+}
+
+// from: enums/feedbackCategory.prisma
+enum FeedbackCategory {
+  bug
+  feature
+  data
+  other
+}
+
+// from: enums/jobType.prisma
+enum JobType {
+  fullTime
+  partTime
+  internship
+}
+
+// from: enums/licenseType.prisma
+enum LicenseType {
+    CC
+    CC_BY           @map("CC BY")
+    CC_BY_SA        @map("CC BY-SA")
+    CC_BY_NC        @map("CC BY-NC")
+    CC_BY_ND        @map("CC BY-ND")
+    CC_BY_NC_ND     @map("CC BY-NC-ND")
+}
+
+// from: enums/presenceStatus.prisma
+enum PresenceStatus {
+  active
+  inactive
+}
+
+// from: enums/publicationAccessType.prisma
+enum PublicationAccessType {
+    Hybrid
+    Full_Open_Access @map("Full Open Access")
+    Golden_Open_Access @map("Golden Open Access")
+    Diamond_Open_Access @map("Diamond Open Access")
+    Green_Open_Access @map("Green Open Access")
+    Bronze_Open_Access @map("Bronze Open Access")
+    Subscriber_Based_Access @map("Subscriber Based Access")
+}
+
+// from: enums/publicationIndex.prisma
+enum PublicationIndex {
+ SCIE
+ ESCI
+ SSCI
+}
+
+// from: enums/publicationType.prisma
+enum PublicationType {
+ Transaction
+ Magazine
+ Journal
+ Letter
+}
+
+// from: enums/Publisher.prisma
+enum Publisher {
+    IEEE
+    APS
+    RoyalSociety            @map("Royal Society")
+    ACS
+    ACM
+    TaylorAFrancis          @map("Taylor & Francis")
+    Oxford
+    ElSevier
+    Springer
+    Sage
+    MDPI
+}
+
+// from: enums/quartile.prisma
+enum Quartile {
+  Q1
+  Q2
+  Q3
+  Q4
+}
+
+// from: enums/seniorityLevel.prisma
+enum SeniorityLevel {
+  junior
+  mid
+  senior
+  lead
+}
+
+// from: enums/subBucket.prisma
+enum SubBucket {
+    CoreHybridProprietaryEnglish    @map("Core Hybrid Proprietary English")
+    CoreHybridSocietyEnglish        @map("Core Hybrid Society English")
+    CoreGold                        @map("Core Gold")
+    CellPressGold                   @map("Cell Press Gold")
+    CellPressHybridProprietary      @map("Cell Press Hybrid Proprietary")
+    CellPressHybridSociety          @map("Cell Press Hybrid Society")
+    CoreHybridLocalLanguage         @map("Core Hybrid Local Language")
+    TLSubscription                  @map("TL Subscription")
+    TheLancetGold                   @map("The Lancet Gold")
+}
+
+// from: enums/teamCategory.prisma
+enum TeamCategory {
+  web
+  industry
+  academia
+}
+
+// from: enums/userRole.prisma
+enum UserRole {
+  student
+  graduate
+  admin
+}
+
+// from: enums/workflow.prisma
+enum Workflow {
+    standard
+    non_standard   @map("non-standard")
+}
+
+// ============================================================================
+//  MODELS (25)
+// ============================================================================
+
+// from: schemas/academicPublications.prisma
+model AcademicPublication {
+  id                 Int                     @id @default(autoincrement())
+  subCategoryId      Int
+  acronym            String?                 @db.VarChar(100)
+  publisher          Publisher
+  publicationType    PublicationType
+  title              String
+  issn               String?                 @unique @db.Char(8)
+  eissn              String?                 @unique @db.Char(8)
+  issnCdrom          String?                 @unique @db.Char(8)
+  URL                String?                 @db.VarChar(500)
+  yearLunched        Int?
+  openAccessType     PublicationAccessType
+  specificFocusScope String?                 @db.VarChar(500)
+  workflow           Workflow
+  licenseType        LicenseType?
+  journalScope       String?                 @db.Text
+  searchVector  Unsupported("tsvector")? @map("search_vector")
+  imprint            String?
+  subBucket          SubBucket?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+
+  // Relations
+  subCategory        PublicationSubCategory  @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  yearlyMetrics      PublicationYearlyMetric[]
+  editorialStats     PublicationEditorialStat[]
+  pricings           PublicationPricing[]
+
+
+  @@index([subCategoryId])
+  @@index([title])
+  @@index([acronym])
+  @@index([openAccessType])
+  @@index([licenseType])
+  @@index([specificFocusScope])
+  @@map("academicPublications")
+}
+
+// from: schemas/academicResearchers.prisma
+model AcademicResearcher {
+  id              Int      @id @default(autoincrement())
+  firstName       String
+  lastName        String
+  institutionName String
+  department      String?
+  affiliation     String?
+  mainTopic       String?
+  subtopics       Json?
+  scholarId       String?
+  linkedinUrl     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("academicResearchers")
+}
+
+// from: schemas/accounts.prisma
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  issuer                String?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+// from: schemas/companies.prisma
+model Company {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @unique
+  industry            String?
+  size                String?
+  website             String?
+  linkedin            String?
+  glassdoor           String?
+  headquartersCountry String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Relations
+  branches            CompanyBranch[]
+  jobs                Job[]
+  graduationProjects  GraduationProject[]
+
+  @@map("companies")
+}
+
+// from: schemas/companyBranches.prisma
+model CompanyBranch {
+  id        Int            @id @default(autoincrement())
+  companyId Int
+  region    String?
+  country   String?
+  state     String?
+  city      String?
+  presence  PresenceStatus?
+
+  // Relations
+  company   Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobs      Job[]
+
+  @@map("companyBranches")
+}
+
+// from: schemas/departments.prisma
+model Department {
+  id          Int      @id @default(autoincrement())
+
+  name        String
+  shortName   String?
+  website     String?
+  description String?
+
+  facultyId   Int
+  faculty     Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  staff       UniversityStaff[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, facultyId])
+
+  @@index([facultyId])
+  @@index([name])
+
+  @@map("departments")
+}
+
+// from: schemas/faculties.prisma
+model Faculty {
+  id            Int      @id @default(autoincrement())
+
+  name          String
+  shortName     String?
+  website       String?
+  description   String?
+
+  universityId  Int
+  university    University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  departments   Department[]
+  staff         UniversityStaff[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([name, universityId])
+
+  @@index([universityId])
+  @@index([name])
+  @@map("faculties")
+}
+
+// from: schemas/feedbacks.prisma
+model Feedback {
+  id          Int              @id @default(autoincrement())
+  userId      String?
+  firstName   String?
+  lastName    String?
+  email       String?
+  category    FeedbackCategory?
+  message     String           @db.Text
+  submittedAt DateTime         @default(now())
+
+  // Relations
+  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("feedbacks")
+}
+
+// from: schemas/graduationProjectApplications.prisma
+model GraduationProjectApplication {
+  id                 Int               @id @default(autoincrement())
+  projectId          Int
+  applicantUserId    String
+  teamMembers        Json?
+  proposalSummaryUrl String?
+  status             ApplicationStatus @default(pending)
+  submittedAt        DateTime          @default(now())
+
+  // Relations
+  project            GraduationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  applicant          User              @relation(fields: [applicantUserId], references: [id], onDelete: Cascade)
+
+  @@map("graduationProjectApplications")
+}
+
+// from: schemas/graduationProjects.prisma
+model GraduationProject {
+  id                Int       @id @default(autoincrement())
+  isSponsored       Boolean
+  sponsorCompanyId  Int?
+  university        String?
+  faculty           String?
+  industry          String?
+  domains           Json?
+  supervisor        String?
+  coSupervisor      String?
+  projectTitle      String
+  noOfStudents      Int?
+  documentationLink String?
+  postedAt          DateTime  @default(now())
+
+  // Relations
+  sponsorCompany   Company?  @relation(fields: [sponsorCompanyId], references: [id], onDelete: SetNull)
+  applications     GraduationProjectApplication[]
+
+  @@map("graduationProjects")
+}
+
+// from: schemas/jobApplications.prisma
+model JobApplication {
+  id              Int               @id @default(autoincrement())
+  jobId           Int
+  applicantUserId String
+  cvPath          String?
+  status          ApplicationStatus @default(pending)
+  submittedAt     DateTime          @default(now())
+
+  // Relations
+  job             Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant       User              @relation(fields: [applicantUserId], references: [id], onDelete: Cascade)
+
+  @@map("jobApplications")
+}
+
+// from: schemas/jobs.prisma
+model Job {
+  id           Int             @id @default(autoincrement())
+  companyId    Int
+  branchId     Int
+  title        String
+  industry     String?
+  domains      Json?
+  type         JobType?
+  seniority    SeniorityLevel?
+  description  String?         @db.Text
+  requirements String?         @db.Text
+  salary       String?
+  applyLink    String?
+  postedAt     DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch       CompanyBranch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+
+  @@map("jobs")
+}
+
+// from: schemas/profiles.prisma
+model Profile {
+  userId         String      @id
+  firstName      String
+  lastName       String
+  gender         String?
+  country        String?
+  governorate    String?
+  university     String?
+  faculty        String?
+  department     String?
+  graduationYear Int?
+  linkedinUrl    String?
+  githubUrl      String?
+  scholarUrl     String?
+  skills         Json?
+  experience     Json?
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// from: schemas/publicationDomains.prisma
+model PublicationDomain {
+  id            Int                      @id @default(autoincrement())
+  name          String                   @unique @db.VarChar(255)
+
+  // Relations
+  subCategories PublicationSubCategory[]
+
+  @@map("publicationDomains")
+}
+
+// from: schemas/publicationEditoralStat.prisma
+model PublicationEditorialStat {
+  id                          Int           @id @default(autoincrement())
+  publicationId               Int
+  submissionToFirstDecision   Decimal?      @db.Decimal(10, 2)
+  submissionToReviewDecision  Decimal?      @db.Decimal(10, 2)
+  submissionToAcceptance      Decimal?      @db.Decimal(10, 2)
+  acceptanceToPublication     Decimal?      @db.Decimal(10, 2)
+  acceptanceRate              Decimal?      @db.Decimal(10, 2)
+  createdAt                   DateTime      @default(now())
+  updatedAt                   DateTime      @updatedAt
+
+  publication AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([submissionToFirstDecision(sort: Asc)])
+  @@index([submissionToAcceptance(sort: Asc)])
+  @@index([acceptanceRate(sort: Desc)])
+
+}
+
+// from: schemas/publicationPricing.prisma
+model PublicationPricing {
+  id                Int         @id @default(autoincrement())
+  publicationId     Int
+  pricingYear       Int
+  currency          String      @db.VarChar(3)
+  cost              Decimal     @db.Decimal(10, 2)
+  isSubscription    Boolean?    @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  publication AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@unique([publicationId, pricingYear, currency])
+  @@index([currency,cost])
+}
+
+// from: schemas/publicationSubcategories.prisma
+model PublicationSubCategory {
+  id           Int                   @id @default(autoincrement())
+  domainId     Int
+  name         String                @db.VarChar(255)
+
+  // Relations
+  domain       PublicationDomain     @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  publications AcademicPublication[]
+
+  @@index([domainId])
+  @@map("publicationSubcategories")
+}
+
+// from: schemas/publicationYearlyMetrics.prisma
+model PublicationYearlyMetric {
+  id                        Int                 @id @default(autoincrement())
+  publicationId             Int
+  metricYear                Int
+  indexingService           PublicationIndex?
+  impactFactor              Decimal?            @db.Decimal(10, 4)
+  impactFactor5yr           Decimal?            @db.Decimal(10, 4)
+  quartile                  Quartile?
+  jci                       Decimal?            @db.Decimal(10, 4)
+  sjr                       Decimal?            @db.Decimal(10, 4)
+  h5Index                   Decimal?            @db.Decimal(10, 4)
+  eigenfactor               Decimal?            @db.Decimal(10, 6)
+  articleInfluenceScore     Decimal?            @db.Decimal(10, 4)
+  citescore                 Decimal?            @db.Decimal(10, 4)
+  totalCitations            Int
+  articleDownloads          Int
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+
+  // Relations
+  publication               AcademicPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  // Composite UK with pub_id and metric_year
+  @@unique([publicationId, metricYear, indexingService])
+  @@index([metricYear, citescore(sort: Desc)])
+  @@index([metricYear, impactFactor(sort: Desc)])
+  @@index([metricYear, quartile])
+  @@index([metricYear, sjr(sort: Desc)])
+  @@map("publicationYearlyMetrics")
+}
+
+// from: schemas/researchPapers.prisma
+model ResearchPaper {
+  id               Int             @id @default(autoincrement())
+
+  // ORCID Identifiers
+  putCode          BigInt?
+  orcidPath        String?
+
+  // Core Info
+  title            String          @db.Text
+  subtitle         String?         @db.Text
+  type             String?
+  journalTitle     String?
+
+  // Identifiers & Links
+  doi              String?
+  url              String?
+
+  // Dates
+  publicationYear  Int?
+  publicationMonth Int?
+  publicationDay   Int?
+
+  // Source & Metadata
+  sourceName       String?
+  visibility       String?         @default("public")
+
+  // Foreign Key
+  staffId          Int
+  staff            UniversityStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([staffId])
+  @@index([doi])
+  @@index([putCode])
+
+  @@map("researchPapers")
+}
+
+// from: schemas/sessions.prisma
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+// from: schemas/teamMembers.prisma
+model TeamMember {
+  id          Int          @id @default(autoincrement())
+  name        String
+  role        String
+  linkedinUrl String?      @map("linkedin_url")
+  team        TeamCategory
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("team_members")
+}
+
+// from: schemas/universities.prisma
+model University {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  shortName     String?  @unique
+  website       String?
+  country       String?
+  city          String?
+  staff         UniversityStaff[]
+  faculties     Faculty[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([name])
+  @@map("universities")
+}
+
+// from: schemas/universityStaff.prisma
+model UniversityStaff {
+  id                            Int             @id @default(autoincrement())
+  name                          String
+  email                         String          @unique
+  alternativeEmail              String?
+  mobile                        String?
+  title                         String?
+  degree                        String?
+  facultyId                     Int?
+  faculty                       Faculty?        @relation(fields: [facultyId], references: [id],     onDelete: SetNull)
+
+  departmentId                  Int?
+  department                    Department?     @relation(fields: [departmentId], references: [id],     onDelete: SetNull)
+
+  universityId                  Int
+  university                    University      @relation(fields: [universityId], references: [id] , onDelete: Cascade)
+  universityProfileLink         String?
+  cvLink                        String?
+  researchGateLink              String?
+  googleScholarLink             String?
+  academiaLink                  String?
+  linkedInLink                  String?
+  youtubeLink                   String?
+  orcidLink                     String?
+  scopusLink                    String?
+  titleProfile                  String?
+  facultyProfile                String?
+  citations                     Int?
+  researchInterests             String[]
+  bio                           String?
+  otherUrl                      String?
+  researchPapers                ResearchPaper[]
+
+  createdAt                     DateTime        @default(now())
+  updatedAt                     DateTime        @updatedAt
+
+    @@index([name])
+    @@index([universityId])
+    @@index([facultyId])
+    @@index([departmentId])
+
+    @@map("universityStaff")
+
+}
+
+// from: schemas/users.prisma
+model User {
+  id                  String                         @id @default(uuid())
+  name                String?
+  email               String                         @unique
+  emailVerified       Boolean                        @default(false)
+  role                UserRole?                      @default(student)
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+
+
+  //Better Auth Relations
+  sessions            Session []
+  accounts            Account[]
+
+  // Relations
+  profile             Profile?
+  jobApplications     JobApplication[]
+  feedbacks           Feedback[]
+  projectApplications GraduationProjectApplication[]
+
+
+  //the Table will be named "users" in the postgresql
+  @@map("users")
+}
+
+// from: schemas/verifications.prisma
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}

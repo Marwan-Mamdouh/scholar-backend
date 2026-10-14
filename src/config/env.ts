@@ -31,6 +31,9 @@ const envSchema = z.object({
 	SMTP_USER: z.preprocess(normalizeEnvString, z.string().optional()),
 	SMTP_PASS: z.preprocess(normalizeEnvString, z.string().optional()),
 	EMAIL_FROM: z.preprocess(normalizeEnvString, z.string().optional()),
+
+	DATABASE_URL: z.string().min(1).optional(),
+	DIRECT_URL: z.preprocess(normalizeEnvString, z.string().min(1).optional()),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -38,12 +41,9 @@ const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
 	console.error("❌ Invalid environment variables:");
 	console.error(z.treeifyError(parsed.error).errors.join("\n"));
-	// Avoid process.exit(1) on Vercel — it surfaces as FUNCTION_INVOCATION_FAILED with no response body.
 	if (!process.env.VERCEL) {
 		process.exit(1);
 	}
-	// In Vercel, throwing here leads to FUNCTION_INVOCATION_FAILED.
-	// We keep the function alive and let request handlers return explicit 5xx/503 responses.
 	console.warn(
 		"Continuing with safe fallbacks because VERCEL is set. Please fix env vars.",
 	);
@@ -70,4 +70,7 @@ export default {
 	SMTP_USER: safeEnv.SMTP_USER,
 	SMTP_PASS: safeEnv.SMTP_PASS,
 	EMAIL_FROM: safeEnv.EMAIL_FROM,
+
+	DATABASE_URL: safeEnv.DATABASE_URL,
+	DIRECT_URL: safeEnv.DIRECT_URL,
 };

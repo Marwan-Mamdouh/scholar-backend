@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CircleUserRound, Mail, Lock } from "lucide-react";
 import AuthShell from "../../components/auth/AuthShell";
 import Button from "../../components/ui/Button/Button";
@@ -12,9 +13,9 @@ import {
 } from "@/src/features/auth/auth.api";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,7 +29,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
-      setShowSuccess(true);
+      router.push("/");
     } catch (cause) {
       setErrorMessage(
         cause instanceof Error ? cause.message : "Login failed. Try again.",
@@ -53,8 +54,7 @@ export default function LoginPage() {
     <AuthShell>
       <section className="w-full max-w-md animate-[fadeInUp_500ms_ease-out]">
         <div className="rounded-4xl border border-primary-300/40 bg-[rgba(11,34,54,0.72)] px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.18),0_0_75px_rgba(11,34,54,0.35)] backdrop-blur-2xl sm:px-8">
-          {!showSuccess ? (
-            <>
+          <>
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent-400/90 bg-accent-400/10 text-accent-300 shadow-[0_0_24px_rgba(55,181,170,0.22)]">
                 <CircleUserRound className="h-8 w-8" />
               </div>
@@ -140,19 +140,6 @@ export default function LoginPage() {
                 </Link>
               </p>
             </>
-          ) : (
-            <div className="flex min-h-80 flex-col items-center justify-center text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent-400/80 bg-accent-400/10 text-accent-200 shadow-[0_0_24px_rgba(55,181,170,0.18)]">
-                <CircleUserRound className="h-8 w-8" />
-              </div>
-              <h1 className="mt-6 text-h2-sm font-semibold text-primary-100 sm:text-h2">
-                You&apos;re Back In!
-              </h1>
-              <p className="mt-2 text-subtext text-neutral-200">
-                Good To See You Again
-              </p>
-            </div>
-          )}
         </div>
       </section>
     </AuthShell>

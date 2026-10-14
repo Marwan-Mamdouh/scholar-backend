@@ -8,6 +8,9 @@ export interface AuthUser {
   name: string | null;
   email: string;
   emailVerified: boolean;
+  // Keep this aligned with the Prisma UserRole enum (student, graduate, admin).
+  // "industry" has no dedicated DB role without a migration, so it is mapped to
+  // a safe existing role on the frontend.
   role?: "student" | "graduate" | "admin" | null;
 }
 
@@ -31,11 +34,13 @@ export async function signUpWithEmail(
   name: string,
   email: string,
   password: string,
+  role: AuthUser["role"] = "student",
 ): Promise<AuthUser> {
   const { data } = await api.post<AuthResponse>("/auth/sign-up/email", {
     name: name.trim(),
     email: email.trim(),
     password,
+    role,
   });
   return data.user;
 }
