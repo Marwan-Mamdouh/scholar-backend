@@ -62,7 +62,7 @@ export default function Contact() {
     }
   };
   return (
-    <section>
+    <section id="contact">
       <div className="rounded-3xl bg-neutral-50/5 shadow-[0px_2px_5px_0px_#70B5DF] py-10.5 px-6 sm:px-8 md:px-10 lg:px-17.5 flex flex-col gap-6 md:flex-row md:gap-8 lg:gap-10">
         {/* contact list */}
         <div className="space-y-2.5 md:w-2/5 lg:w-auto lg:max-w-120 lg:shrink-0">

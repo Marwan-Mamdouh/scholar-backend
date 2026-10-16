@@ -4,7 +4,7 @@ import Button from "./ui/Button/Button";
 
 const footerLinks = [
   { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "Contact Us", href: "/about#contact" },
 ];
 
 export default function Footer() {

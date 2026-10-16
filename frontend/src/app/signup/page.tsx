@@ -76,8 +76,20 @@ export default function SignupPage() {
     setFormError("");
     setIsSubmitting(true);
     try {
-      // TODO: send `selectedStage` once the backend accepts it on sign-up
-      await signUpWithEmail(fullName, email, password);
+      // Map the chosen profile stage onto the existing DB roles.
+      // "industry" is not a dedicated role in the database schema.
+      const stageToRole = {
+        student: "student",
+        graduate: "graduate",
+        industry: "graduate",
+      } as const;
+
+      await signUpWithEmail(
+        fullName,
+        email,
+        password,
+        stageToRole[selectedStage],
+      );
       setCurrentStep("success");
     } catch (cause) {
       setFormError(
