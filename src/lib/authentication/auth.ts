@@ -5,9 +5,29 @@ import { db } from "../../db/db_config.js";
 import { openAPI } from "better-auth/plugins";
 
 export const auth = betterAuth({
+
+  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+    "http://localhost:3000",
+    "http://localhost:5000",
+    process.env.FRONTEND_URL,
+  ].filter(Boolean) as string[],
+
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "student",
+        input: true,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },

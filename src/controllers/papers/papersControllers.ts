@@ -76,7 +76,7 @@ export const getPapersController = async (req, res) => {
         ];
 
         const orderBy = validSortFields.includes(sortBy)
-            ? { [sortBy]: order === "asc" ? "asc" : "desc" }
+            ? { [sortBy]: (order === "asc" ? "asc" : "desc") as "asc" | "desc" }
             : { publicationYear: "desc" as const };
 
         const [papers, total] = await Promise.all([

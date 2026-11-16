@@ -5,8 +5,9 @@
 	"installCommand": "npm install",
 	"buildCommand": "npm run build",
 	"devCommand": "npm run dev",
+	"outputDirectory": "dist",
 	"functions": {
-		"index.js": {
+		"src/index.js": {
 			"maxDuration": 60
 		}
 	}
