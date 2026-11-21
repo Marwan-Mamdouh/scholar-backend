@@ -1,6 +1,6 @@
-import { safeExternalUrl } from "@/src/components/catalog/CatalogDetails";
-import { BookOpen, ExternalLink } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import CatalogCard from "@/src/components/catalog/CatalogCard";
+import CatalogSourceLink from "@/src/components/catalog/CatalogSourceLink";
 import Badge from "@/src/components/ui/Badge/Badge";
 import {
   ACCESS_TYPE_LABELS,
@@ -23,7 +23,6 @@ export default function PublicationCard({
 }: {
   publication: Publication;
 }) {
-  const website = safeExternalUrl(publication.URL);
   const metric = latestMetric(publication);
   const editorial = editorialStat(publication);
   const metrics = [
@@ -85,18 +84,11 @@ export default function PublicationCard({
           </div>
         ))}
       </dl>
-      {website && (
-        <a
-          className="inline-flex items-center gap-1 self-start text-accent-300 hover:underline"
-          href={website}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Visit ${publication.title} publisher website (opens in a new tab)`}
-        >
-          Publisher website{" "}
-          <ExternalLink aria-hidden="true" className="size-4" />
-        </a>
-      )}
+      <CatalogSourceLink
+        url={publication.URL}
+        label="Publisher website"
+        title={publication.title}
+      />
     </CatalogCard>
   );
 }

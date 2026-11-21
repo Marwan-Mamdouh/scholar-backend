@@ -7,6 +7,7 @@ import CatalogCard, {
   CatalogCardsSkeleton,
 } from "@/src/components/catalog/CatalogCard";
 import CatalogLayout from "@/src/components/catalog/CatalogLayout";
+import CatalogSourceLink from "@/src/components/catalog/CatalogSourceLink";
 import ResearchYearFilter from "../ResearchYearFilter";
 import type { YearRange } from "../researchYears.api";
 import Badge from "@/src/components/ui/Badge/Badge";
@@ -166,6 +167,11 @@ export default function PapersExplorer() {
                     {paper.subtitle}
                   </p>
                 )}
+                <CatalogSourceLink
+                  url={paper.url}
+                  label="Read paper"
+                  title={paper.title}
+                />
               </CatalogCard>
             ))}
           </div>

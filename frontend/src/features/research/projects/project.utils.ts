@@ -52,11 +52,6 @@ export function projectYear(postedAt: string | null | undefined): string | undef
   return Number.isFinite(year) ? String(year) : undefined;
 }
 
-function safeLink(value: string | null | undefined): string | undefined {
-  if (!hasValue(value)) return undefined;
-  return /^https?:\/\//i.test(value.trim()) ? value.trim() : undefined;
-}
-
 export function toProjectSummary(project: GraduationProject): ProjectSummary {
   const sponsor =
     project.isSponsored && hasValue(project.sponsorCompany?.name)
@@ -72,7 +67,6 @@ export function toProjectSummary(project: GraduationProject): ProjectSummary {
     supervisor: hasValue(project.supervisor) ? project.supervisor.trim() : undefined,
     mentors: toNameList(project.coSupervisor),
     sponsor,
-    link: safeLink(project.documentationLink),
   };
 }
 

@@ -56,7 +56,6 @@ describe("toProjectSummary", () => {
       supervisor: "Dr. Abd El Rahman Abo Taleb",
       mentors: ["Eng. Nour El Deen El Hout", "Eng. Sara Nassef"],
       sponsor: "Siemens EDA",
-      link: "https://example.com/fpga-riscv",
     });
   });
 
@@ -73,7 +72,6 @@ describe("toProjectSummary", () => {
     );
     expect(summary).toMatchObject({ university: undefined, fields: [], supervisor: undefined, mentors: [] });
     expect(summary.sponsor).toBeUndefined();
-    expect(summary.link).toBeUndefined();
   });
 
   it("only shows a sponsor for sponsored projects with a named company", () => {
@@ -81,10 +79,6 @@ describe("toProjectSummary", () => {
     expect(toProjectSummary(makeProject({ isSponsored: false })).sponsor).toBeUndefined();
   });
 
-  it("drops documentation links that aren't http(s)", () => {
-    expect(toProjectSummary(makeProject({ documentationLink: "javascript:alert(1)" })).link).toBeUndefined();
-    expect(toProjectSummary(makeProject({ documentationLink: "drive/folder" })).link).toBeUndefined();
-  });
 });
 
 describe("buildFacets", () => {

@@ -36,10 +36,10 @@ export default function PaperDetails({ id }: { id: string }) {
                 href={sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${getButtonClasses({ intent: "accent", variant: "outlined", size: "md" })} mt-5 min-h-11 w-fit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-200`}
+                className={`${getButtonClasses({ intent: "accent", variant: "outlined", size: "md" })} mt-5 min-h-11 w-fit gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-200`}
               >
                 Read paper on source website
-                <ExternalLink aria-hidden="true" className="size-4" />
+                <ExternalLink aria-hidden="true" className="size-4 shrink-0" />
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}

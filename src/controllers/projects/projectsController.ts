@@ -162,7 +162,7 @@ export const getProjectsController = async (req, res) => {
 
 
 
-export const getProjectsByIdController = async (req, res) => {
+const getProjectById = (includeApplications: boolean) => async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
 
@@ -179,7 +179,7 @@ export const getProjectsByIdController = async (req, res) => {
             },
             include: {
                 sponsorCompany: true,
-                applications: true,
+                applications: includeApplications,
             },
         });
 
@@ -205,6 +205,9 @@ export const getProjectsByIdController = async (req, res) => {
 };
 
 
+
+export const getProjectsByIdController = getProjectById(true);
+export const getCatalogProjectController = getProjectById(false);
 
 export const createProjectController = async (req, res) => {
     try {

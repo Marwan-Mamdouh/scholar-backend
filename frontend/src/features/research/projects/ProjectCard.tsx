@@ -1,7 +1,5 @@
 import { GraduationCap, Handshake, UserRound, UsersRound } from "lucide-react";
-import CatalogCard, {
-  catalogActionClasses,
-} from "@/src/components/catalog/CatalogCard";
+import CatalogCard from "@/src/components/catalog/CatalogCard";
 import Badge from "@/src/components/ui/Badge/Badge";
 import type { ProjectSummary } from "./project.type";
 
@@ -13,6 +11,7 @@ const SECTION_ICON = "size-4 shrink-0 text-accent-300";
 
 const ProjectCard = ({ project }: { project: ProjectSummary }) => {
   const {
+    id,
     title,
     year,
     university,
@@ -20,7 +19,6 @@ const ProjectCard = ({ project }: { project: ProjectSummary }) => {
     supervisor,
     mentors,
     sponsor,
-    link,
   } = project;
 
   return (
@@ -37,19 +35,7 @@ const ProjectCard = ({ project }: { project: ProjectSummary }) => {
           </Badge>
         )
       }
-      action={
-        link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`View project: ${title} (opens in a new tab)`}
-            className={catalogActionClasses}
-          >
-            View Project
-          </a>
-        )
-      }
+      href={`/research/projects/${id}`}
     >
       {fields.length > 0 && (
         <ul aria-label="Project fields" className="flex flex-wrap gap-2">

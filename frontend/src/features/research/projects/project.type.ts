@@ -60,5 +60,4 @@ export interface ProjectSummary {
   supervisor?: string;
   mentors: string[];
   sponsor?: string;
-  link?: string;
 }

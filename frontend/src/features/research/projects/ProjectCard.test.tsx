@@ -28,10 +28,9 @@ describe("ProjectCard", () => {
     ).toEqual(["Eng. Nour El Deen El Hout", "Eng. Sara Nassef"]);
     expect(card.getByText("Sponsored By Siemens EDA")).toBeInTheDocument();
 
-    const link = card.getByRole("link", { name: /View project/ });
-    expect(link).toHaveAttribute("href", "https://example.com/fpga-riscv");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    const link = card.getByRole("link", { name: `Show more about ${project.title}` });
+    expect(link).toHaveAttribute("href", `/research/projects/${project.id}`);
+    expect(link).toHaveTextContent("Show more");
   });
 
   it("omits optional rows entirely when data is missing", () => {
@@ -43,7 +42,8 @@ describe("ProjectCard", () => {
     expect(screen.queryByText("Mentors")).toBeNull();
     expect(screen.queryByText(/Sponsored By/)).toBeNull();
     expect(screen.queryByRole("list", { name: "Project fields" })).toBeNull();
-    expect(screen.queryByRole("link")).toBeNull();
+    expect(within(card).getByRole("link", { name: "Show more about Untitled project" }))
+      .toHaveAttribute("href", "/research/projects/9");
     expect(card.textContent).not.toMatch(/undefined|null|N\/A/);
   });
 });
