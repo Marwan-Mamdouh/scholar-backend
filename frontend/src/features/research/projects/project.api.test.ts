@@ -30,6 +30,14 @@ describe("fetchProjects", () => {
       signal: undefined,
     });
   });
+  it("sends the inclusive year bounds with the other project filters", async () => {
+    get.mockResolvedValue({ data: makePage([]) });
+    await fetchProjects({ yearRange: { fromYear: 2022, toYear: 2025 }, university: "Cairo" });
+    expect(get.mock.calls[0][1].params).toMatchObject({
+      fromYear: 2022, toYear: 2025, year: undefined, university: "Cairo",
+    });
+  });
+
 });
 
 describe("fetchProjectFacets", () => {
@@ -44,7 +52,6 @@ describe("fetchProjectFacets", () => {
     await expect(fetchProjectFacets()).resolves.toEqual({
       universities: ["Ain Shams University", "Cairo University"],
       fields: ["Antennas", "VLSI"],
-      years: ["2025"],
     });
     expect(get.mock.calls[0][1].params).toMatchObject({ page: 1, limit: 100 });
   });

@@ -7,7 +7,7 @@ export const PROJECTS_PAGE_SIZE = 12;
 const FACET_SAMPLE_SIZE = 100;
 
 export async function fetchProjects(
-  { page = 1, limit = PROJECTS_PAGE_SIZE, search, university, projectField, year, sponsorship }: ProjectQuery,
+  { page = 1, limit = PROJECTS_PAGE_SIZE, search, university, projectField, year, yearRange, sponsorship }: ProjectQuery,
   signal?: AbortSignal,
 ): Promise<Paginated<GraduationProject>> {
   const { data } = await api.get<Paginated<GraduationProject>>("/projects", {
@@ -18,6 +18,7 @@ export async function fetchProjects(
       university: university || undefined,
       projectField: projectField || undefined,
       year: year || undefined,
+      ...yearRange,
       sponsorship: sponsorship || undefined,
     },
     signal,

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import ResearchYearFilter from "../ResearchYearFilter";
 import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
 import type {
   ProjectFacets,
@@ -93,12 +94,10 @@ const ProjectFiltersPanel = ({
         options={asOptions(facets.fields)}
         onChange={(projectField) => set({ projectField })}
       />
-      <FilterSelect
-        id="project-year"
-        label="Year"
-        value={filters.year}
-        options={asOptions(facets.years)}
-        onChange={(year) => set({ year })}
+      <ResearchYearFilter
+        catalog="projects"
+        value={filters.yearRange}
+        onChange={(yearRange) => set({ yearRange })}
       />
       <FilterSelect
         id="project-sponsorship"

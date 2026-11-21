@@ -52,12 +52,18 @@ const ProjectsExplorer = ({
 }: ProjectsExplorerProps) => {
   const [filters, setFilters] = useState<ProjectFilters>(EMPTY_FILTERS);
   const debouncedSearch = useDebouncedValue(filters.search, 300);
-  const applied = { ...filters, search: debouncedSearch };
+  const debouncedYear = useDebouncedValue(filters.yearRange, 300);
+  const applied = { ...filters, search: debouncedSearch, yearRange: debouncedYear };
   const appliedKey = filtersKey(applied);
 
-  // Pages reset to 1 whenever the applied filters change
-  const [paging, setPaging] = useState({ key: appliedKey, pages: 1 });
-  const pages = paging.key === appliedKey ? paging.pages : 1;
+  const pending = filtersKey(filters) !== appliedKey;
+  const [pages, setPages] = useState(1);
+
+  function updateFilters(next: ProjectFilters) {
+    setFilters(next);
+    setPages(1);
+  }
+
   const [attempt, setAttempt] = useState(0);
   const wanted = requestKey(appliedKey, pages, attempt);
 
@@ -69,10 +75,10 @@ const ProjectsExplorer = ({
       ? null
       : (initialError ?? "Projects are unavailable right now."),
   }));
-  const loading = loaded.key !== wanted;
+  const loading = pending || loaded.key !== wanted;
 
   useEffect(() => {
-    if (loaded.key === wanted) return;
+    if (pending || loaded.key === wanted) return;
     const controller = new AbortController();
 
     (async () => {
@@ -81,6 +87,7 @@ const ProjectsExplorer = ({
           { ...applied, page: pages, limit: PROJECTS_PAGE_SIZE },
           controller.signal,
         );
+        if (controller.signal.aborted) return;
         setLoaded((previous) => ({
           key: wanted,
           // Load More appends; a new filter (page 1) replaces
@@ -103,9 +110,9 @@ const ProjectsExplorer = ({
     })();
 
     return () => controller.abort();
-    // `applied` is derived from `wanted`'s parts; listing `wanted` is enough
+    // The request key includes the applied filters, page and retry attempt.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wanted]);
+  }, [wanted, pending]);
 
   const projects = loaded.items.map(toProjectSummary);
   const canLoadMore =
@@ -121,7 +128,7 @@ const ProjectsExplorer = ({
           placeholder="Search by title, student or supervisor"
           value={filters.search}
           onChange={(event) =>
-            setFilters({ ...filters, search: event.target.value })
+            updateFilters({ ...filters, search: event.target.value })
           }
           endAdornment={<Search aria-hidden="true" className="size-5" />}
         />
@@ -130,14 +137,14 @@ const ProjectsExplorer = ({
         <ProjectFiltersPanel
           filters={filters}
           facets={facets}
-          onChange={setFilters}
+          onChange={updateFilters}
         />
       }
       activeFilterCount={
         [
           filters.university,
           filters.projectField,
-          filters.year,
+          filters.yearRange,
           filters.sponsorship,
         ].filter(Boolean).length
       }
@@ -195,7 +202,7 @@ const ProjectsExplorer = ({
               variant="link"
               intent="accent"
               size="md"
-              onClick={() => setFilters(EMPTY_FILTERS)}
+              onClick={() => updateFilters(EMPTY_FILTERS)}
             >
               Clear filters
             </Button>
@@ -220,7 +227,7 @@ const ProjectsExplorer = ({
               size="md"
               className="self-center"
               disabled={loading}
-              onClick={() => setPaging({ key: appliedKey, pages: pages + 1 })}
+              onClick={() => setPages(pages + 1)}
             >
               {loading && pages > 1 ? (
                 <Loader2 className="size-4 animate-spin" aria-label="Loading" />

@@ -7,7 +7,8 @@ import CatalogCard, {
   CatalogCardsSkeleton,
 } from "@/src/components/catalog/CatalogCard";
 import CatalogLayout from "@/src/components/catalog/CatalogLayout";
-import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
+import ResearchYearFilter from "../ResearchYearFilter";
+import type { YearRange } from "../researchYears.api";
 import Badge from "@/src/components/ui/Badge/Badge";
 import CatalogPagination from "@/src/components/catalog/CatalogPagination";
 import Button from "@/src/components/ui/Button/Button";
@@ -18,14 +19,13 @@ import { fetchPapers, type ResearchPaper } from "./paper.api";
 
 export default function PapersExplorer() {
   const [search, setSearch] = useState("");
-  const [year, setYear] = useState("");
+  const [yearRange, setYearRange] = useState<YearRange>(null);
   const [page, setPage] = useState(1);
   const [retry, setRetry] = useState(0);
   const term = search.trim();
-  const selectedYear = /^\d{4}$/.test(year) && Number(year) > 0 ? year : "";
   const debouncedTerm = useDebouncedValue(term, 300);
-  const debouncedYear = useDebouncedValue(selectedYear, 300);
-  const queryReady = term === debouncedTerm && selectedYear === debouncedYear;
+  const debouncedYear = useDebouncedValue(yearRange, 300);
+  const queryReady = term === debouncedTerm && yearRange === debouncedYear;
   const key = JSON.stringify([debouncedTerm, debouncedYear, page, retry]);
   const [result, setResult] = useState<{
     key: string;
@@ -59,7 +59,7 @@ export default function PapersExplorer() {
   return (
     <CatalogLayout
       resultsLabel="Paper results"
-      activeFilterCount={selectedYear ? 1 : 0}
+      activeFilterCount={yearRange ? 1 : 0}
       search={
         <Input
           type="search"
@@ -74,27 +74,14 @@ export default function PapersExplorer() {
         />
       }
       filters={
-        <FilterAccordion
-          label="Year"
-          activeCount={selectedYear ? 1 : 0}
-          onClear={() => {
-            setYear("");
+        <ResearchYearFilter
+          catalog="papers"
+          value={yearRange}
+          onChange={(value) => {
+            setYearRange(value);
             setPage(1);
           }}
-        >
-          <Input
-            aria-label="Publication year"
-            placeholder="e.g. 2024"
-            size="sm"
-            inputMode="numeric"
-            maxLength={4}
-            value={year}
-            onChange={(event) => {
-              setYear(event.target.value.replace(/\D/g, ""));
-              setPage(1);
-            }}
-          />
-        </FilterAccordion>
+        />
       }
     >
       <p role="status" className="text-sm text-accent-200">
@@ -131,15 +118,15 @@ export default function PapersExplorer() {
               No papers found
             </h3>
             <p className="text-neutral-100">
-              Try a different keyword or publication year.
+              Try a different keyword or publication year range.
             </p>
-            {(search || year) && (
+            {(search || yearRange) && (
               <Button
                 intent="accent"
                 variant="outlined"
                 onClick={() => {
                   setSearch("");
-                  setYear("");
+                  setYearRange(null);
                   setPage(1);
                 }}
               >

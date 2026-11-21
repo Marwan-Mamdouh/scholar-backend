@@ -1,5 +1,7 @@
 import { api, type Paginated } from "@/src/lib/api-client";
 
+import type { YearRange } from "../researchYears.api";
+
 export interface ResearchPaper {
   id: number;
   title: string;
@@ -19,14 +21,14 @@ export interface ResearchPaper {
 
 export async function fetchPapers(
   search: string,
-  year: string,
+  yearRange: YearRange,
   page: number,
   signal: AbortSignal,
 ): Promise<Paginated<ResearchPaper>> {
   const { data } = await api.get<Paginated<ResearchPaper>>("/papers", {
     params: {
       search: search || undefined,
-      year: year || undefined,
+      ...yearRange,
       page,
       limit: 12,
     },

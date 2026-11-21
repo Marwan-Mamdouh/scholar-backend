@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+const { fetchResearchYears } = vi.hoisted(() => ({ fetchResearchYears: vi.fn() }));
+vi.mock("../researchYears.api", () => ({ fetchResearchYears }));
+
 vi.mock("next/dynamic", () => ({ default: () => () => null }));
 const { fetchProjects } = vi.hoisted(() => ({ fetchProjects: vi.fn() }));
 vi.mock("./project.api", () => ({ fetchProjects, PROJECTS_PAGE_SIZE: 12 }));
@@ -13,7 +16,6 @@ import type { ProjectFacets } from "./project.type";
 const FACETS: ProjectFacets = {
   universities: ["Ain Shams University", "Cairo University"],
   fields: ["Antennas", "Microwave"],
-  years: ["2025", "2024"],
 };
 
 const cards = () => screen.queryAllByRole("article");
@@ -22,6 +24,7 @@ const lastQuery = () => fetchProjects.mock.calls.at(-1)?.[0];
 beforeEach(() => {
   // mockClear, not mockReset: after mockReset, Vitest 4.1 surfaces a handled
   // rejection from this mock as a test failure. Each test sets its own response.
+  fetchResearchYears.mockReset().mockImplementation(() => new Promise(() => {}));
   fetchProjects.mockClear();
   fetchProjects.mockImplementation(() => new Promise(() => {}));
 });
@@ -44,7 +47,6 @@ describe("ProjectsExplorer", () => {
     };
     expect(options("University")).toEqual(["University", "Ain Shams University", "Cairo University"]);
     expect(options("Project Field")).toEqual(["Project Field", "Antennas", "Microwave"]);
-    expect(options("Year")).toEqual(["Year", "2025", "2024"]);
     expect(options("Sponsorship")).toEqual(["Sponsorship", "Sponsored", "Not sponsored"]);
   });
 
@@ -95,20 +97,41 @@ describe("ProjectsExplorer", () => {
     expect(screen.queryByRole("button", { name: "Load More" })).toBeNull();
   });
 
+  it("returns to page one when a year is cleared after loading more projects", async () => {
+    const user = userEvent.setup();
+    fetchResearchYears.mockResolvedValue([2024, 2026]);
+    fetchProjects
+      .mockResolvedValueOnce(makePage(makeProjects(2, 13), 14, 2))
+      .mockResolvedValueOnce(makePage(makeProjects(1, 20), 1))
+      .mockResolvedValueOnce(makePage(makeProjects(12), 14));
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(12), 14)} facets={FACETS} />);
+    await user.click(screen.getByRole("button", { name: "Load More" }));
+    await waitFor(() => expect(cards()).toHaveLength(14));
+    await user.click(screen.getByRole("button", { name: "Year" }));
+    fireEvent.change(await screen.findByRole("slider", { name: "Project year minimum" }), { target: { value: "1" } });
+    await waitFor(() => expect(cards()).toHaveLength(1));
+    await user.click(screen.getByRole("button", { name: "Clear year filter" }));
+    await waitFor(() => expect(cards()).toHaveLength(12));
+    expect(lastQuery()).toMatchObject({ page: 1, yearRange: null });
+  });
+
   it("shows an empty state with Clear filters when nothing matches", async () => {
     const user = userEvent.setup();
+    fetchResearchYears.mockResolvedValue([2024, 2025]);
     fetchProjects
       .mockResolvedValueOnce(makePage([], 0))
       .mockResolvedValueOnce(makePage(makeProjects(2), 2));
     render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} facets={FACETS} />);
 
     await user.click(screen.getByRole("button", { name: "Year" }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "Year" }), "2024");
+    const slider = await screen.findByRole("slider", { name: "Project year maximum" });
+    fireEvent.change(slider, { target: { value: "0" } });
     expect(await screen.findByText("No projects match these filters.")).toBeInTheDocument();
+    expect(lastQuery()).toMatchObject({ yearRange: { fromYear: 2024, toYear: 2024 }, page: 1 });
 
     await user.click(screen.getByRole("button", { name: "Clear filters" }));
     await waitFor(() => expect(cards()).toHaveLength(2));
-    expect(screen.getByRole("combobox", { name: "Year" })).toHaveValue("");
+    expect(slider).toHaveAttribute("aria-valuetext", "2025");
   });
 
   it("says when no projects exist at all", () => {
@@ -134,11 +157,12 @@ describe("ProjectsExplorer", () => {
 
   it("keeps the current cards when a filter request fails, then shows the error", async () => {
     const user = userEvent.setup();
+    fetchResearchYears.mockResolvedValue([2024, 2025]);
     fetchProjects.mockImplementation(() => Promise.reject(new Error("Network down")));
     render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} facets={FACETS} />);
 
     await user.click(screen.getByRole("button", { name: "Year" }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "Year" }), "2025");
+    fireEvent.change(await screen.findByRole("slider", { name: "Project year minimum" }), { target: { value: "1" } });
     expect(await screen.findByText("Network down")).toBeInTheDocument();
   });
 });

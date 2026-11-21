@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+    getPaperYears,
     createPaperController,
     deletePaperController,
     getPapersByIdController,
@@ -10,6 +11,7 @@ import isAuthenticated from "../../middlewares/auth.js";
 const router = Router();
 
 router.get("/", getPapersController);
+router.get("/years", getPaperYears);
 router.get("/:id", getPapersByIdController);
 router.post("/", isAuthenticated, createPaperController);
 router.patch("/:id", isAuthenticated, updatePaperController);

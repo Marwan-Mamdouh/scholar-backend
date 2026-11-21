@@ -4,7 +4,7 @@ import ProjectsExplorer from "./ProjectsExplorer";
 import { fetchProjectFacets, fetchProjects } from "./project.api";
 import type { GraduationProject, ProjectFacets } from "./project.type";
 
-const NO_FACETS: ProjectFacets = { universities: [], fields: [], years: [] };
+const NO_FACETS: ProjectFacets = { universities: [], fields: [] };
 
 const ProjectsPanel = async () => {
   // Fetch on every request, not once at build time

@@ -88,7 +88,7 @@ describe("toProjectSummary", () => {
 });
 
 describe("buildFacets", () => {
-  it("collects unique sorted universities and fields, and years newest first", () => {
+  it("collects unique sorted universities and fields", () => {
     const facets = buildFacets([
       makeProject({ university: "Cairo University", domains: ["VLSI"], postedAt: "2023-05-01T00:00:00Z" }),
       makeProject({ university: "Ain Shams University", domains: ["Antennas", "vlsi"], postedAt: "2025-05-01T00:00:00Z" }),
@@ -98,7 +98,6 @@ describe("buildFacets", () => {
     expect(facets).toEqual({
       universities: ["Ain Shams University", "Cairo University"],
       fields: ["Antennas", "Microwave", "VLSI"],
-      years: ["2025", "2024", "2023"],
     });
   });
 });
@@ -113,6 +112,6 @@ describe("filtersKey / hasActiveFilters", () => {
   it("detects any non-empty filter", () => {
     expect(hasActiveFilters(EMPTY_FILTERS)).toBe(false);
     expect(hasActiveFilters({ ...EMPTY_FILTERS, search: "   " })).toBe(false);
-    expect(hasActiveFilters({ ...EMPTY_FILTERS, year: "2025" })).toBe(true);
+    expect(hasActiveFilters({ ...EMPTY_FILTERS, yearRange: { fromYear: 2024, toYear: 2025 } })).toBe(true);
   });
 });

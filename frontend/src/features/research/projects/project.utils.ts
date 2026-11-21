@@ -15,7 +15,7 @@ export const EMPTY_FILTERS: ProjectFilters = {
   search: "",
   university: "",
   projectField: "",
-  year: "",
+  yearRange: null,
   sponsorship: "",
 };
 
@@ -76,14 +76,14 @@ export function toProjectSummary(project: GraduationProject): ProjectSummary {
   };
 }
 
-function sortedUnique(values: (string | undefined)[], compare?: (a: string, b: string) => number) {
+function sortedUnique(values: (string | undefined)[]) {
   const byKey = new Map<string, string>();
   for (const value of values) {
     if (!value) continue;
     const key = value.toLowerCase();
     if (!byKey.has(key)) byKey.set(key, value);
   }
-  return [...byKey.values()].sort(compare ?? ((a, b) => a.localeCompare(b)));
+  return [...byKey.values()].sort((a, b) => a.localeCompare(b));
 }
 
 /** Dropdown options from a sample of projects (the API has no facets endpoint). */
@@ -93,10 +93,6 @@ export function buildFacets(projects: GraduationProject[]): ProjectFacets {
       projects.map((project) => (hasValue(project.university) ? project.university.trim() : undefined)),
     ),
     fields: sortedUnique(projects.flatMap((project) => toFieldList(project.domains))),
-    years: sortedUnique(
-      projects.map((project) => projectYear(project.postedAt)),
-      (a, b) => Number(b) - Number(a),
-    ),
   };
 }
 

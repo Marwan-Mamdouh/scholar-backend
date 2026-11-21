@@ -1,6 +1,24 @@
+import { parseYearBounds } from "../../utils/parseYearBounds.js";
+import asyncHandler from "../../lib/async.handler.js";
 
 import { db } from "../../db/db_config.js";
 
+
+export const getProjectYears = asyncHandler(async (_req, res) => {
+    const rows = await db.$queryRaw<{ year: number }[]>`
+        SELECT DISTINCT EXTRACT(YEAR FROM "postedAt")::int AS year
+        FROM "graduationProjects"
+        WHERE EXTRACT(YEAR FROM "postedAt") BETWEEN 1 AND 9999
+        ORDER BY year
+    `;
+    res.json({ success: true, data: rows.map(row => row.year) });
+});
+
+function startOfYear(year: number) {
+    const start = new Date(0);
+    start.setUTCFullYear(year, 0, 1);
+    return start;
+}
 
 export const getProjectsController = async (req, res) => {
     try {
@@ -13,6 +31,8 @@ export const getProjectsController = async (req, res) => {
             university,
             projectField,
             year,
+            fromYear,
+            toYear,
             sponsorship,
         } = req.query;
 
@@ -36,6 +56,18 @@ export const getProjectsController = async (req, res) => {
             : "postedAt";
 
         const sortDirection = sortOrder === "asc" ? "asc" : "desc";
+
+        const yearBounds = parseYearBounds(fromYear, toYear);
+        if (yearBounds === null || (yearBounds && year)) {
+            return res.status(400).json({ success: false, message: "Invalid year range" });
+        }
+
+        const postedAt = yearBounds
+            ? {
+                gte: yearBounds.gte === undefined ? undefined : startOfYear(yearBounds.gte),
+                lt: yearBounds.lte === undefined ? undefined : startOfYear(yearBounds.lte + 1),
+            }
+            : undefined;
 
         const where = {
             ...(search && {
@@ -74,6 +106,7 @@ export const getProjectsController = async (req, res) => {
                 },
             }),
 
+            ...(postedAt && { postedAt }),
             ...(year && {
                 postedAt: {
                     gte: new Date(`${year}-01-01T00:00:00.000Z`),
