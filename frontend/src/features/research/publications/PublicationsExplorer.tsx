@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Search } from "lucide-react";
 import notFoundAnimation from "@/src/components/assets/NotFound.json";
 import CatalogPagination from "@/src/components/catalog/CatalogPagination";
+import Button from "@/src/components/ui/Button/Button";
 import { Input } from "@/src/components/ui/InputField/Input";
 import type { Paginated } from "@/src/lib/api-client";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
@@ -14,13 +15,12 @@ import {
   CatalogCardsSkeleton,
 } from "@/src/components/catalog/CatalogCard";
 import PublicationCard from "./PublicationCard";
-import { fetchPublications } from "./publication.api";
-import type { Publication } from "./publication.type";
+import PublicationFilterBar from "./PublicationFilterBar";
+import { EMPTY_FILTERS } from "./publication.constants";
+import { countPublicationFilters, fetchPublications } from "./publication.api";
+import type { Publication, PublicationFilters } from "./publication.type";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
-
-// The backend currently supports search + pagination only. The richer filter UI
-// (PublicationFilterBar) is kept for when GET /api/publications accepts filter params again.
 
 interface PublicationsExplorerProps {
   initialPage: Paginated<Publication>;
@@ -28,6 +28,7 @@ interface PublicationsExplorerProps {
 
 const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [page, setPage] = useState(1);
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState<{
@@ -38,13 +39,22 @@ const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
   const term = search.trim();
   const debounced = useDebouncedValue(term, 300);
   const pending = term !== debounced;
-  const firstPage = page === 1 && !debounced;
-  const key = JSON.stringify([debounced, page, attempt]);
+  const activeFilterCount = countPublicationFilters(filters);
+  const firstPage = page === 1 && !debounced && activeFilterCount === 0;
+  const key = JSON.stringify([debounced, filters, page, attempt]);
+
+  function updateFilters(next: PublicationFilters) {
+    setFilters(next);
+    setPage(1);
+  }
 
   useEffect(() => {
     if (pending || firstPage) return;
     const controller = new AbortController();
-    fetchPublications({ search: debounced, page }, controller.signal)
+    fetchPublications(
+      { ...filters, search: debounced, page },
+      controller.signal,
+    )
       .then((data) => {
         if (!controller.signal.aborted) setLoaded({ key, data });
       })
@@ -59,7 +69,7 @@ const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
           });
       });
     return () => controller.abort();
-  }, [key, firstPage, pending, debounced, page]);
+  }, [key, firstPage, pending, debounced, page, filters]);
 
   const current = firstPage
     ? { data: initialPage, error: undefined }
@@ -76,6 +86,10 @@ const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
   return (
     <CatalogLayout
       resultsLabel="Publication results"
+      activeFilterCount={activeFilterCount}
+      filters={
+        <PublicationFilterBar filters={filters} onChange={updateFilters} />
+      }
       search={
         <Input
           type="search"
@@ -124,9 +138,21 @@ const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
           <h3 className="text-2xl font-semibold text-accent-300">
             No Publications Found
           </h3>
-          <p className="text-neutral-100">
-            Try a different title, acronym or ISSN.
+          <p className="text-center text-neutral-100">
+            {activeFilterCount > 0
+              ? "Try a different search or clear the filters."
+              : "Try a different title, acronym or ISSN."}
           </p>
+          {activeFilterCount > 0 && (
+            <Button
+              type="button"
+              variant="outlined"
+              intent="accent"
+              onClick={() => updateFilters(EMPTY_FILTERS)}
+            >
+              Clear filters
+            </Button>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-6">

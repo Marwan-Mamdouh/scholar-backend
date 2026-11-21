@@ -45,12 +45,6 @@ export interface PublicationSubCategory {
   domain?: { id: number; name: string };
 }
 
-export interface PublicationDomain {
-  id: number;
-  name: string;
-  subCategories: PublicationSubCategory[];
-}
-
 export interface PublicationYearlyMetric {
   id: number;
   publicationId: number;
@@ -113,42 +107,21 @@ export interface Publication {
   editorialStats?: PublicationEditorialStat[];
 }
 
+export interface PublicationFilters {
+  categoryIds: number[];
+  publicationTypes: PublicationType[];
+  accessModels: PublicationAccessType[];
+  publishers: Publisher[];
+  quartiles: Quartile[];
+}
+
+export interface PublicationFacets extends Omit<PublicationFilters, "categoryIds"> {
+  subjects: PublicationSubCategory[];
+}
+
 /** Query params supported by GET /api/publications */
-export interface PublicationQuery {
+export interface PublicationQuery extends Partial<PublicationFilters> {
   search?: string;
   page?: number;
   limit?: number;
-}
-
-export interface NumericRange {
-  min: number;
-  max: number;
-}
-
-export interface PublicationFilterRanges {
-  impactFactor: NumericRange;
-  sjr: NumericRange;
-  citeScore: NumericRange;
-  firstDecisionWeeks: NumericRange;
-  submissionToAcceptanceWeeks: NumericRange;
-}
-
-export interface RangeValue {
-  min?: number;
-  max?: number;
-}
-
-export interface PublicationFilterState {
-  search: string;
-  categoryIds: number[];
-  publishingModel: PublicationAccessType[];
-  licensing: LicenseType[];
-  quartiles: Quartile[];
-  impactFactor: RangeValue;
-  sjr: RangeValue;
-  citeScore: RangeValue;
-  currency: string;
-  maxCost?: number;
-  firstDecisionWeeks: RangeValue;
-  submissionToAcceptanceWeeks: RangeValue;
 }

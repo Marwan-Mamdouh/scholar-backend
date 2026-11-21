@@ -1,5 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { db } from "../../db/db_config.js";
+import asyncHandler from "../../lib/async.handler.js";
+import {
+    getPublicationFacets,
+    publicationFilterSchema,
+    publicationFilterWhere,
+    publicationMetricOrder,
+} from "./publicationFilters.js";
 
 const ALLOWED_SORT_FIELDS = [
     "id",
@@ -14,11 +21,15 @@ type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
 
 const publicationInclude = {
     subCategory: { include: { domain: true } },
-    yearlyMetrics: { orderBy: { metricYear: "desc" } },
+    yearlyMetrics: { orderBy: publicationMetricOrder },
     pricings: { orderBy: { pricingYear: "desc" } },
     editorialStats: true,
 } satisfies Prisma.AcademicPublicationInclude;
 
+
+export const getPublicationFiltersController = asyncHandler(async (_req, res) => {
+    res.json({ success: true, data: await getPublicationFacets() });
+});
 
 export const getPublicationsController = async (req, res) => {
     try {
@@ -42,7 +53,13 @@ export const getPublicationsController = async (req, res) => {
 
         const searchTerm = String(search).trim();
 
-        const where = {
+        const filters = publicationFilterSchema.safeParse(req.query);
+        if (!filters.success) {
+            return res.status(400).json({ success: false, message: "Invalid publication filters" });
+        }
+
+        const where: Prisma.AcademicPublicationWhereInput = {
+            ...(await publicationFilterWhere(filters.data)),
             ...(searchTerm && {
                 OR: [
                     {

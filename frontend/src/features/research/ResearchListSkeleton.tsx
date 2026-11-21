@@ -6,7 +6,7 @@ export default function ResearchListSkeleton({
 }: {
   tab: "researchers" | "publications" | "projects";
 }) {
-  const filterCount = { researchers: 3, publications: 0, projects: 4 }[tab];
+  const filterCount = { researchers: 3, publications: 5, projects: 4 }[tab];
   const placeholder = "h-11 rounded-xl bg-overlay/5 motion-safe:animate-pulse";
   return (
     <CatalogLayout

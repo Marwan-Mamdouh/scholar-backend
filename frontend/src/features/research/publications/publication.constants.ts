@@ -1,9 +1,8 @@
 import type {
   LicenseType,
   PublicationAccessType,
-  PublicationFilterState,
+  PublicationFilters,
   Publisher,
-  Quartile,
 } from "./publication.type";
 
 export const ACCESS_TYPE_LABELS: Record<PublicationAccessType, string> = {
@@ -39,27 +38,10 @@ export const PUBLISHER_LABELS: Record<Publisher, string> = {
   MDPI: "MDPI",
 };
 
-export const ACCESS_TYPE_OPTIONS = Object.keys(
-  ACCESS_TYPE_LABELS,
-) as PublicationAccessType[];
-
-export const LICENSE_OPTIONS = Object.keys(LICENSE_LABELS) as LicenseType[];
-
-export const QUARTILE_OPTIONS: Quartile[] = ["Q1", "Q2", "Q3", "Q4"];
-
-export const CURRENCY_OPTIONS = ["USD", "EUR", "GBP"];
-
-export const EMPTY_FILTERS: PublicationFilterState = {
-  search: "",
+export const EMPTY_FILTERS: PublicationFilters = {
   categoryIds: [],
-  publishingModel: [],
-  licensing: [],
+  publicationTypes: [],
+  accessModels: [],
+  publishers: [],
   quartiles: [],
-  impactFactor: {},
-  sjr: {},
-  citeScore: {},
-  currency: "USD",
-  maxCost: undefined,
-  firstDecisionWeeks: {},
-  submissionToAcceptanceWeeks: {},
 };
