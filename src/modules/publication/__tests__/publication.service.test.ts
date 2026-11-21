@@ -1,4 +1,4 @@
-/*import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import publicationService from "../publication.service.js";
 
 const { mockCount, mockFindMany, mockQueryRaw, mockEditorialFindUnique } = vi.hoisted(() => ({
@@ -182,4 +182,3 @@ describe("publicationService.getEditorialStats", () => {
 });
 
 
-*/

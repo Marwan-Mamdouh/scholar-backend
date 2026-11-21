@@ -1,7 +1,7 @@
 model UniversityStaff {
   id                            Int             @id @default(autoincrement())
   name                          String 
-  email                         String          @unique   
+  email                         String?          @unique   
   alternativeEmail              String?
   mobile                        String?
   title                         String?         
