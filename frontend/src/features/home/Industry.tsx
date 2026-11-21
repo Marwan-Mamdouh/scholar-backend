@@ -7,20 +7,24 @@ import FireIcon from "@iconify-react/mdi/fire";
 
 const cards = [
   {
-    badgeString: "trindeing",
-    title: "lorem",
-    description: "lorem ipsum dolor sit amet",
+    badgeString: "Career opportunities",
+    title: "Your next role in engineering",
+    description:
+      "Explore jobs and internships across chip design, verification, embedded systems, and research.",
     icon: <CompanyIcon />,
     intent: "primary",
-    cardAction: "browse companies",
+    cardAction: "Explore jobs",
+    href: "/jobs",
   },
   {
-    badgeString: "explore the news",
-    title: "lorem",
-    description: "lorem ipsum dolor sit amet",
+    badgeString: "Industry landscape",
+    title: "Understand the semiconductor chain",
+    description:
+      "Meet the companies and technologies that connect chip architecture to finished products.",
     icon: <CompanyIcon />,
     intent: "accent",
-    cardAction: "browse companies",
+    cardAction: "Explore the industry",
+    href: "/semiconductor-chain",
   },
 ];
 
@@ -29,7 +33,7 @@ const Industry = () => {
     <div className="mx-auto flex flex-col w-full lg:w-316.25 px-5 py-6 lg:items-start lg:pt-25 lg:pb-13.5 gap-2.5 overflow-hidden">
       <div className="flex flex-col gap-2.5 max-w-316.25">
         <p className="font-main font-normal text-primary-200 text-h2-sm lg:text-h2 capitalize">
-          expolre the industry
+          Explore the industry
         </p>
         <p className="font-main font-normal text-neutral-100 text-eyebrow lg:text-[24px]">
           discover companies and find the right opportunity to start your
@@ -56,7 +60,8 @@ const Industry = () => {
             title={card.title}
             description={card.description}
             clickable
-            callToAction={"lorem"}
+            callToAction={card.cardAction}
+            href={card.href}
             className="flex-1 w-full items-start border!"
           />
         ))}

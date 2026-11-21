@@ -28,7 +28,6 @@ export const getJobsController = async (req, res) => {
             "type",
             "seniority",
             "postedAt",
-            "createdAt",
         ];
 
         const sortField = allowedSortFields.includes(sortBy as string)
@@ -77,17 +76,22 @@ export const getJobsController = async (req, res) => {
             }),
 
             ...(company && {
-                OR: [
-                    ...(isNaN(parseInt(company as string, 10))
-                        ? []
-                        : [{ companyId: parseInt(company as string, 10) }]),
+                // Keep company matching separate from the keyword search OR.
+                AND: [
                     {
-                        company: {
-                            name: {
-                                contains: company as string,
-                                mode: "insensitive" as const,
+                        OR: [
+                            ...(isNaN(parseInt(company as string, 10))
+                                ? []
+                                : [{ companyId: parseInt(company as string, 10) }]),
+                            {
+                                company: {
+                                    name: {
+                                        contains: company as string,
+                                        mode: "insensitive" as const,
+                                    },
+                                },
                             },
-                        },
+                        ],
                     },
                 ],
             }),
