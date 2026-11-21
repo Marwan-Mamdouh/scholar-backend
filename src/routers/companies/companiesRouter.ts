@@ -13,6 +13,18 @@ const router = Router();
 
 
 router.get("/", getCompaniesController);
+
+import { 
+    getCompanyMonthlyStatsController, 
+    syncCompanyStatsController, 
+    purgeCompanyStatsController 
+} from "../../controllers/companies/companiesController.js";
+
+router.get("/stats/monthly", getCompanyMonthlyStatsController);
+router.get("/monthly-stats", getCompanyMonthlyStatsController);
+router.post("/stats/sync", syncCompanyStatsController);
+router.post("/stats/purge", purgeCompanyStatsController);
+
 router.get("/:id", getCompanyByIdController);
 router.post("/", isAuthenticated, createCompanyController);
 router.patch("/:id", isAuthenticated, updateCompanyController);

@@ -43,6 +43,7 @@ import publicationsRouter from "./routers/publications/publicationsRouter.js";
 import companiesRouter from "./routers/companies/companiesRouter.js";
 import jobsRouter from "./routers/jobs/jobsRouter.js";
 import aboutRouter from "./routers/About/aboutRouter.js";
+import cronRouter from "./routers/cron/cronRouter.js";
 // --- APP CONFIGURATION ---
 const app = express();
 const port = process.env.PORT || 5000;
@@ -67,6 +68,7 @@ app.use("/api/projects", projectsRouter);
 app.use("/api/companies", companiesRouter);
 app.use("/api/jobs", jobsRouter);
 app.use("/api/about", aboutRouter);
+app.use("/api/cron", cronRouter);
 /*
 app.use("/api/team", teamRouter);
 app.use('/api/health', healthRouter);

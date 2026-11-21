@@ -77,7 +77,9 @@ def connect(db_path: str = "") -> Iterator[connection]:
     conn = psycopg2.connect(get_postgres_url())
     try:
         init_db(conn)
+        conn.commit()
         yield conn
+        conn.commit()
         conn.commit()
     except Exception:
         conn.rollback()
@@ -203,41 +205,61 @@ def upsert_job(conn: connection, job: Job) -> tuple[int, bool]:
     tags_json = json.dumps(job.tags or [], ensure_ascii=False, sort_keys=True)
 
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT id FROM scraped_jobs WHERE content_hash = %s", (content_hash,))
+        cur.execute('SELECT id FROM jobs WHERE "contentHash" = %s', (content_hash,))
         existing = cur.fetchone()
 
         if existing:
             job_id = existing["id"]
             cur.execute(
-                """
-                UPDATE scraped_jobs
-                SET source = %s, source_job_id = %s, title = %s, company = %s, location = %s,
-                    url = %s, canonical_url = %s, salary = %s, job_type = %s, tags_json = %s,
-                    is_remote = %s, original_source = %s, last_seen_at = %s
+                '''
+                UPDATE jobs
+                SET source = %s, title = %s, "applyLink" = %s, "salary" = %s,
+                    "originalSource" = %s, "updatedAt" = %s
                 WHERE id = %s
-                """,
+                ''',
                 (
-                    job.source, source_job_id, job.title, job.company or "", job.location or "",
-                    job.url, canonical_url, job.salary or "", job.job_type or "", tags_json,
-                    1 if job.is_remote else 0, job.original_source or "", ts, job_id
+                    job.source, job.title, job.url, job.salary or "",
+                    job.original_source or "", ts, job_id
                 )
             )
             return job_id, False
 
+        # 1. Upsert Company
         cur.execute(
-            """
-            INSERT INTO scraped_jobs (
-                source, source_job_id, title, company, location, url, canonical_url,
-                salary, job_type, tags_json, is_remote, original_source,
-                content_hash, first_seen_at, last_seen_at
+            'INSERT INTO companies (name, "updatedAt") VALUES (%s, NOW()) '
+            'ON CONFLICT (name) DO UPDATE SET "updatedAt" = NOW() RETURNING id',
+            (job.company or "Unknown",)
+        )
+        company_id = cur.fetchone()[0]
+
+        # 2. Upsert Branch
+        cur.execute(
+            'SELECT id FROM "companyBranches" WHERE "companyId" = %s LIMIT 1',
+            (company_id,)
+        )
+        branch_row = cur.fetchone()
+        if branch_row:
+            branch_id = branch_row[0]
+        else:
+            cur.execute(
+                'INSERT INTO "companyBranches" ("companyId", city, country) VALUES (%s, %s, %s) RETURNING id',
+                (company_id, job.location or "", "")
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            branch_id = cur.fetchone()[0]
+
+        # 3. Insert Job
+        cur.execute(
+            '''
+            INSERT INTO jobs (
+                source, title, "companyId", "branchId", "applyLink",
+                "salary", "originalSource", "contentHash", "postedAt", "updatedAt", "isTaken"
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, false)
             RETURNING id
-            """,
+            ''',
             (
-                job.source, source_job_id, job.title, job.company or "", job.location or "",
-                job.url, canonical_url, job.salary or "", job.job_type or "", tags_json,
-                1 if job.is_remote else 0, job.original_source or "", content_hash, ts, ts
+                job.source, job.title, company_id, branch_id, job.url,
+                job.salary or "", job.original_source or "", content_hash, ts, ts
             )
         )
         row = cur.fetchone()
@@ -282,7 +304,7 @@ def get_source_last_run(conn: connection, source: str) -> Optional[str]:
 
 def count_jobs(conn: connection) -> int:
     with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute("SELECT COUNT(*) AS c FROM scraped_jobs")
+        cur.execute("SELECT COUNT(*) AS c FROM jobs")
         row = cur.fetchone()
         return int(row["c"]) if row else 0
 

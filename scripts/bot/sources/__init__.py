@@ -18,7 +18,7 @@ except ModuleNotFoundError:  # local flat-file test layout
 
 # (display_name, fetch_function)
 ALL_FETCHERS = [
-    ("WUZZUF", fetch_wuzzuf),
+    # ("WUZZUF", fetch_wuzzuf),
     ("LinkedIn", fetch_linkedin),
 ]
 

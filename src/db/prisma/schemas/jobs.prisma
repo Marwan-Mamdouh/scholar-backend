@@ -14,6 +14,15 @@ model Job {
   postedAt     DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
+  
+  // Python Bot Scraper Fields
+  isTaken       Boolean?        @default(false)
+  source        String?         @default("manual")
+  lastCheckedAt DateTime?
+  contentHash   String?
+  originalSource String?
+
+    numberVisited Int?            @default(0)
   // Relations
   company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   branch       CompanyBranch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
