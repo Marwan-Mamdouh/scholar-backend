@@ -97,7 +97,7 @@ const FieldsDonut = ({ fields }: { fields: FieldShare[] }) => {
             key={field.name}
             onMouseEnter={() => setActive(index)}
             onMouseLeave={() => setActive(null)}
-            className={`flex items-center gap-2.5 rounded-md px-1.5 py-0.5 transition-colors duration-200 ${active === index ? "bg-white/10" : ""}`}
+            className={`flex items-center gap-2.5 rounded-md px-1.5 py-0.5 transition-colors duration-200 ${active === index ? "bg-overlay/10" : ""}`}
           >
             <span
               aria-hidden="true"

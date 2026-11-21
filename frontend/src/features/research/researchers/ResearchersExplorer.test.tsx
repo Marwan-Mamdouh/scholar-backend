@@ -23,11 +23,12 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("next/dynamic", () => ({ default: () => () => null }));
 
-const { fetchResearcher, fetchScholarProfile } = vi.hoisted(() => ({
+const { fetchResearchers, fetchResearcher, fetchScholarProfile } = vi.hoisted(() => ({
+  fetchResearchers: vi.fn(),
   fetchResearcher: vi.fn(),
   fetchScholarProfile: vi.fn(),
 }));
-vi.mock("./researcher.api", () => ({ fetchResearcher, fetchScholarProfile }));
+vi.mock("./researcher.api", () => ({ fetchResearchers, fetchResearcher, fetchScholarProfile }));
 
 import ResearchersExplorer, { parseResearcherId } from "./ResearchersExplorer";
 import { RESEARCHERS, makeScholarProfile } from "./researcher.test-fixtures";
@@ -54,6 +55,7 @@ beforeEach(() => {
     urlStore.emit();
   });
   window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  fetchResearchers.mockReset();
   fetchResearcher.mockReset();
   fetchScholarProfile.mockReset().mockResolvedValue(makeScholarProfile());
 });
@@ -82,6 +84,24 @@ describe("ResearchersExplorer", () => {
     render(<ResearchersExplorer researchers={RESEARCHERS} />);
     expect(screen.getAllByRole("article")).toHaveLength(3);
     expect(screen.getByPlaceholderText("Search by Researcher Name")).toBeInTheDocument();
+  });
+
+  it("combines the sidebar filters and name search, then restores the initial list when cleared", async () => {
+    fetchResearchers.mockResolvedValue({ data: [RESEARCHERS[1]], pagination: { total: 1, totalPages: 1 } });
+    render(<ResearchersExplorer researchers={RESEARCHERS} />);
+    for (const [label, value] of [["Topics", "AI"], ["Research Fields", "Computing"], ["Universities", "Cairo"]]) {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      fireEvent.change(screen.getByRole("textbox", { name: label }), { target: { value } });
+    }
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Sarah El-Ghandour" } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(300); });
+    expect(fetchResearchers).toHaveBeenCalledWith({
+      firstName: "Sarah", lastName: "El-Ghandour", mainTopic: "AI", department: "Computing", institutionName: "Cairo", page: 1,
+    }, expect.any(AbortSignal));
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Clear all" }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(300); });
+    expect(screen.getAllByRole("article")).toHaveLength(3);
   });
 
   it("opens the clicked researcher's profile and keeps other params", () => {

@@ -12,6 +12,13 @@ const ALLOWED_SORT_FIELDS = [
 
 type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
 
+const publicationInclude = {
+    subCategory: { include: { domain: true } },
+    yearlyMetrics: { orderBy: { metricYear: "desc" } },
+    pricings: { orderBy: { pricingYear: "desc" } },
+    editorialStats: true,
+} satisfies Prisma.AcademicPublicationInclude;
+
 
 export const getPublicationsController = async (req, res) => {
     try {
@@ -115,9 +122,7 @@ export const getPublicationsController = async (req, res) => {
                 orderBy: {
                     [sortField]: order,
                 },
-                include: {
-                    subCategory: true,
-                },
+                include: publicationInclude,
             }),
 
             db.academicPublication.count({
@@ -159,9 +164,7 @@ export const getPublicationByIdController = async (req, res) => {
 
         const publication = await db.academicPublication.findUnique({
             where: { id: publicationId },
-            include: {
-                subCategory: true,
-            },
+            include: publicationInclude,
         });
 
         if (!publication) {

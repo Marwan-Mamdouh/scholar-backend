@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Bookmark, Building2, GraduationCap } from "lucide-react";
-import Button from "@/src/components/ui/Button/Button";
+import { Bookmark } from "lucide-react";
+import CatalogCard, {
+  catalogActionClasses,
+} from "@/src/components/catalog/CatalogCard";
+import Badge from "@/src/components/ui/Badge/Badge";
 import ResearcherAvatar from "./ResearcherAvatar";
 import { formatCompact } from "./researcher.utils";
 import type { ResearcherSummary } from "./researcher.type";
@@ -15,26 +18,26 @@ interface ResearcherCardProps {
 const MAX_TAGS = 3;
 
 const ResearcherCard = ({ researcher, onViewProfile }: ResearcherCardProps) => {
-  const { id, name, initials, position, university, universityAbbr, bio, stats, tags } =
-    researcher;
+  const {
+    id,
+    name,
+    initials,
+    position,
+    university,
+    universityAbbr,
+    bio,
+    stats,
+    tags,
+  } = researcher;
   const [bookmarked, setBookmarked] = useState(researcher.bookmarked ?? false);
 
   return (
-    <article
-      aria-label={name}
-      className="flex flex-col gap-3 rounded-2xl border border-neutral-500 bg-white/5 p-5 transition-[border-color,box-shadow,translate] duration-200 ease-out hover:-translate-y-0.5 hover:border-accent-400 hover:shadow-[0_0_15px_#37b5aa33]"
-    >
-      <div className="flex items-center gap-2.5">
-        <ResearcherAvatar id={id} initials={initials} />
-        {universityAbbr && (
-          <span
-            title={university}
-            className="inline-flex min-w-0 items-center gap-1 rounded-full border border-accent-300 px-2 py-0.5 text-xs text-accent-200"
-          >
-            <GraduationCap className="size-3.5 shrink-0" aria-label="Institution" />
-            <span className="truncate">{universityAbbr}</span>
-          </span>
-        )}
+    <CatalogCard
+      title={name}
+      eyebrow={university}
+      description={bio}
+      icon={<ResearcherAvatar id={id} initials={initials} />}
+      badge={
         <button
           type="button"
           aria-pressed={bookmarked}
@@ -48,23 +51,27 @@ const ResearcherCard = ({ researcher, onViewProfile }: ResearcherCardProps) => {
             aria-hidden="true"
           />
         </button>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-bold leading-snug text-neutral-50">{name}</h3>
-        {position && <p className="text-sm text-neutral-200">{position}</p>}
-        {university && (
-          <p className="flex items-center gap-1.5 text-xs text-neutral-300">
-            <Building2 className="size-3.5 shrink-0" aria-label="University" />
-            {university}
-          </p>
-        )}
-      </div>
-
-      {bio && <p className="line-clamp-2 text-sm text-neutral-200">{bio}</p>}
-
+      }
+      action={
+        <button
+          type="button"
+          className={catalogActionClasses}
+          onClick={() => onViewProfile(id)}
+        >
+          View Profile
+        </button>
+      }
+    >
+      {position && <p className="line-clamp-2 text-neutral-200">{position}</p>}
+      {universityAbbr && (
+        <div>
+          <Badge variant="solid" intent="accent" size="md">
+            {universityAbbr}
+          </Badge>
+        </div>
+      )}
       {stats && (
-        <ul aria-label="Research metrics" className="flex flex-wrap gap-1.5">
+        <ul aria-label="Research metrics" className="flex flex-wrap gap-2">
           {[
             { label: "Pubs", value: formatCompact(stats.publications) },
             { label: "Citations", value: formatCompact(stats.citations) },
@@ -81,29 +88,22 @@ const ResearcherCard = ({ researcher, onViewProfile }: ResearcherCardProps) => {
       )}
 
       {tags.length > 0 && (
-        <ul aria-label="Research topics" className="flex flex-wrap gap-1.5">
+        <ul aria-label="Research topics" className="flex flex-wrap gap-2">
           {tags.slice(0, MAX_TAGS).map((tag) => (
-            <li
-              key={tag}
-              className="rounded-full border border-accent-300 px-2.5 py-0.5 text-xs text-accent-200"
-            >
-              {tag}
+            <li key={tag} className="min-w-0">
+              <Badge
+                variant="outlined"
+                intent="accent"
+                size="md"
+                className="max-w-full break-words"
+              >
+                {tag}
+              </Badge>
             </li>
           ))}
         </ul>
       )}
-
-      <Button
-        type="button"
-        variant="solid"
-        intent="primary"
-        size="md"
-        className="mt-auto w-full"
-        onClick={() => onViewProfile(id)}
-      >
-        View Profile
-      </Button>
-    </article>
+    </CatalogCard>
   );
 };
 

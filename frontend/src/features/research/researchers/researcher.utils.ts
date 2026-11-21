@@ -35,11 +35,22 @@ export function cleanName(name: string): string {
   return cleaned.replace(/,.*/, "").trim();
 }
 
+function withoutTrailingNote(label: string): string {
+  return label.trim().replace(/(?:^|\s)\([^()]*\)$/u, "").trimEnd();
+}
+
+function firstLetter(word: string): string {
+  return word.match(/\p{L}/u)?.[0] ?? "";
+}
+
 export function getInitials(name: string): string {
-  const words = cleanName(name).split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "?";
-  const first = words[0][0];
-  const last = words.length > 1 ? words[words.length - 1][0] : "";
+  const initials = withoutTrailingNote(cleanName(name))
+    .split(/\s+/)
+    .map(firstLetter)
+    .filter(Boolean);
+  if (initials.length === 0) return "?";
+  const [first] = initials;
+  const last = initials.length > 1 ? initials.at(-1) : "";
   return `${first}${last}`.toUpperCase();
 }
 
@@ -84,8 +95,8 @@ const MINOR_WORDS = new Set(["of", "in", "the", "for", "and", "at", "de"]);
 
 /** Short badge label for an institution, or undefined when none can be derived. */
 export function abbreviateUniversity(name: string | null | undefined): string | undefined {
-  if (!hasValue(name)) return undefined;
-  const trimmed = name.trim();
+  const trimmed = withoutTrailingNote(name ?? "");
+  if (!hasValue(trimmed)) return undefined;
   const known = KNOWN_ABBREVIATIONS[trimmed.toLowerCase()];
   if (known) return known;
   if (trimmed.length <= 14) return trimmed;
@@ -93,8 +104,9 @@ export function abbreviateUniversity(name: string | null | undefined): string | 
   const acronym = trimmed
     .split(/[\s,\-]+/)
     .filter((word) => word.length > 1 && !MINOR_WORDS.has(word.toLowerCase()))
-    .map((word) => word[0].toUpperCase())
-    .join("");
+    .map(firstLetter)
+    .join("")
+    .toUpperCase();
   return acronym.length >= 2 ? acronym : undefined;
 }
 

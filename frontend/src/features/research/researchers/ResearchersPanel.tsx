@@ -8,14 +8,28 @@ const ResearchersPanel = async () => {
   await connection();
 
   let researchers: AcademicResearcher[] = [];
+  let total = 0;
+  let totalPages = 0;
   let error: string | undefined;
   try {
-    researchers = (await fetchResearchers({ page: 1 })).data ?? [];
+    const result = await fetchResearchers({ page: 1 });
+    researchers = result.data ?? [];
+    ({ total, totalPages } = result.pagination);
   } catch (cause) {
-    error = cause instanceof Error ? cause.message : "The researchers service is unavailable.";
+    error =
+      cause instanceof Error
+        ? cause.message
+        : "The researchers service is unavailable.";
   }
 
-  return <ResearchersExplorer researchers={researchers} error={error} />;
+  return (
+    <ResearchersExplorer
+      researchers={researchers}
+      total={total}
+      totalPages={totalPages}
+      error={error}
+    />
+  );
 };
 
 export default ResearchersPanel;

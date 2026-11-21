@@ -11,12 +11,12 @@ import { cleanName, fullName, toScholarProfile } from "./researcher.utils";
 export const RESEARCHERS_PAGE_SIZE = 12;
 
 export async function fetchResearchers(
-  { page = 1, limit = RESEARCHERS_PAGE_SIZE }: ResearcherQuery,
+  { page = 1, limit = RESEARCHERS_PAGE_SIZE, ...filters }: ResearcherQuery,
   signal?: AbortSignal,
 ): Promise<Paginated<AcademicResearcher>> {
   const { data } = await api.get<Paginated<AcademicResearcher>>(
     "/researchers",
-    { params: { page, limit }, signal },
+    { params: { page, limit, ...filters }, signal },
   );
   return data;
 }

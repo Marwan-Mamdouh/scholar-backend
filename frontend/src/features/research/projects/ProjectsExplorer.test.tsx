@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 vi.mock("next/dynamic", () => ({ default: () => () => null }));
@@ -38,8 +38,10 @@ describe("ProjectsExplorer", () => {
   it("lists the facet options in each dropdown", () => {
     render(<ProjectsExplorer initialPage={makePage([])} facets={FACETS} />);
 
-    const options = (name: string) =>
-      within(screen.getByRole("combobox", { name })).getAllByRole("option").map((o) => o.textContent);
+    const options = (name: string) => {
+      fireEvent.click(screen.getByRole("button", { name }));
+      return within(screen.getByRole("combobox", { name })).getAllByRole("option").map((o) => o.textContent);
+    };
     expect(options("University")).toEqual(["University", "Ain Shams University", "Cairo University"]);
     expect(options("Project Field")).toEqual(["Project Field", "Antennas", "Microwave"]);
     expect(options("Year")).toEqual(["Year", "2025", "2024"]);
@@ -51,7 +53,9 @@ describe("ProjectsExplorer", () => {
     fetchProjects.mockResolvedValue(makePage([makeProject({ id: 50, projectTitle: "Antenna array" })], 1));
     render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 31)} facets={FACETS} />);
 
+    await user.click(screen.getByRole("button", { name: "University" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "University" }), "Cairo University");
+    await user.click(screen.getByRole("button", { name: "Sponsorship" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Sponsorship" }), "sponsored");
 
     await waitFor(() => expect(cards()).toHaveLength(1));
@@ -98,6 +102,7 @@ describe("ProjectsExplorer", () => {
       .mockResolvedValueOnce(makePage(makeProjects(2), 2));
     render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} facets={FACETS} />);
 
+    await user.click(screen.getByRole("button", { name: "Year" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Year" }), "2024");
     expect(await screen.findByText("No projects match these filters.")).toBeInTheDocument();
 
@@ -132,6 +137,7 @@ describe("ProjectsExplorer", () => {
     fetchProjects.mockImplementation(() => Promise.reject(new Error("Network down")));
     render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} facets={FACETS} />);
 
+    await user.click(screen.getByRole("button", { name: "Year" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Year" }), "2025");
     expect(await screen.findByText("Network down")).toBeInTheDocument();
   });

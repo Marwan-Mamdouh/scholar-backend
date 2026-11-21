@@ -18,6 +18,12 @@ export interface AcademicResearcher {
 
 /** Query params supported by GET /api/researchers */
 export interface ResearcherQuery {
+  researcher?: string;
+  firstName?: string;
+  lastName?: string;
+  mainTopic?: string;
+  department?: string;
+  institutionName?: string;
   page?: number;
   limit?: number;
 }

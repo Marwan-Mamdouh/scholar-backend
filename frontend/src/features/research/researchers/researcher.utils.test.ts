@@ -100,6 +100,23 @@ describe("toResearcherSummary", () => {
     });
   });
 
+  it("ignores preview annotations when deriving initials and the university badge", () => {
+    const summary = toResearcherSummary(
+      makeResearcher({
+        firstName: "Mariam",
+        lastName: "Hassan (Demo)",
+        institutionName: "Nexus Cairo University (Demo)",
+      }),
+    );
+
+    expect(summary).toMatchObject({
+      name: "Mariam Hassan (Demo)",
+      initials: "MH",
+      university: "Nexus Cairo University (Demo)",
+      universityAbbr: "NCU",
+    });
+  });
+
   it("omits placeholder institution and missing optional fields", () => {
     const summary = toResearcherSummary(
       makeResearcher({ mainTopic: null, subtopics: null }),

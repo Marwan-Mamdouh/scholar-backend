@@ -3,7 +3,6 @@ import { Document } from "@/src/components/Icons/Document";
 import { Browser } from "@/src/components/Icons/Browser";
 import { Library } from "lucide-react";
 import { FC } from "react";
-import LightingGlow from "@/src/components/ui/LightingGlow/LightingGlow";
 
 export interface StatItem {
   label: string;
@@ -28,11 +27,8 @@ const ResearchInfoCard: FC<ResearchInfoCardProps> = ({
     if (title.includes("Projects")) return <Browser />;
   };
   return (
-    <div className="relative z-0 w-full rounded-3xl bg-white/10 px-4.5 py-3.5 flex flex-col md:flex-row gap-5">
+    <div className="relative z-0 w-full rounded-3xl bg-overlay/10 px-4.5 py-3.5 flex flex-col md:flex-row gap-5">
       <div className="w-2 rounded-full bg-primary-200 shrink-0" />
-      <div className="hidden lg:block absolute top-[-74%] left-[82%] w-73.5 h-54">
-        <LightingGlow variant="accent" className="blur-[150px]" />
-      </div>
       <div className="flex flex-col gap-3 w-full">
         <div className="flex flex-col gap-2">
           <h2 className="text-3xl md:text-2xl font-bold text-primary-200 flex items-center gap-2.5">
@@ -43,13 +39,13 @@ const ResearchInfoCard: FC<ResearchInfoCardProps> = ({
         </div>
 
         {stats && (
-          <div className="flex items-start md:items-center flex-col md:flex-row gap-6 rounded-xl bg-white/10 px-2.5">
+          <div className="flex items-start md:items-center flex-col md:flex-row gap-6 rounded-xl bg-overlay/10 px-2.5">
             {stats?.map((stat, index) => (
               <div key={index} className="flex items-center gap-1 p-1.5">
                 <span className="text-2xl font-bold text-primary-300">
                   {stat.value}
                 </span>
-                <span className="text-white font-medium text-subtext">
+                <span className="text-foreground font-medium text-subtext">
                   {stat.label}
                 </span>
               </div>

@@ -80,7 +80,7 @@ const PapersTab = ({ papers }: { papers: ResearchPaper[] }) => {
           {shown.map((paper) => (
             <li
               key={paper.id}
-              className="grid grid-cols-[3.25rem_1fr] md:grid-cols-[5rem_1fr] gap-3 md:gap-5 rounded-lg px-2 md:px-4 py-4 transition-colors duration-200 hover:bg-white/5"
+              className="grid grid-cols-[3.25rem_1fr] md:grid-cols-[5rem_1fr] gap-3 md:gap-5 rounded-lg px-2 md:px-4 py-4 transition-colors duration-200 hover:bg-overlay/5"
             >
               <span className="text-lg md:text-xl font-bold text-primary-300">
                 {paper.year ?? ""}
@@ -100,7 +100,7 @@ const PapersTab = ({ papers }: { papers: ResearchPaper[] }) => {
                 )}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   {paper.venue && (
-                    <span className="inline-flex max-w-full items-center gap-1.5 rounded-md bg-white/10 px-2 py-0.5 text-neutral-200">
+                    <span className="inline-flex max-w-full items-center gap-1.5 rounded-md bg-overlay/10 px-2 py-0.5 text-neutral-200">
                       <FileText className="size-3.5 shrink-0" aria-hidden="true" />
                       <span className="truncate">{paper.venue}</span>
                     </span>

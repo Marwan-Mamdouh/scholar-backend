@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Search } from "lucide-react";
 import notFoundAnimation from "@/src/components/assets/NotFound.json";
+import CatalogPagination from "@/src/components/catalog/CatalogPagination";
 import { Input } from "@/src/components/ui/InputField/Input";
 import type { Paginated } from "@/src/lib/api-client";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
-import PublicationsTable from "./PublicationsTable";
+import CatalogLayout from "@/src/components/catalog/CatalogLayout";
+import {
+  CATALOG_GRID,
+  CatalogCardsSkeleton,
+} from "@/src/components/catalog/CatalogCard";
+import PublicationCard from "./PublicationCard";
 import { fetchPublications } from "./publication.api";
 import type { Publication } from "./publication.type";
 
@@ -20,57 +26,61 @@ interface PublicationsExplorerProps {
   initialPage: Paginated<Publication>;
 }
 
-type Status = "idle" | "loading" | "error";
-
-const PAGE_BUTTON =
-  "flex items-center gap-1 rounded-full border border-accent-400 px-4 py-1.5 text-sm text-accent-200 hover:bg-accent-400/10 cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent";
-
 const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [result, setResult] = useState(initialPage);
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [reloadToken, setReloadToken] = useState(0);
-
-  const debouncedSearch = useDebouncedValue(search, 300);
-
-  const queryKey = `${debouncedSearch.trim()}|${page}`;
-  const loadedKeyRef = useRef(queryKey);
+  const [attempt, setAttempt] = useState(0);
+  const [loaded, setLoaded] = useState<{
+    key: string;
+    data?: Paginated<Publication>;
+    error?: string;
+  }>();
+  const term = search.trim();
+  const debounced = useDebouncedValue(term, 300);
+  const pending = term !== debounced;
+  const firstPage = page === 1 && !debounced;
+  const key = JSON.stringify([debounced, page, attempt]);
 
   useEffect(() => {
-    if (loadedKeyRef.current === queryKey && reloadToken === 0) return;
-
+    if (pending || firstPage) return;
     const controller = new AbortController();
-    setStatus("loading");
-    setError(null);
-
-    fetchPublications({ search: debouncedSearch, page }, controller.signal)
+    fetchPublications({ search: debounced, page }, controller.signal)
       .then((data) => {
-        loadedKeyRef.current = queryKey;
-        setResult(data);
-        setStatus("idle");
+        if (!controller.signal.aborted) setLoaded({ key, data });
       })
       .catch((cause: unknown) => {
-        if (controller.signal.aborted) return;
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : "Something went wrong loading publications.",
-        );
-        setStatus("error");
+        if (!controller.signal.aborted)
+          setLoaded({
+            key,
+            error:
+              cause instanceof Error
+                ? cause.message
+                : "Could not load publications.",
+          });
       });
-
     return () => controller.abort();
-  }, [queryKey, debouncedSearch, page, reloadToken]);
+  }, [key, firstPage, pending, debounced, page]);
 
-  const publications = result.data ?? [];
-  const { total, totalPages } = result.pagination;
+  const current = firstPage
+    ? { data: initialPage, error: undefined }
+    : loaded?.key === key
+      ? loaded
+      : undefined;
+  const loading = pending || !current;
+  const publications = current?.data?.data ?? [];
+  const { total, totalPages } = current?.data?.pagination ?? {
+    total: 0,
+    totalPages: 0,
+  };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="w-full lg:w-75">
+    <CatalogLayout
+      resultsLabel="Publication results"
+      search={
         <Input
+          type="search"
+          endAdornment={<Search aria-hidden="true" className="size-5" />}
+          aria-label="Search publications"
           placeholder="Search by title, acronym or ISSN"
           value={search}
           onChange={(event) => {
@@ -78,31 +88,27 @@ const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
             setPage(1);
           }}
         />
-      </div>
-
-      <div className="flex items-center justify-between gap-4 min-h-6">
-        <span className="text-sm text-neutral-300">
-          {status === "loading"
-            ? "Loading publications…"
+      }
+    >
+      <p role="status" className="text-sm text-accent-200">
+        {loading
+          ? "Loading publications…"
+          : current.error
+            ? "Publications unavailable"
             : `${total} publication${total === 1 ? "" : "s"}`}
-        </span>
-        {status === "loading" && (
-          <Loader2
-            className="size-4 animate-spin text-accent-300"
-            aria-hidden="true"
-          />
-        )}
-      </div>
+      </p>
 
-      {status === "error" ? (
+      {loading ? (
+        <CatalogCardsSkeleton />
+      ) : current.error ? (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
           <h3 className="text-xl font-semibold text-danger-300">
             Couldn&apos;t load publications
           </h3>
-          <p className="text-neutral-100 max-w-md">{error}</p>
+          <p className="text-neutral-100 max-w-md">{current.error}</p>
           <button
             type="button"
-            onClick={() => setReloadToken((token) => token + 1)}
+            onClick={() => setAttempt((value) => value + 1)}
             className="mt-1 rounded-full border border-accent-400 px-5 py-2 text-sm text-accent-200 hover:bg-accent-400/10 cursor-pointer transition-colors"
           >
             Try again
@@ -123,42 +129,22 @@ const PublicationsExplorer = ({ initialPage }: PublicationsExplorerProps) => {
           </p>
         </div>
       ) : (
-        <div
-          className={`flex flex-col gap-4 transition-opacity duration-300 ${status === "loading" ? "opacity-60" : "opacity-100"}`}
-        >
-          <PublicationsTable publications={publications} />
+        <div className="flex flex-col gap-6">
+          <div className={CATALOG_GRID}>
+            {publications.map((publication) => (
+              <PublicationCard key={publication.id} publication={publication} />
+            ))}
+          </div>
 
-          {totalPages > 1 && (
-            <nav
-              aria-label="Publications pages"
-              className="flex items-center justify-center gap-4"
-            >
-              <button
-                type="button"
-                className={PAGE_BUTTON}
-                disabled={page <= 1 || status === "loading"}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                <ChevronLeft className="size-4" aria-hidden="true" />
-                Previous
-              </button>
-              <span className="text-sm text-neutral-300">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                type="button"
-                className={PAGE_BUTTON}
-                disabled={page >= totalPages || status === "loading"}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-                <ChevronRight className="size-4" aria-hidden="true" />
-              </button>
-            </nav>
-          )}
+          <CatalogPagination
+            label="Publications pages"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       )}
-    </div>
+    </CatalogLayout>
   );
 };
 

@@ -15,24 +15,29 @@ const tabs: { id: TabType; label: string }[] = [
 
 const ResearchTabs: FC<ResearchTabsProps> = ({ activeTab, onTabChange }) => {
   return (
-    <div className="flex w-full items-end gap-0.5 mt-7 z-10 relative">
+    <nav
+      aria-label="Research catalogs"
+      className="relative z-10 flex w-full items-center gap-2 overflow-x-auto pb-1"
+    >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
-          <span
+          <button
             key={tab.id}
+            type="button"
+            aria-current={isActive ? "page" : undefined}
             onClick={() => onTabChange(tab.id)}
-            className={`flex-1 text-center sm:flex-none px-1 sm:px-14.5 py-1.5 rounded-t-[18px] transition-all ease-in-out duration-500 font-normal text-sm sm:text-lg ${
+            className={`shrink-0 cursor-pointer rounded-xl px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-200 sm:px-6 sm:text-base ${
               isActive
-                ? "bg-transparent text-accent-200 border-t-4 border-x border-accent-200 font-semibold py-2"
-                : "bg-accent-700 text-neutral-50 cursor-pointer"
+                ? "bg-accent-700/30 text-accent-200"
+                : "text-neutral-200 hover:bg-overlay/5 hover:text-neutral-50"
             }`}
           >
             {tab.label}
-          </span>
+          </button>
         );
       })}
-    </div>
+    </nav>
   );
 };
 

@@ -3,11 +3,8 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSwapTransition } from "@/src/hooks/useSwapTransition";
-import ResearchContent from "../ResearchContent";
-import ResearcherGrid from "./ResearcherGrid";
+import ResearcherListing, { useResearcherListing } from "./ResearcherListing";
 import ResearcherProfile from "./profile/ResearcherProfile";
-import { toResearcherSummary } from "./researcher.utils";
-import { PANEL_SHELL } from "./researcher.style";
 import type { AcademicResearcher } from "./researcher.type";
 
 export const RESEARCHER_PARAM = "researcher";
@@ -29,14 +26,30 @@ export function parseResearcherId(value: string | null): number | null {
 
 interface ResearchersExplorerProps {
   researchers: AcademicResearcher[];
+  total?: number;
+  totalPages?: number;
   /** Set when the list request failed; profiles opened by URL still work */
   error?: string;
 }
 
-const ResearchersExplorer = ({ researchers, error }: ResearchersExplorerProps) => {
+const ResearchersExplorer = ({
+  researchers,
+  total = researchers.length,
+  totalPages = 1,
+  error,
+}: ResearchersExplorerProps) => {
+  const listing = useResearcherListing({
+    items: researchers,
+    total,
+    totalPages,
+    error,
+  });
   const searchParams = useSearchParams();
   const selectedId = parseResearcherId(searchParams.get(RESEARCHER_PARAM));
-  const { shown: shownId, leaving } = useSwapTransition(selectedId, TRANSITION_MS);
+  const { shown: shownId, leaving } = useSwapTransition(
+    selectedId,
+    TRANSITION_MS,
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
@@ -75,34 +88,15 @@ const ResearchersExplorer = ({ researchers, error }: ResearchersExplorerProps) =
         aria-busy={leaving || undefined}
       >
         {isProfile ? (
-          <div className={PANEL_SHELL}>
-            <ResearcherProfile
-              id={shownId}
-              initialResearcher={researchers.find((researcher) => researcher.id === shownId)}
-              onBack={() => navigate(null)}
-            />
-          </div>
-        ) : error ? (
-          <ResearchContent activeTab="researchers">
-            <div className="flex flex-col items-center justify-center gap-2.5 py-20 text-center">
-              <h3 className="text-2xl font-semibold text-danger-300">
-                Researchers Are Unavailable
-              </h3>
-              <p className="max-w-md text-neutral-100">{error}</p>
-              <p className="text-sm text-neutral-300">
-                Reload the page once the service is reachable again.
-              </p>
-            </div>
-          </ResearchContent>
-        ) : researchers.length > 0 ? (
-          <ResearchContent activeTab="researchers">
-            <ResearcherGrid
-              researchers={researchers.map(toResearcherSummary)}
-              onViewProfile={navigate}
-            />
-          </ResearchContent>
+          <ResearcherProfile
+            id={shownId}
+            initialResearcher={listing.result?.items.find(
+              (researcher) => researcher.id === shownId,
+            )}
+            onBack={() => navigate(null)}
+          />
         ) : (
-          <ResearchContent activeTab="researchers" />
+          <ResearcherListing listing={listing} onViewProfile={navigate} />
         )}
       </div>
     </div>

@@ -108,7 +108,6 @@ export interface Publication {
   imprint: string | null;
   subBucket: string | null;
   subCategory: PublicationSubCategory;
-  // Not returned by GET /api/publications yet (it only includes subCategory)
   yearlyMetrics?: PublicationYearlyMetric[];
   pricings?: PublicationPricing[];
   editorialStats?: PublicationEditorialStat[];

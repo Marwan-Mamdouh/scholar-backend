@@ -64,7 +64,7 @@ const ResearcherProfile = ({ id, initialResearcher, onBack }: ResearcherProfileP
       <button
         type="button"
         onClick={onBack}
-        className="self-start inline-flex items-center gap-2 rounded-full border border-neutral-500 bg-white/5 px-4 py-1.5 text-sm text-neutral-100 transition-colors duration-200 hover:border-primary-300 hover:text-primary-200 cursor-pointer"
+        className="self-start inline-flex items-center gap-2 rounded-full border border-neutral-500 bg-overlay/5 px-4 py-1.5 text-sm text-neutral-100 transition-colors duration-200 hover:border-primary-300 hover:text-primary-200 cursor-pointer"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Back to list
