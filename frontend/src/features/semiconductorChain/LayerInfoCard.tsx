@@ -15,7 +15,7 @@ const LayerInfoCard: FC<{ layer: ChainLayer }> = ({ layer }) => {
   return (
     <div
       id={LAYER_DETAIL_ID}
-      className="relative z-0 w-full rounded-3xl bg-white/10 px-4.5 py-3.5 flex flex-col md:flex-row gap-5"
+      className="relative z-0 w-full rounded-3xl bg-overlay/10 px-4.5 py-3.5 flex flex-col md:flex-row gap-5"
     >
       <div className={`w-2 rounded-full ${tone.bg} shrink-0`} />
 
@@ -47,11 +47,11 @@ const LayerInfoCard: FC<{ layer: ChainLayer }> = ({ layer }) => {
           <p className="text-neutral-50 text-lg font-normal">{layer.tagline}</p>
         </div>
 
-        <div className="flex items-start md:items-center flex-col md:flex-row gap-6 rounded-xl bg-white/10 px-2.5">
+        <div className="flex items-start md:items-center flex-col md:flex-row gap-6 rounded-xl bg-overlay/10 px-2.5">
           {stats.map((stat) => (
             <div key={stat.label} className="flex items-center gap-1.5 p-1.5">
               <span className={`text-2xl font-bold ${tone.text}`}>{stat.value}</span>
-              <span className="text-white font-medium text-subtext">{stat.label}</span>
+              <span className="text-foreground font-medium text-subtext">{stat.label}</span>
             </div>
           ))}
         </div>

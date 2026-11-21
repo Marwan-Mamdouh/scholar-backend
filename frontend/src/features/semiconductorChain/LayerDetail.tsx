@@ -7,7 +7,7 @@ import LayerLink from "./LayerLink";
 
 /* min-h keeps the buttons from resizing as longer layer names wrap. */
 const navLinkClasses =
-  "group flex min-h-24 flex-1 items-center gap-3 rounded-2xl border border-neutral-600 px-5 py-3.5 transition-colors duration-300 hover:border-neutral-300 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300";
+  "group flex min-h-24 flex-1 items-center gap-3 rounded-2xl border border-neutral-600 px-5 py-3.5 transition-colors duration-300 hover:border-neutral-300 hover:bg-overlay/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300";
 
 interface LayerDetailProps {
   layer: ChainLayer;
@@ -29,7 +29,7 @@ const LayerDetail: FC<LayerDetailProps> = ({ layer, previousLayer, nextLayer }) 
     >
       {/* Overview, and how this layer connects to the one above it */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="flex flex-col gap-2.5 rounded-2xl bg-white/5 p-5.5">
+        <div className="flex flex-col gap-2.5 rounded-2xl bg-overlay/5 p-5.5">
           <h3 className={`text-h4 font-bold ${tone.text}`}>Overview</h3>
           <p className="text-subtext text-neutral-100">{layer.overview}</p>
         </div>
@@ -85,7 +85,7 @@ const LayerDetail: FC<LayerDetailProps> = ({ layer, previousLayer, nextLayer }) 
 
       {/* Key takeaway */}
       <div
-        className={`flex flex-col gap-2 rounded-2xl border-l-4 ${tone.border} bg-white/5 px-5.5 py-4.5`}
+        className={`flex flex-col gap-2 rounded-2xl border-l-4 ${tone.border} bg-overlay/5 px-5.5 py-4.5`}
       >
         <h3 className={`text-caption font-bold uppercase tracking-eyebrow ${tone.text}`}>
           Key takeaway

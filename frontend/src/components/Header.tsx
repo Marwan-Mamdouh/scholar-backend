@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import LogoIcon from "./Icons/Logo";
-import ThemeIcon from "./Icons/Theme";
+import ThemeToggle from "./ui/ThemeToggle/ThemeToggle";
 import { Menu, X } from "lucide-react";
 import Button from "./ui/Button/Button";
 
@@ -29,7 +29,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 z-50 flex min-h-21.5 w-full flex-col bg-neutral-900/50 px-6 py-6 backdrop-blur-[7.5px] sm:px-10 lg:h-21.5 lg:flex-row lg:items-center lg:justify-between lg:px-26 lg:py-3.5 overflow-hidden">
+    <header className="fixed top-0 left-0 z-50 flex min-h-21.5 w-full flex-col bg-neutral-900/95 lg:bg-neutral-900/50 px-6 py-6 backdrop-blur-[7.5px] sm:px-10 lg:h-21.5 lg:flex-row lg:items-center lg:justify-between lg:px-26 lg:py-3.5 overflow-hidden">
       <div className="flex w-full items-center justify-between lg:w-max">
         <Link
           aria-label="NEXUS home"
@@ -42,13 +42,7 @@ export default function Header() {
 
         {/* Mobile controls (Theme + Hamburger) */}
         <div className="flex items-center gap-2 lg:hidden">
-          <button
-            aria-label="Toggle theme"
-            className="flex h-12.5 w-12.5 items-center justify-center rounded-xl text-neutral-300 transition-colors duration-200 hover:text-neutral-100 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-100"
-            type="button"
-          >
-            <ThemeIcon className="h-8 w-8" />
-          </button>
+          <ThemeToggle className="flex h-12.5 w-12.5" />
           <button
             aria-label="Toggle menu"
             className="flex h-12.5 w-12.5 items-center justify-center rounded-xl text-neutral-300 transition-colors duration-200 hover:text-neutral-100 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-100"
@@ -122,13 +116,7 @@ export default function Header() {
           >
             Login
           </Button>
-          <button
-            aria-label="Toggle theme"
-            className="hidden lg:flex h-13.5 w-13.5 items-center justify-center rounded-xl px-2 py-1 text-neutral-300 transition-colors duration-200 hover:text-neutral-100 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-100"
-            type="button"
-          >
-            <ThemeIcon className="h-9.5 w-9.5" />
-          </button>
+          <ThemeToggle className="hidden h-13.5 w-13.5 lg:flex" />
         </div>
       </div>
     </header>

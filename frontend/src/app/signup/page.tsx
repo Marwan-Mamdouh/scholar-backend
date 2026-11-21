@@ -104,7 +104,7 @@ export default function SignupPage() {
     <AuthShell>
       {currentStep === "stage" && (
         <section className="w-full max-w-216 animate-[fadeInUp_500ms_ease-out]">
-          <div className="rounded-4xl border border-primary-300/35 bg-[rgba(11,34,54,0.68)] px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.16),0_0_75px_rgba(11,34,54,0.32)] backdrop-blur-2xl sm:px-8 lg:px-12 lg:py-10">
+          <div className="rounded-4xl border border-primary-300/35 bg-surface/90 px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.16),0_0_75px_rgba(11,34,54,0.32)] backdrop-blur-2xl sm:px-8 lg:px-12 lg:py-10">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary-300/80 bg-primary-400/10 text-primary-300 shadow-[0_0_24px_rgba(58,144,201,0.24)]">
               <UserPlus className="h-8 w-8" />
             </div>
@@ -131,7 +131,7 @@ export default function SignupPage() {
                     className={`flex min-h-34 flex-col items-center justify-center rounded-3xl border px-5 py-6 text-center transition-all duration-300 ${
                       isSelected
                         ? "border-primary-200 bg-primary-500/20 shadow-[0_0_20px_rgba(112,181,223,0.18)]"
-                        : "border-transparent bg-[#1b4660]/75 hover:border-primary-300/40 hover:bg-[#214d68]/80"
+                        : "border-transparent bg-neutral-700/75 hover:border-primary-300/40 hover:bg-neutral-600/80"
                     }`}
                   >
                     <Icon className="h-12 w-12 text-primary-100" />
@@ -148,7 +148,7 @@ export default function SignupPage() {
 
             <div className="mt-8 flex items-center justify-end">
               <Button
-                className="h-11 min-w-23 rounded-[0.7rem] bg-[#2f86c0] px-4 text-base font-semibold text-neutral-50 hover:bg-[#3b92cd]"
+                className="h-11 min-w-23 rounded-[0.7rem] bg-action-primary px-4 text-base font-semibold text-on-action hover:bg-action-primary-hover"
                 intent="primary"
                 onClick={() => setCurrentStep("profile")}
                 type="button"
@@ -174,7 +174,7 @@ export default function SignupPage() {
 
       {currentStep === "profile" && (
         <section className="w-full max-w-md animate-[fadeInUp_500ms_ease-out]">
-          <div className="rounded-4xl border border-primary-300/35 bg-[rgba(11,34,54,0.68)] px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.16),0_0_75px_rgba(11,34,54,0.32)] backdrop-blur-2xl sm:px-8">
+          <div className="rounded-4xl border border-primary-300/35 bg-surface/90 px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.16),0_0_75px_rgba(11,34,54,0.32)] backdrop-blur-2xl sm:px-8">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary-300/80 bg-primary-400/10 text-primary-300 shadow-[0_0_24px_rgba(58,144,201,0.24)]">
               <UserPlus className="h-8 w-8" />
             </div>
@@ -247,7 +247,7 @@ export default function SignupPage() {
                 Back
               </Button>
               <Button
-                className="h-11 flex-1 rounded-[0.7rem] bg-[#20a6a1] px-4 text-base font-semibold text-neutral-50 hover:bg-[#28b4af]"
+                className="h-11 flex-1 rounded-[0.7rem] bg-action-accent px-4 text-base font-semibold text-on-action hover:bg-action-accent-hover"
                 intent="primary"
                 onClick={handleCreateAccount}
                 type="button"
@@ -273,7 +273,7 @@ export default function SignupPage() {
 
       {currentStep === "success" && (
         <section className="w-full max-w-88 animate-[fadeInUp_500ms_ease-out]">
-          <div className="rounded-4xl border border-primary-300/35 bg-[rgba(11,34,54,0.68)] px-6 py-10 text-center shadow-[0_0_0_1px_rgba(90,167,214,0.16),0_0_75px_rgba(11,34,54,0.32)] backdrop-blur-2xl sm:px-8">
+          <div className="rounded-4xl border border-primary-300/35 bg-surface/90 px-6 py-10 text-center shadow-[0_0_0_1px_rgba(90,167,214,0.16),0_0_75px_rgba(11,34,54,0.32)] backdrop-blur-2xl sm:px-8">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent-400/80 bg-accent-400/10 text-accent-200 shadow-[0_0_24px_rgba(55,181,170,0.18)]">
               <UserPlus className="h-8 w-8" />
             </div>

@@ -14,7 +14,7 @@ const CompanyCard: FC<CompanyCardProps> = ({ company, tone, relationshipLabel })
 
   return (
     <article
-      className={`flex h-full flex-col gap-4 rounded-2xl border ${toneClasses.softBorder} bg-white/5 p-5 transition-colors duration-300 hover:bg-white/10`}
+      className={`flex h-full flex-col gap-4 rounded-2xl border ${toneClasses.softBorder} bg-overlay/5 p-5 transition-colors duration-300 hover:bg-overlay/10`}
     >
       <header className="flex flex-wrap items-center gap-2.5">
         <span className={`h-6 w-1 shrink-0 rounded-full ${toneClasses.bg}`} aria-hidden="true" />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Kadwa, Kanit } from "next/font/google";
 import "./globals.css";
 import AppShell from "../components/AppShell";
+import { themeInitScript } from "@/src/lib/theme";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -34,8 +35,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistMono.variable} ${kanit.variable} ${kadwa.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <AppShell>{children}</AppShell>
       </body>

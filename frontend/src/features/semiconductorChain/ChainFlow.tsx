@@ -26,7 +26,7 @@ const ChainFlow: FC = () => {
             key={step.step}
             /* One tone for all five: per-step colour implied a layer identity
                these cards cannot carry — 3 of 5 share a layer. The pills carry it. */
-            className="relative flex flex-col gap-3 rounded-2xl border-t-4 border-accent-300 bg-white/5 p-4.5"
+            className="relative flex flex-col gap-3 rounded-2xl border-t-4 border-accent-300 bg-overlay/5 p-4.5"
           >
             <div className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-400 text-sm font-bold text-neutral-900">

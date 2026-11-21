@@ -53,7 +53,7 @@ export default function LoginPage() {
   return (
     <AuthShell>
       <section className="w-full max-w-md animate-[fadeInUp_500ms_ease-out]">
-        <div className="rounded-4xl border border-primary-300/40 bg-[rgba(11,34,54,0.72)] px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.18),0_0_75px_rgba(11,34,54,0.35)] backdrop-blur-2xl sm:px-8">
+        <div className="rounded-4xl border border-primary-300/40 bg-surface/90 px-6 py-8 shadow-[0_0_0_1px_rgba(90,167,214,0.18),0_0_75px_rgba(11,34,54,0.35)] backdrop-blur-2xl sm:px-8">
           <>
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent-400/90 bg-accent-400/10 text-accent-300 shadow-[0_0_24px_rgba(55,181,170,0.22)]">
                 <CircleUserRound className="h-8 w-8" />
@@ -105,7 +105,7 @@ export default function LoginPage() {
 
               <div className="mt-5">
                 <Button
-                  className="h-11 w-full rounded-[0.7rem] bg-[#2f86c0] px-4 text-base font-semibold text-neutral-50 hover:bg-[#3b92cd]"
+                  className="h-11 w-full rounded-[0.7rem] bg-action-primary px-4 text-base font-semibold text-on-action hover:bg-action-primary-hover"
                   intent="primary"
                   onClick={handleLogin}
                   type="button"
@@ -125,7 +125,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleGoogle}
-                className="flex h-11 w-full items-center justify-center rounded-[0.7rem] bg-[#20a6a1] text-base font-semibold text-neutral-50 transition-colors hover:bg-[#28b4af]"
+                className="flex h-11 w-full items-center justify-center rounded-[0.7rem] bg-action-accent text-base font-semibold text-on-action transition-colors hover:bg-action-accent-hover"
               >
                 Google
               </button>
