@@ -24,6 +24,7 @@ describe("fetchResearchers", () => {
     await expect(fetchResearchers({ page: 2 })).resolves.toBe(page);
     expect(get).toHaveBeenCalledWith("/researchers", {
       params: { page: 2, limit: 12 },
+      paramsSerializer: { indexes: null },
       signal: undefined,
     });
   });

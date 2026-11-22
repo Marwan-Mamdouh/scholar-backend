@@ -1,6 +1,5 @@
 import type {
   GraduationProject,
-  ProjectFacets,
   ProjectFilters,
   ProjectSummary,
 } from "./project.type";
@@ -13,8 +12,8 @@ export function hasValue(value: string | null | undefined): value is string {
 
 export const EMPTY_FILTERS: ProjectFilters = {
   search: "",
-  university: "",
-  projectField: "",
+  universities: [],
+  projectFields: [],
   yearRange: null,
   sponsorship: "",
 };
@@ -67,26 +66,6 @@ export function toProjectSummary(project: GraduationProject): ProjectSummary {
     supervisor: hasValue(project.supervisor) ? project.supervisor.trim() : undefined,
     mentors: toNameList(project.coSupervisor),
     sponsor,
-  };
-}
-
-function sortedUnique(values: (string | undefined)[]) {
-  const byKey = new Map<string, string>();
-  for (const value of values) {
-    if (!value) continue;
-    const key = value.toLowerCase();
-    if (!byKey.has(key)) byKey.set(key, value);
-  }
-  return [...byKey.values()].sort((a, b) => a.localeCompare(b));
-}
-
-/** Dropdown options from a sample of projects (the API has no facets endpoint). */
-export function buildFacets(projects: GraduationProject[]): ProjectFacets {
-  return {
-    universities: sortedUnique(
-      projects.map((project) => (hasValue(project.university) ? project.university.trim() : undefined)),
-    ),
-    fields: sortedUnique(projects.flatMap((project) => toFieldList(project.domains))),
   };
 }
 

@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { SearchX } from "lucide-react";
 import Button from "@/src/components/ui/Button/Button";
-import { CATALOG_GRID, CatalogCardsSkeleton } from "@/src/components/catalog/CatalogCard";
+import {
+  CATALOG_GRID,
+  CatalogCardsSkeleton,
+} from "@/src/components/catalog/CatalogCard";
 import CatalogPagination from "@/src/components/catalog/CatalogPagination";
 import CatalogLayout from "@/src/components/catalog/CatalogLayout";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
@@ -48,20 +51,20 @@ export default function JobsExplorer() {
 
   const data = result?.data;
   const activeFilterCount = [
-    filters.country,
-    filters.company,
-    filters.discipline,
+    filters.countries.length > 0,
+    filters.companyIds.length > 0,
+    filters.disciplines.length > 0,
     filters.type,
     filters.seniority,
-  ].filter((value) => value.trim()).length;
+  ].filter(Boolean).length;
   const hasFilters = [
     filters.search,
-    filters.country,
-    filters.company,
-    filters.discipline,
+    filters.countries.length > 0,
+    filters.companyIds.length > 0,
+    filters.disciplines.length > 0,
     filters.type,
     filters.seniority,
-  ].some((value) => value.trim());
+  ].some(Boolean);
   const pagination = data?.pagination;
   const first =
     pagination && pagination.total

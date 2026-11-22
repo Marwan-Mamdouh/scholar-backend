@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import CatalogFacetLoader from "@/src/components/catalog/CatalogFacetLoader";
+import SearchableFacet from "@/src/components/ui/SearchableFacet/SearchableFacet";
 import Button from "@/src/components/ui/Button/Button";
 import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
 import { OptionList } from "@/src/components/ui/OptionList/OptionList";
-import {
-  countPublicationFilters,
-  fetchPublicationFacets,
-} from "./publication.api";
+import { countPublicationFilters } from "./publication.api";
 import {
   ACCESS_TYPE_LABELS,
   EMPTY_FILTERS,
@@ -71,48 +69,6 @@ export default function PublicationFilterBar({
   filters,
   onChange,
 }: PublicationFilterBarProps) {
-  const [facets, setFacets] = useState<PublicationFacets>();
-  const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchPublicationFacets(controller.signal)
-      .then((options) => {
-        if (!controller.signal.aborted) setFacets(options);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setFailed(true);
-      });
-    return () => controller.abort();
-  }, [attempt]);
-
-  if (failed) {
-    return (
-      <div className="text-sm text-neutral-200">
-        <p>Couldn’t load publication filters.</p>
-        <Button
-          type="button"
-          variant="link"
-          intent="accent"
-          onClick={() => {
-            setFailed(false);
-            setAttempt((value) => value + 1);
-          }}
-        >
-          Try again
-        </Button>
-      </div>
-    );
-  }
-
-  if (!facets)
-    return (
-      <p role="status" className="text-sm text-neutral-300">
-        Loading filters…
-      </p>
-    );
-
   const update = <Key extends keyof PublicationFilters>(
     key: Key,
     value: PublicationFilters[Key],
@@ -120,43 +76,52 @@ export default function PublicationFilterBar({
 
   return (
     <div className="flex flex-col gap-1">
-      <Facet
-        label="Subject"
-        options={facets.subjects.map((subject) => ({
-          value: subject.id,
-          label: subject.name,
-          hint: subject.domain?.name,
-        }))}
-        selected={filters.categoryIds}
-        onChange={(value) => update("categoryIds", value)}
-      />
-      <Facet
-        label="Publication type"
-        options={facets.publicationTypes.map((value) => ({
-          value,
-          label: value,
-        }))}
-        selected={filters.publicationTypes}
-        onChange={(value) => update("publicationTypes", value)}
-      />
-      <Facet
-        label="Access model"
-        options={labeledOptions(facets.accessModels, ACCESS_TYPE_LABELS)}
-        selected={filters.accessModels}
-        onChange={(value) => update("accessModels", value)}
-      />
-      <Facet
-        label="Publisher"
-        options={labeledOptions(facets.publishers, PUBLISHER_LABELS)}
-        selected={filters.publishers}
-        onChange={(value) => update("publishers", value)}
-      />
-      <Facet
-        label="Latest quartile"
-        options={facets.quartiles.map((value) => ({ value, label: value }))}
-        selected={filters.quartiles}
-        onChange={(value) => update("quartiles", value)}
-      />
+      <CatalogFacetLoader<PublicationFacets> catalog="publications">
+        {(facets) => (
+          <>
+            <SearchableFacet
+              label="Subject"
+              options={facets.subjects.map((subject) => ({
+                value: subject.id,
+                label: subject.name,
+                hint: subject.domain?.name,
+              }))}
+              selected={filters.categoryIds}
+              onChange={(value) => update("categoryIds", value)}
+            />
+            <Facet
+              label="Publication type"
+              options={facets.publicationTypes.map((value) => ({
+                value,
+                label: value,
+              }))}
+              selected={filters.publicationTypes}
+              onChange={(value) => update("publicationTypes", value)}
+            />
+            <Facet
+              label="Access model"
+              options={labeledOptions(facets.accessModels, ACCESS_TYPE_LABELS)}
+              selected={filters.accessModels}
+              onChange={(value) => update("accessModels", value)}
+            />
+            <SearchableFacet
+              label="Publisher"
+              options={labeledOptions(facets.publishers, PUBLISHER_LABELS)}
+              selected={filters.publishers}
+              onChange={(value) => update("publishers", value)}
+            />
+            <Facet
+              label="Latest quartile"
+              options={facets.quartiles.map((value) => ({
+                value,
+                label: value,
+              }))}
+              selected={filters.quartiles}
+              onChange={(value) => update("quartiles", value)}
+            />
+          </>
+        )}
+      </CatalogFacetLoader>
       {countPublicationFilters(filters) > 0 && (
         <Button
           type="button"

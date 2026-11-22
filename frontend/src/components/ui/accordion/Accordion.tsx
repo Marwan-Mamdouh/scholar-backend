@@ -23,6 +23,7 @@ const Accordion = ({
   disabled = false,
   variant = "default",
   badge,
+  summary,
 }: AccordionProps) => {
   const [open, setOpen] = useState(defaultOpen);
   const panelId = useId();
@@ -45,8 +46,7 @@ const Accordion = ({
             className={`flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-1 py-2 text-left text-sm font-medium transition-colors hover:text-accent-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-200 disabled:cursor-default disabled:opacity-50 ${open ? "text-accent-200" : "text-neutral-100"}`}
           >
             <span className="flex min-w-0 items-center gap-2">
-              <span>{title}</span>
-              {badge}
+              <span>{title}</span> {badge}
             </span>
             <ChevronDown
               aria-hidden="true"
@@ -54,6 +54,7 @@ const Accordion = ({
             />
           </button>
         </h3>
+        {summary}
         <div
           id={panelId}
           aria-labelledby={triggerId}

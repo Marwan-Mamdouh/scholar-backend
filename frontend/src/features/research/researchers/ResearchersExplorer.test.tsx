@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 
 // Next.js syncs useSearchParams with window.history.pushState; emulate that here.
 const { urlStore } = vi.hoisted(() => {
@@ -32,6 +32,11 @@ vi.mock("./researcher.api", () => ({ fetchResearchers, fetchResearcher, fetchSch
 
 import ResearchersExplorer, { parseResearcherId } from "./ResearchersExplorer";
 import { RESEARCHERS, makeScholarProfile } from "./researcher.test-fixtures";
+
+vi.mock("@/src/components/catalog/CatalogFacetLoader", () => ({
+  default: ({ children }: { children: (facets: { topics: string[]; departments: string[]; universities: string[] }) => ReactNode }) =>
+    children({ topics: ["AI", "VLSI"], departments: ["Computing"], universities: ["Cairo"] }),
+}));
 
 const originalPushState = window.history.pushState.bind(window.history);
 
@@ -91,12 +96,12 @@ describe("ResearchersExplorer", () => {
     render(<ResearchersExplorer researchers={RESEARCHERS} />);
     for (const [label, value] of [["Topics", "AI"], ["Research Fields", "Computing"], ["Universities", "Cairo"]]) {
       fireEvent.click(screen.getByRole("button", { name: label }));
-      fireEvent.change(screen.getByRole("textbox", { name: label }), { target: { value } });
+      fireEvent.click(screen.getByRole("checkbox", { name: value }));
     }
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Sarah El-Ghandour" } });
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search researchers" }), { target: { value: "Sarah El-Ghandour" } });
     await act(async () => { await vi.advanceTimersByTimeAsync(300); });
     expect(fetchResearchers).toHaveBeenCalledWith({
-      firstName: "Sarah", lastName: "El-Ghandour", mainTopic: "AI", department: "Computing", institutionName: "Cairo", page: 1,
+      firstName: "Sarah", lastName: "El-Ghandour", topics: ["AI"], departments: ["Computing"], universities: ["Cairo"], page: 1,
     }, expect.any(AbortSignal));
     expect(screen.getAllByRole("article")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "Clear all" }));

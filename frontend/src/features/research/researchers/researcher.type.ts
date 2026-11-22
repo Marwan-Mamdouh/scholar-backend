@@ -17,7 +17,13 @@ export interface AcademicResearcher {
 }
 
 /** Query params supported by GET /api/researchers */
-export interface ResearcherQuery {
+export interface ResearcherFacets {
+  topics: string[];
+  departments: string[];
+  universities: string[];
+}
+
+export interface ResearcherQuery extends Partial<ResearcherFacets> {
   researcher?: string;
   firstName?: string;
   lastName?: string;

@@ -12,6 +12,7 @@ export interface AccordionProps {
   variant?: "default" | "compact";
 
   badge?: ReactNode;
+  summary?: ReactNode;
 
   children?: ReactNode;
 

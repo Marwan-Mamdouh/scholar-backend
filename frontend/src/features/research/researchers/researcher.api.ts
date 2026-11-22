@@ -16,7 +16,7 @@ export async function fetchResearchers(
 ): Promise<Paginated<AcademicResearcher>> {
   const { data } = await api.get<Paginated<AcademicResearcher>>(
     "/researchers",
-    { params: { page, limit, ...filters }, signal },
+    { params: { page, limit, ...filters }, paramsSerializer: { indexes: null }, signal },
   );
   return data;
 }

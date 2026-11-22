@@ -19,17 +19,12 @@ import {
   hasActiveFilters,
   toProjectSummary,
 } from "./project.utils";
-import type {
-  GraduationProject,
-  ProjectFacets,
-  ProjectFilters,
-} from "./project.type";
+import type { GraduationProject, ProjectFilters } from "./project.type";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 interface ProjectsExplorerProps {
   initialPage: Paginated<GraduationProject> | null;
-  facets: ProjectFacets;
   /** Set when the first request failed on the server */
   initialError?: string;
 }
@@ -47,13 +42,16 @@ const requestKey = (key: string, pages: number, attempt: number) =>
 
 const ProjectsExplorer = ({
   initialPage,
-  facets,
   initialError,
 }: ProjectsExplorerProps) => {
   const [filters, setFilters] = useState<ProjectFilters>(EMPTY_FILTERS);
   const debouncedSearch = useDebouncedValue(filters.search, 300);
   const debouncedYear = useDebouncedValue(filters.yearRange, 300);
-  const applied = { ...filters, search: debouncedSearch, yearRange: debouncedYear };
+  const applied = {
+    ...filters,
+    search: debouncedSearch,
+    yearRange: debouncedYear,
+  };
   const appliedKey = filtersKey(applied);
 
   const pending = filtersKey(filters) !== appliedKey;
@@ -134,16 +132,12 @@ const ProjectsExplorer = ({
         />
       }
       filters={
-        <ProjectFiltersPanel
-          filters={filters}
-          facets={facets}
-          onChange={updateFilters}
-        />
+        <ProjectFiltersPanel filters={filters} onChange={updateFilters} />
       }
       activeFilterCount={
         [
-          filters.university,
-          filters.projectField,
+          filters.universities.length > 0,
+          filters.projectFields.length > 0,
           filters.yearRange,
           filters.sponsorship,
         ].filter(Boolean).length

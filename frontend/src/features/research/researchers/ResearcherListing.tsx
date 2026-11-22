@@ -6,32 +6,28 @@ import CatalogLayout from "@/src/components/catalog/CatalogLayout";
 import CatalogPagination from "@/src/components/catalog/CatalogPagination";
 import { CatalogCardsSkeleton } from "@/src/components/catalog/CatalogCard";
 import Button from "@/src/components/ui/Button/Button";
-import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
+import CatalogFacetLoader from "@/src/components/catalog/CatalogFacetLoader";
+import SearchableFacet, {
+  textFacetOptions,
+} from "@/src/components/ui/SearchableFacet/SearchableFacet";
 import { Input } from "@/src/components/ui/InputField/Input";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import ResearcherGrid from "./ResearcherGrid";
 import { fetchResearchers } from "./researcher.api";
 import { toResearcherSummary } from "./researcher.utils";
-import type { AcademicResearcher } from "./researcher.type";
+import type { AcademicResearcher, ResearcherFacets } from "./researcher.type";
 
-const emptyFilters = {
+const emptyFilters: ResearcherFacets & { researcher: string } = {
   researcher: "",
-  mainTopic: "",
-  department: "",
-  institutionName: "",
+  topics: [],
+  departments: [],
+  universities: [],
 };
+
 const fields = [
-  { key: "mainTopic", label: "Topics", placeholder: "Search topics" },
-  {
-    key: "department",
-    label: "Research Fields",
-    placeholder: "Search by department",
-  },
-  {
-    key: "institutionName",
-    label: "Universities",
-    placeholder: "Search university names",
-  },
+  { key: "topics", label: "Topics" },
+  { key: "departments", label: "Research Fields" },
+  { key: "universities", label: "Universities" },
 ] as const;
 
 interface ResearcherResults {
@@ -49,7 +45,10 @@ export function useResearcherListing(initial: ResearcherResults) {
   const pending = filters !== applied;
   const key = JSON.stringify([applied, page, attempt]);
   const initialPage =
-    page === 1 && !Object.values(applied).some(Boolean) && attempt === 0;
+    page === 1 &&
+    !applied.researcher.trim() &&
+    fields.every(({ key }) => !applied[key].length) &&
+    attempt === 0;
   const [loaded, setLoaded] = useState<ResearcherResults & { key: string }>();
 
   useEffect(() => {
@@ -62,9 +61,9 @@ export function useResearcherListing(initial: ResearcherResults) {
     fetchResearchers(
       {
         ...nameQuery,
-        mainTopic: applied.mainTopic.trim(),
-        department: applied.department.trim(),
-        institutionName: applied.institutionName.trim(),
+        topics: applied.topics,
+        departments: applied.departments,
+        universities: applied.universities,
         page,
       },
       controller.signal,
@@ -122,7 +121,7 @@ export default function ResearcherListing({
   onViewProfile: (id: number) => void;
 }) {
   const { filters, page, setPage, result, loading, update, retry } = listing;
-  const activeCount = fields.filter(({ key }) => filters[key].trim()).length;
+  const activeCount = fields.filter(({ key }) => filters[key].length).length;
   return (
     <CatalogLayout
       search={
@@ -139,24 +138,19 @@ export default function ResearcherListing({
       }
       filters={
         <div className="flex flex-col gap-1">
-          {fields.map(({ key, label, placeholder }) => (
-            <FilterAccordion
-              key={key}
-              label={label}
-              activeCount={filters[key].trim() ? 1 : 0}
-              onClear={() => update({ ...filters, [key]: "" })}
-            >
-              <Input
-                aria-label={label}
-                placeholder={placeholder}
-                size="sm"
-                value={filters[key]}
-                onChange={(event) =>
-                  update({ ...filters, [key]: event.target.value })
-                }
-              />
-            </FilterAccordion>
-          ))}
+          <CatalogFacetLoader<ResearcherFacets> catalog="researchers">
+            {(facets) =>
+              fields.map(({ key, label }) => (
+                <SearchableFacet
+                  key={key}
+                  label={label}
+                  options={textFacetOptions(facets[key])}
+                  selected={filters[key]}
+                  onChange={(values) => update({ ...filters, [key]: values })}
+                />
+              ))
+            }
+          </CatalogFacetLoader>
           {(activeCount > 0 || filters.researcher) && (
             <Button
               type="button"

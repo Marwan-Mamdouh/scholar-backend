@@ -1,13 +1,10 @@
 import { api, type Paginated } from "@/src/lib/api-client";
-import type { GraduationProject, ProjectFacets, ProjectQuery } from "./project.type";
-import { buildFacets } from "./project.utils";
+import type { GraduationProject, ProjectQuery } from "./project.type";
 
 export const PROJECTS_PAGE_SIZE = 12;
-// The API caps `limit` at 100; facets come from the most recent 100 projects
-const FACET_SAMPLE_SIZE = 100;
 
 export async function fetchProjects(
-  { page = 1, limit = PROJECTS_PAGE_SIZE, search, university, projectField, year, yearRange, sponsorship }: ProjectQuery,
+  { page = 1, limit = PROJECTS_PAGE_SIZE, search, university, universities, projectField, projectFields, year, yearRange, sponsorship }: ProjectQuery,
   signal?: AbortSignal,
 ): Promise<Paginated<GraduationProject>> {
   const { data } = await api.get<Paginated<GraduationProject>>("/projects", {
@@ -17,16 +14,14 @@ export async function fetchProjects(
       search: search?.trim() || undefined,
       university: university || undefined,
       projectField: projectField || undefined,
+      universities,
+      projectFields,
       year: year || undefined,
       ...yearRange,
       sponsorship: sponsorship || undefined,
     },
+    paramsSerializer: { indexes: null },
     signal,
   });
   return data;
-}
-
-export async function fetchProjectFacets(signal?: AbortSignal): Promise<ProjectFacets> {
-  const page = await fetchProjects({ page: 1, limit: FACET_SAMPLE_SIZE }, signal);
-  return buildFacets(page.data ?? []);
 }

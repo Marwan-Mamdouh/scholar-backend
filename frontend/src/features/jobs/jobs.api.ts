@@ -11,14 +11,14 @@ export function buildJobsQuery(filters: JobFilters): string {
   });
   for (const key of [
     "search",
-    "country",
-    "discipline",
-    "company",
     "type",
     "seniority",
   ] as const) {
     const value = filters[key].trim();
     if (value) params.set(key, value);
+  }
+  for (const key of ["countries", "disciplines", "companyIds"] as const) {
+    for (const value of filters[key]) params.append(key, String(value));
   }
   return params.toString();
 }

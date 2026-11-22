@@ -1,5 +1,9 @@
 "use client";
 
+import CatalogFacetLoader from "@/src/components/catalog/CatalogFacetLoader";
+import SearchableFacet, {
+  textFacetOptions,
+} from "@/src/components/ui/SearchableFacet/SearchableFacet";
 import { ChevronDown } from "lucide-react";
 import ResearchYearFilter from "../ResearchYearFilter";
 import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
@@ -11,7 +15,6 @@ import type {
 
 interface ProjectFiltersPanelProps {
   filters: ProjectFilters;
-  facets: ProjectFacets;
   onChange: (filters: ProjectFilters) => void;
 }
 
@@ -62,9 +65,6 @@ const FilterSelect = ({
   </FilterAccordion>
 );
 
-const asOptions = (values: string[]) =>
-  values.map((value) => ({ value, label: value }));
-
 const SPONSORSHIP_OPTIONS: { value: Sponsorship; label: string }[] = [
   { value: "sponsored", label: "Sponsored" },
   { value: "unsponsored", label: "Not sponsored" },
@@ -72,7 +72,6 @@ const SPONSORSHIP_OPTIONS: { value: Sponsorship; label: string }[] = [
 
 const ProjectFiltersPanel = ({
   filters,
-  facets,
   onChange,
 }: ProjectFiltersPanelProps) => {
   const set = (patch: Partial<ProjectFilters>) =>
@@ -80,20 +79,24 @@ const ProjectFiltersPanel = ({
 
   return (
     <div className="flex w-full flex-col gap-1">
-      <FilterSelect
-        id="project-university"
-        label="University"
-        value={filters.university}
-        options={asOptions(facets.universities)}
-        onChange={(university) => set({ university })}
-      />
-      <FilterSelect
-        id="project-field"
-        label="Project Field"
-        value={filters.projectField}
-        options={asOptions(facets.fields)}
-        onChange={(projectField) => set({ projectField })}
-      />
+      <CatalogFacetLoader<ProjectFacets> catalog="projects">
+        {(facets) => (
+          <>
+            <SearchableFacet
+              label="University"
+              options={textFacetOptions(facets.universities)}
+              selected={filters.universities}
+              onChange={(universities) => set({ universities })}
+            />
+            <SearchableFacet
+              label="Project Field"
+              options={textFacetOptions(facets.fields)}
+              selected={filters.projectFields}
+              onChange={(projectFields) => set({ projectFields })}
+            />
+          </>
+        )}
+      </CatalogFacetLoader>
       <ResearchYearFilter
         catalog="projects"
         value={filters.yearRange}

@@ -3,11 +3,15 @@
 import { Search } from "lucide-react";
 import Button from "@/src/components/ui/Button/Button";
 import FilterPill from "@/src/components/ui/FilterPill/FilterPill";
+import CatalogFacetLoader from "@/src/components/catalog/CatalogFacetLoader";
+import SearchableFacet, {
+  textFacetOptions,
+} from "@/src/components/ui/SearchableFacet/SearchableFacet";
 import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
 import { Input } from "@/src/components/ui/InputField/Input";
 import { OptionList } from "@/src/components/ui/OptionList/OptionList";
 import { EMPTY_FILTERS, JOB_TYPES, SENIORITY_LEVELS } from "../jobs.constants";
-import type { JobFilters } from "../jobs.type";
+import type { JobFacets, JobFilters } from "../jobs.type";
 
 interface Props {
   filters: JobFilters;
@@ -25,45 +29,42 @@ export default function JobFilterBar({ filters, onChange }: Props) {
     onChange({ ...filters, [key]: value, page: 1 });
   }
   const activeCount = [
-    filters.country,
-    filters.company,
-    filters.discipline,
+    filters.countries.length > 0,
+    filters.companyIds.length > 0,
+    filters.disciplines.length > 0,
     filters.type,
     filters.seniority,
-  ].filter((value) => value.trim()).length;
+  ].filter(Boolean).length;
 
   return (
     <div className="flex w-full flex-col gap-1">
-      {(
-        [
-          { key: "country", label: "Country", placeholder: "e.g. Egypt" },
-          {
-            key: "discipline",
-            label: "Discipline",
-            placeholder: "e.g. Semiconductors",
-          },
-          {
-            key: "company",
-            label: "Company",
-            placeholder: "Search company name",
-          },
-        ] as const
-      ).map(({ key, label, placeholder }) => (
-        <FilterAccordion
-          key={key}
-          label={label}
-          activeCount={filters[key].trim() ? 1 : 0}
-          onClear={() => update(key, "")}
-        >
-          <Input
-            aria-label={`Filter by ${label.toLowerCase()}`}
-            placeholder={placeholder}
-            size="sm"
-            value={filters[key]}
-            onChange={(event) => update(key, event.target.value)}
-          />
-        </FilterAccordion>
-      ))}
+      <CatalogFacetLoader<JobFacets> catalog="jobs">
+        {(facets) => (
+          <>
+            <SearchableFacet
+              label="Country"
+              options={textFacetOptions(facets.countries)}
+              selected={filters.countries}
+              onChange={(values) => update("countries", values)}
+            />
+            <SearchableFacet
+              label="Discipline"
+              options={textFacetOptions(facets.disciplines)}
+              selected={filters.disciplines}
+              onChange={(values) => update("disciplines", values)}
+            />
+            <SearchableFacet
+              label="Company"
+              options={facets.companies.map(({ id, name }) => ({
+                value: id,
+                label: name,
+              }))}
+              selected={filters.companyIds}
+              onChange={(values) => update("companyIds", values)}
+            />
+          </>
+        )}
+      </CatalogFacetLoader>
       <FilterAccordion
         label="Job type"
         activeCount={filters.type ? 1 : 0}

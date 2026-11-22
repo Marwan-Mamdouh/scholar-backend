@@ -31,14 +31,16 @@ export type Sponsorship = "" | "sponsored" | "unsponsored";
 /** Filter values as the toolbar holds them; "" means "any" */
 export interface ProjectFilters {
   search: string;
-  university: string;
-  projectField: string;
+  universities: string[];
+  projectFields: string[];
   yearRange: YearRange;
   sponsorship: Sponsorship;
 }
 
 /** Query params supported by GET /api/projects */
 export interface ProjectQuery extends Partial<ProjectFilters> {
+  university?: string;
+  projectField?: string;
   year?: string;
   page?: number;
   limit?: number;

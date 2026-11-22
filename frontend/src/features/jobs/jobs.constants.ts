@@ -15,9 +15,9 @@ export const SENIORITY_LEVELS: Record<Seniority, string> = {
 
 export const EMPTY_FILTERS: JobFilters = {
   search: "",
-  country: "",
-  discipline: "",
-  company: "",
+  countries: [],
+  disciplines: [],
+  companyIds: [],
   type: "",
   seniority: "",
   sort: "newest",

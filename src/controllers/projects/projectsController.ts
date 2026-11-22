@@ -1,8 +1,47 @@
+import type { RequestHandler } from "express";
+import { Prisma } from "@prisma/client";
+import { catalogFacetValues, readFacetValues } from "../../utils/catalogFacets.js";
 import { parseYearBounds } from "../../utils/parseYearBounds.js";
 import asyncHandler from "../../lib/async.handler.js";
 
 import { db } from "../../db/db_config.js";
 
+
+// Decode both legacy text and arrays in the same way as the project cards.
+const projectFieldsQuery = Prisma.sql`
+    SELECT project.id, btrim(parts.value) AS field
+    FROM "graduationProjects" AS project
+    CROSS JOIN LATERAL jsonb_array_elements(
+        CASE jsonb_typeof(project.domains)
+            WHEN 'array' THEN project.domains
+            WHEN 'string' THEN jsonb_build_array(project.domains)
+            ELSE '[]'::jsonb
+        END
+    ) AS entry(item)
+    CROSS JOIN LATERAL jsonb_array_elements(
+        CASE jsonb_typeof(entry.item)
+            WHEN 'array' THEN entry.item
+            WHEN 'string' THEN jsonb_build_array(entry.item)
+            ELSE '[]'::jsonb
+        END
+    ) AS token(item)
+    CROSS JOIN LATERAL regexp_split_to_table(token.item #>> '{}', '[,;|]') AS parts(value)
+    WHERE jsonb_typeof(token.item) = 'string'
+`;
+
+export const getProjectFacets: RequestHandler = asyncHandler(async (_req, res) => {
+    const [universities, fields] = await Promise.all([
+        db.graduationProject.groupBy({ by: ["university"] }),
+        db.$queryRaw<{ field: string }[]>`
+            SELECT DISTINCT field FROM (${projectFieldsQuery}) AS fields
+        `,
+    ]);
+
+    res.json({ success: true, data: {
+        universities: catalogFacetValues(universities.map(row => row.university)),
+        fields: catalogFacetValues(fields.map(row => row.field)),
+    } });
+});
 
 export const getProjectYears = asyncHandler(async (_req, res) => {
     const rows = await db.$queryRaw<{ year: number }[]>`
@@ -69,6 +108,15 @@ export const getProjectsController = async (req, res) => {
             }
             : undefined;
 
+        const universities = readFacetValues(req.query.universities);
+        const projectFields = readFacetValues(req.query.projectFields);
+        const matchingProjects = projectFields.length
+            ? await db.$queryRaw<{ id: number }[]>`
+                SELECT DISTINCT id FROM (${projectFieldsQuery}) AS fields
+                WHERE lower(field) IN (${Prisma.join(projectFields.map(field => field.toLowerCase()))})
+            `
+            : undefined;
+
         const where = {
             ...(search && {
                 OR: [
@@ -93,14 +141,16 @@ export const getProjectsController = async (req, res) => {
                 ],
             }),
 
-            ...(university && {
+            ...(universities.length
+                ? { university: { in: universities, mode: "insensitive" as const } }
+                : university && {
                 university: {
                     contains: university,
                     mode: "insensitive" as const,
                 },
             }),
 
-            ...(projectField && {
+            ...(matchingProjects ? { id: { in: matchingProjects.map(project => project.id) } } : projectField && {
                 domains: {
                     array_contains: [projectField],
                 },

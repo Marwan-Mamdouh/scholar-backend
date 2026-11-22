@@ -26,13 +26,19 @@ export interface Job {
 
 export interface JobFilters {
   search: string;
-  country: string;
-  discipline: string;
-  company: string;
+  countries: string[];
+  disciplines: string[];
+  companyIds: number[];
   type: JobType | "";
   seniority: Seniority | "";
   sort: "newest" | "oldest" | "title";
   page: number;
+}
+
+export interface JobFacets {
+  countries: string[];
+  disciplines: string[];
+  companies: { id: number; name: string }[];
 }
 
 export type JobsResponse = Paginated<Job>;

@@ -37,7 +37,7 @@ export function OptionList<T extends string | number>({
               }
               className="mt-0.5 size-4 shrink-0 accent-accent-400 cursor-pointer"
             />
-            <span className="flex flex-col">
+            <span className="flex min-w-0 flex-col break-words">
               <span
                 className={`text-sm ${checked ? "text-accent-200" : "text-neutral-100"}`}
               >

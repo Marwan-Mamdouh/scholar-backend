@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 
 const { fetchResearchYears } = vi.hoisted(() => ({ fetchResearchYears: vi.fn() }));
 vi.mock("../researchYears.api", () => ({ fetchResearchYears }));
@@ -18,6 +19,10 @@ const FACETS: ProjectFacets = {
   fields: ["Antennas", "Microwave"],
 };
 
+vi.mock("@/src/components/catalog/CatalogFacetLoader", () => ({
+  default: ({ children }: { children: (facets: ProjectFacets) => ReactNode }) => children(FACETS),
+}));
+
 const cards = () => screen.queryAllByRole("article");
 const lastQuery = () => fetchProjects.mock.calls.at(-1)?.[0];
 
@@ -31,32 +36,37 @@ beforeEach(() => {
 
 describe("ProjectsExplorer", () => {
   it("renders the server's first page without refetching", () => {
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 31)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 31)} />);
 
     expect(cards()).toHaveLength(3);
     expect(screen.getByText("Showing").textContent).toContain("31");
     expect(fetchProjects).not.toHaveBeenCalled();
   });
 
-  it("lists the facet options in each dropdown", () => {
-    render(<ProjectsExplorer initialPage={makePage([])} facets={FACETS} />);
+  it("shows searchable checkboxes and keeps the sponsorship dropdown", () => {
+    render(<ProjectsExplorer initialPage={makePage([])} />);
 
-    const options = (name: string) => {
-      fireEvent.click(screen.getByRole("button", { name }));
-      return within(screen.getByRole("combobox", { name })).getAllByRole("option").map((o) => o.textContent);
-    };
-    expect(options("University")).toEqual(["University", "Ain Shams University", "Cairo University"]);
-    expect(options("Project Field")).toEqual(["Project Field", "Antennas", "Microwave"]);
-    expect(options("Sponsorship")).toEqual(["Sponsorship", "Sponsored", "Not sponsored"]);
+    fireEvent.click(screen.getByRole("button", { name: "University" }));
+    expect(screen.getByRole("checkbox", { name: "Cairo University" })).toBeVisible();
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search university" }), {
+      target: { value: "ain" },
+    });
+    expect(screen.getByRole("checkbox", { name: "Ain Shams University" })).toBeVisible();
+    expect(screen.queryByRole("checkbox", { name: "Cairo University" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sponsorship" }));
+    expect(within(screen.getByRole("combobox", { name: "Sponsorship" })).getAllByRole("option").map((option) => option.textContent))
+      .toEqual(["Sponsorship", "Sponsored", "Not sponsored"]);
   });
 
   it("refetches page 1 with the selected filters", async () => {
     const user = userEvent.setup();
     fetchProjects.mockResolvedValue(makePage([makeProject({ id: 50, projectTitle: "Antenna array" })], 1));
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 31)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 31)} />);
 
     await user.click(screen.getByRole("button", { name: "University" }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "University" }), "Cairo University");
+    await user.click(screen.getByRole("checkbox", { name: "Cairo University" }));
+    await user.click(screen.getByRole("checkbox", { name: "Ain Shams University" }));
     await user.click(screen.getByRole("button", { name: "Sponsorship" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Sponsorship" }), "sponsored");
 
@@ -64,7 +74,7 @@ describe("ProjectsExplorer", () => {
     expect(lastQuery()).toMatchObject({
       page: 1,
       limit: 12,
-      university: "Cairo University",
+      universities: ["Cairo University", "Ain Shams University"],
       sponsorship: "sponsored",
     });
     expect(screen.getByRole("article", { name: "Antenna array" })).toBeInTheDocument();
@@ -74,7 +84,7 @@ describe("ProjectsExplorer", () => {
   it("debounces the search before calling the API", async () => {
     const user = userEvent.setup();
     fetchProjects.mockResolvedValue(makePage([makeProject()], 1));
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 3)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(3), 3)} />);
 
     await user.type(screen.getByRole("searchbox", { name: "Search projects" }), "fpga");
     expect(fetchProjects).not.toHaveBeenCalled();
@@ -86,7 +96,7 @@ describe("ProjectsExplorer", () => {
   it("appends the next page with Load More and hides it at the end", async () => {
     const user = userEvent.setup();
     fetchProjects.mockResolvedValue(makePage(makeProjects(2, 13), 14, 2));
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(12), 14)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(12), 14)} />);
 
     await user.click(screen.getByRole("button", { name: "Load More" }));
 
@@ -104,7 +114,7 @@ describe("ProjectsExplorer", () => {
       .mockResolvedValueOnce(makePage(makeProjects(2, 13), 14, 2))
       .mockResolvedValueOnce(makePage(makeProjects(1, 20), 1))
       .mockResolvedValueOnce(makePage(makeProjects(12), 14));
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(12), 14)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(12), 14)} />);
     await user.click(screen.getByRole("button", { name: "Load More" }));
     await waitFor(() => expect(cards()).toHaveLength(14));
     await user.click(screen.getByRole("button", { name: "Year" }));
@@ -121,7 +131,7 @@ describe("ProjectsExplorer", () => {
     fetchProjects
       .mockResolvedValueOnce(makePage([], 0))
       .mockResolvedValueOnce(makePage(makeProjects(2), 2));
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} />);
 
     await user.click(screen.getByRole("button", { name: "Year" }));
     const slider = await screen.findByRole("slider", { name: "Project year maximum" });
@@ -135,7 +145,7 @@ describe("ProjectsExplorer", () => {
   });
 
   it("says when no projects exist at all", () => {
-    render(<ProjectsExplorer initialPage={makePage([], 0)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage([], 0)} />);
     expect(screen.getByText("No graduation projects have been posted yet.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Clear filters" })).toBeNull();
   });
@@ -144,7 +154,7 @@ describe("ProjectsExplorer", () => {
     const user = userEvent.setup();
     fetchProjects.mockResolvedValue(makePage(makeProjects(2), 2));
     render(
-      <ProjectsExplorer initialPage={null} facets={FACETS} initialError="Failed to fetch projects" />,
+      <ProjectsExplorer initialPage={null} initialError="Failed to fetch projects" />,
     );
 
     expect(screen.getByText("Couldn't load projects")).toBeInTheDocument();
@@ -159,7 +169,7 @@ describe("ProjectsExplorer", () => {
     const user = userEvent.setup();
     fetchResearchYears.mockResolvedValue([2024, 2025]);
     fetchProjects.mockImplementation(() => Promise.reject(new Error("Network down")));
-    render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} facets={FACETS} />);
+    render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} />);
 
     await user.click(screen.getByRole("button", { name: "Year" }));
     fireEvent.change(await screen.findByRole("slider", { name: "Project year minimum" }), { target: { value: "1" } });

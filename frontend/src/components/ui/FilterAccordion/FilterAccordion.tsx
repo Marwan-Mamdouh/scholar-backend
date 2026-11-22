@@ -10,6 +10,7 @@ interface FilterAccordionProps {
   onClear?: () => void;
   defaultOpen?: boolean;
   children: ReactNode;
+  summary?: ReactNode;
 }
 
 export default function FilterAccordion({
@@ -18,6 +19,7 @@ export default function FilterAccordion({
   onClear,
   defaultOpen = false,
   children,
+  summary,
 }: FilterAccordionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   return (
@@ -26,10 +28,12 @@ export default function FilterAccordion({
         title={label}
         variant="compact"
         defaultOpen={defaultOpen}
+        summary={summary}
         badge={
           activeCount > 0 ? (
             <span className={getBadgeStyle("accent", "solid", "sm")}>
-              {activeCount}
+              <span aria-hidden="true">{activeCount}</span>
+              <span className="sr-only">{`${activeCount} selected`}</span>
             </span>
           ) : undefined
         }

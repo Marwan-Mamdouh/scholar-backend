@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   EMPTY_FILTERS,
-  buildFacets,
   filtersKey,
   hasActiveFilters,
   projectYear,
@@ -79,21 +78,6 @@ describe("toProjectSummary", () => {
     expect(toProjectSummary(makeProject({ isSponsored: false })).sponsor).toBeUndefined();
   });
 
-});
-
-describe("buildFacets", () => {
-  it("collects unique sorted universities and fields", () => {
-    const facets = buildFacets([
-      makeProject({ university: "Cairo University", domains: ["VLSI"], postedAt: "2023-05-01T00:00:00Z" }),
-      makeProject({ university: "Ain Shams University", domains: ["Antennas", "vlsi"], postedAt: "2025-05-01T00:00:00Z" }),
-      makeProject({ university: "cairo university", domains: null, postedAt: "2024-05-01T00:00:00Z" }),
-      makeProject({ university: null, domains: ["Microwave"], postedAt: "2025-01-01T00:00:00Z" }),
-    ]);
-    expect(facets).toEqual({
-      universities: ["Ain Shams University", "Cairo University"],
-      fields: ["Antennas", "Microwave", "VLSI"],
-    });
-  });
 });
 
 describe("filtersKey / hasActiveFilters", () => {

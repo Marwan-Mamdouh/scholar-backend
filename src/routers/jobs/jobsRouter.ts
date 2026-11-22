@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+    getJobFacets,
     getJobsController,
     getJobByIdController,
     createJobController,
@@ -13,6 +14,7 @@ const router = Router();
 
 
 router.get("/", getJobsController);
+router.get("/filters", getJobFacets);
 router.get("/:id", getJobByIdController);
 router.post("/", isAuthenticated, createJobController);
 router.patch("/:id", isAuthenticated, updateJobController);

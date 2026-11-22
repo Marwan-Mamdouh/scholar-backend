@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const { get } = vi.hoisted(() => ({ get: vi.fn() }));
 vi.mock("@/src/lib/api-client", () => ({ api: { get } }));
 
-import { fetchProjectFacets, fetchProjects } from "./project.api";
+import { fetchProjects } from "./project.api";
 import { makePage, makeProject } from "./project.test-fixtures";
 
 beforeEach(() => get.mockReset());
@@ -24,35 +24,21 @@ describe("fetchProjects", () => {
         search: "fpga",
         university: undefined,
         projectField: undefined,
+        universities: undefined,
+        projectFields: undefined,
         year: "2025",
         sponsorship: "sponsored",
       },
+      paramsSerializer: { indexes: null },
       signal: undefined,
     });
   });
   it("sends the inclusive year bounds with the other project filters", async () => {
     get.mockResolvedValue({ data: makePage([]) });
-    await fetchProjects({ yearRange: { fromYear: 2022, toYear: 2025 }, university: "Cairo" });
+    await fetchProjects({ yearRange: { fromYear: 2022, toYear: 2025 }, universities: ["Cairo", "Ain Shams"] });
     expect(get.mock.calls[0][1].params).toMatchObject({
-      fromYear: 2022, toYear: 2025, year: undefined, university: "Cairo",
+      fromYear: 2022, toYear: 2025, year: undefined, universities: ["Cairo", "Ain Shams"],
     });
   });
 
-});
-
-describe("fetchProjectFacets", () => {
-  it("builds dropdown options from the latest 100 projects", async () => {
-    get.mockResolvedValue({
-      data: makePage([
-        makeProject({ university: "Cairo University", domains: ["VLSI"] }),
-        makeProject({ university: "Ain Shams University", domains: ["Antennas"] }),
-      ]),
-    });
-
-    await expect(fetchProjectFacets()).resolves.toEqual({
-      universities: ["Ain Shams University", "Cairo University"],
-      fields: ["Antennas", "VLSI"],
-    });
-    expect(get.mock.calls[0][1].params).toMatchObject({ page: 1, limit: 100 });
-  });
 });

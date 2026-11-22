@@ -1,7 +1,6 @@
-import { api, type ApiResponse, type Paginated } from "@/src/lib/api-client";
+import { api, type Paginated } from "@/src/lib/api-client";
 import type {
   Publication,
-  PublicationFacets,
   PublicationFilters,
   PublicationQuery,
 } from "./publication.type";
@@ -39,12 +38,4 @@ export async function fetchPublications(
     signal,
   });
   return data;
-}
-
-export async function fetchPublicationFacets(signal: AbortSignal) {
-  const { data } = await api.get<ApiResponse<PublicationFacets>>(
-    "/publications/filters",
-    { signal },
-  );
-  return data.data;
 }
