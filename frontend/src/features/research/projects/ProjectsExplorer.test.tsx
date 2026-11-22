@@ -109,7 +109,7 @@ describe("ProjectsExplorer", () => {
 
   it("returns to page one when a year is cleared after loading more projects", async () => {
     const user = userEvent.setup();
-    fetchResearchYears.mockResolvedValue([2024, 2026]);
+    fetchResearchYears.mockResolvedValue({ years: [2024, 2026], counts: [] });
     fetchProjects
       .mockResolvedValueOnce(makePage(makeProjects(2, 13), 14, 2))
       .mockResolvedValueOnce(makePage(makeProjects(1, 20), 1))
@@ -127,7 +127,7 @@ describe("ProjectsExplorer", () => {
 
   it("shows an empty state with Clear filters when nothing matches", async () => {
     const user = userEvent.setup();
-    fetchResearchYears.mockResolvedValue([2024, 2025]);
+    fetchResearchYears.mockResolvedValue({ years: [2024, 2025], counts: [] });
     fetchProjects
       .mockResolvedValueOnce(makePage([], 0))
       .mockResolvedValueOnce(makePage(makeProjects(2), 2));
@@ -167,7 +167,7 @@ describe("ProjectsExplorer", () => {
 
   it("keeps the current cards when a filter request fails, then shows the error", async () => {
     const user = userEvent.setup();
-    fetchResearchYears.mockResolvedValue([2024, 2025]);
+    fetchResearchYears.mockResolvedValue({ years: [2024, 2025], counts: [] });
     fetchProjects.mockImplementation(() => Promise.reject(new Error("Network down")));
     render(<ProjectsExplorer initialPage={makePage(makeProjects(2), 2)} />);
 

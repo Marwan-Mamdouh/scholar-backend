@@ -1,5 +1,5 @@
 import { parseYearBounds } from "../../utils/parseYearBounds.js";
-import asyncHandler from "../../lib/async.handler.js";
+import { yearCountsHandler } from "../../utils/yearCounts.js";
 import { db } from "../../db/db_config.js";
 
 
@@ -9,13 +9,16 @@ const serializePaper = (paper) => ({
 });
 
 
-export const getPaperYears = asyncHandler(async (_req, res) => {
+export const getPaperYears = yearCountsHandler(async () => {
     const rows = await db.researchPaper.groupBy({
         by: ["publicationYear"],
+        _count: { _all: true },
         where: { publicationYear: { gt: 0, lte: 9999 } },
         orderBy: { publicationYear: "asc" },
     });
-    res.json({ success: true, data: rows.map(row => row.publicationYear) });
+    return rows.flatMap(row => row.publicationYear === null
+        ? []
+        : [{ year: row.publicationYear, count: row._count._all }]);
 });
 
 export const getPapersController = async (req, res) => {

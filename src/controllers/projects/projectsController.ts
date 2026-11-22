@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import { Prisma } from "@prisma/client";
 import { catalogFacetValues, readFacetValues } from "../../utils/catalogFacets.js";
+import { yearCountsHandler } from "../../utils/yearCounts.js";
 import { parseYearBounds } from "../../utils/parseYearBounds.js";
 import asyncHandler from "../../lib/async.handler.js";
 
@@ -43,14 +44,15 @@ export const getProjectFacets: RequestHandler = asyncHandler(async (_req, res) =
     } });
 });
 
-export const getProjectYears = asyncHandler(async (_req, res) => {
-    const rows = await db.$queryRaw<{ year: number }[]>`
-        SELECT DISTINCT EXTRACT(YEAR FROM "postedAt")::int AS year
+export const getProjectYears = yearCountsHandler(async () => {
+    const rows = await db.$queryRaw<{ year: number; count: bigint }[]>`
+        SELECT EXTRACT(YEAR FROM "postedAt")::int AS year, count(*) AS count
         FROM "graduationProjects"
-        WHERE EXTRACT(YEAR FROM "postedAt") BETWEEN 1 AND 9999
+        WHERE "postedAt" >= TIMESTAMP '0001-01-01' AND "postedAt" < TIMESTAMP '10000-01-01'
+        GROUP BY year
         ORDER BY year
     `;
-    res.json({ success: true, data: rows.map(row => row.year) });
+    return rows.map(({ year, count }) => ({ year, count: Number(count) }));
 });
 
 function startOfYear(year: number) {

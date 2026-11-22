@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import FilterAccordion from "@/src/components/ui/FilterAccordion/FilterAccordion";
 import RangeField from "@/src/components/ui/RangeField/RangeField";
+import ResearchYearHistogram from "./ResearchYearHistogram";
 import {
   fetchResearchYears,
+  type ResearchYears,
   type YearCatalog,
   type YearRange,
 } from "./researchYears.api";
@@ -20,7 +22,7 @@ export default function ResearchYearFilter({
   value,
   onChange,
 }: ResearchYearFilterProps) {
-  const [years, setYears] = useState<number[]>();
+  const [result, setResult] = useState<ResearchYears>();
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
@@ -28,7 +30,7 @@ export default function ResearchYearFilter({
     const controller = new AbortController();
     fetchResearchYears(catalog, controller.signal)
       .then((options) => {
-        if (!controller.signal.aborted) setYears(options);
+        if (!controller.signal.aborted) setResult(options);
       })
       .catch(() => {
         if (!controller.signal.aborted) setFailed(true);
@@ -36,6 +38,7 @@ export default function ResearchYearFilter({
     return () => controller.abort();
   }, [catalog, attempt]);
 
+  const { years, counts = [] } = result ?? {};
   const last = (years?.length ?? 0) - 1;
   const min = value ? (years?.indexOf(value.fromYear) ?? -1) : 0;
   const max = value ? (years?.indexOf(value.toYear) ?? -1) : last;
@@ -66,31 +69,40 @@ export default function ResearchYearFilter({
         </p>
       ) : years.length === 0 ? (
         <p className="text-sm text-neutral-200">No years available.</p>
-      ) : years.length === 1 ? (
-        <p className="text-sm text-neutral-200">
-          Only {years[0]} is available.
-        </p>
       ) : (
-        <RangeField
-          label={catalog === "papers" ? "Publication year" : "Project year"}
-          showLabel={false}
-          bound={{ min: 0, max: last }}
-          value={{ min: Math.max(0, min), max: max === -1 ? last : max }}
-          step={1}
-          formatValue={(index) => String(years[index])}
-          onChange={({ min = 0, max = last }) => {
-            const range =
-              min === 0 && max === last
-                ? null
-                : { fromYear: years[min], toYear: years[max] };
-            if (
-              range?.fromYear !== value?.fromYear ||
-              range?.toYear !== value?.toYear
-            ) {
-              onChange(range);
-            }
-          }}
-        />
+        <>
+          <ResearchYearHistogram
+            counts={counts}
+            range={value}
+            catalog={catalog}
+          />
+          {years.length === 1 ? (
+            <p className="text-sm text-neutral-200">
+              Only {years[0]} is available.
+            </p>
+          ) : (
+            <RangeField
+              label={catalog === "papers" ? "Publication year" : "Project year"}
+              showLabel={false}
+              bound={{ min: 0, max: last }}
+              value={{ min: Math.max(0, min), max: max === -1 ? last : max }}
+              step={1}
+              formatValue={(index) => String(years[index])}
+              onChange={({ min = 0, max = last }) => {
+                const range =
+                  min === 0 && max === last
+                    ? null
+                    : { fromYear: years[min], toYear: years[max] };
+                if (
+                  range?.fromYear !== value?.fromYear ||
+                  range?.toYear !== value?.toYear
+                ) {
+                  onChange(range);
+                }
+              }}
+            />
+          )}
+        </>
       )}
     </FilterAccordion>
   );
